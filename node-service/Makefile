@@ -1,4 +1,4 @@
-docker_image ?= moorara/toys-node-service
+docker_image ?= moorara/node-service
 docker_tag ?= latest
 
 path := $(shell pwd)

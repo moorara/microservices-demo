@@ -1,3 +1,5 @@
+[![Build Status][travisci-image]][travisci-url]
+
 # Microservices
 This demo application shows how a microservices architecture can be implemented and applied!
 This demo application covers the following topics:
@@ -12,3 +14,7 @@ This demo application covers the following topics:
 
   * [go-service](https://github.com/moorara/microservices-demo/tree/master/go-service)
   * [node-service](https://github.com/moorara/microservices-demo/tree/master/node-service)
+
+
+[travisci-url]: https://travis-ci.org/moorara/microservices-demo
+[travisci-image]: https://travis-ci.org/moorara/microservices-demo.svg?branch=master

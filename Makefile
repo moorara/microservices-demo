@@ -12,15 +12,15 @@ define print_title
 endef
 
 
-ci-test-go-service:
-	@ cd microservices/go-service && \
+test-go-service:
+	@ cd go-service && \
 	  $(call print_title,RUNNING UNIT TESTS)       &&  make test            && \
 	  $(call print_title,BUILDING DOCKER IMAGES)   &&  make docker up       && \
 	  $(call print_title,RUNNING COMPONENT TESTS)  &&  make test-component  && \
 	  $(call print_title,DONE)
 
-ci-test-node-service:
-	@ cd microservices/node-service && \
+test-node-service:
+	@ cd node-service && \
 	  $(call print_title,INSTALLING DEPENDENCIES)  &&  yarn                        && \
 	  $(call print_title,RUNNING NODE SECURITY)    &&  yarn run nsp                && \
 	  $(call print_title,RUNNING STANDARD LINTER)  &&  yarn run lint               && \
@@ -30,5 +30,5 @@ ci-test-node-service:
 	  $(call print_title,DONE)
 
 
-.PHONY: ci-test-go-service
-.PHONY: ci-test-node-service
+.PHONY: test-go-service
+.PHONY: test-node-service

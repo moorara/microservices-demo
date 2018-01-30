@@ -1,4 +1,4 @@
-docker_image ?= moorara/toys-go-service
+docker_image ?= moorara/go-service
 docker_tag ?= latest
 
 path := $(shell pwd)

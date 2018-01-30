@@ -8,7 +8,7 @@ services:
     ports:
       - "6379:6379"
   go-service:
-    image: moorara/toys-go-service:${VERSION:-latest}
+    image: moorara/go-service:${VERSION:-latest}
     hostname: go-service
     container_name: go-service
     depends_on:

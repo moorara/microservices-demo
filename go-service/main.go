@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/moorara/toys/microservices/go-service/config"
-	"github.com/moorara/toys/microservices/go-service/server"
+	"github.com/moorara/microservices-demo/go-service/config"
+	"github.com/moorara/microservices-demo/go-service/server"
 )
 
 func main() {

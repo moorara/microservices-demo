@@ -74,12 +74,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/moorara/toys"
-  packages = ["microservices/go-service/config","microservices/go-service/handler","microservices/go-service/middleware","microservices/go-service/server","microservices/go-service/service","microservices/go-service/util"]
-  revision = "a487d264fe6461f28ce562e5d1a44d0364b0fc61"
-
-[[projects]]
   name = "github.com/pkg/errors"
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
@@ -124,6 +118,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f28db12a7a82ada46fa88e3f4e46502ffc0df3377fd9270ab1e4cd0aa301725c"
+  inputs-digest = "70cc3e8eaaede093522846d8c9af02093c91b1af7a3ed01559acc17471668ba7"
   solver-name = "gps-cdcl"
   solver-version = 1
