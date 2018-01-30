@@ -1,0 +1,14 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/important-settings.html
+
+cluster.name: elk
+node.name: elk
+
+network:
+  host: 0.0.0.0
+
+discovery:
+  zen.minimum_master_nodes: 1
+
+# path:
+  # logs: /var/log/elasticsearch
+  # data: /var/data/elasticsearch
