@@ -1,0 +1,22 @@
+dist: trusty
+sudo: required
+
+services:
+  - docker
+
+matrix:
+  include:
+
+    - stage: test
+      language: go
+      go: 1.9.2
+      script:
+        - make ci-test-go-service
+
+    - stage: test
+      language: node_js
+      node_js: 9
+      before_script:
+        - npm install -g yarn
+      script:
+        - make ci-test-node-service

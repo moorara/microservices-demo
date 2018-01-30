@@ -1,0 +1,9 @@
+# Compiled files
+main
+go-service
+
+# Test files
+*.out
+*.test
+cover.out
+reports/
