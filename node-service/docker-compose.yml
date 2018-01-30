@@ -1,0 +1,28 @@
+version: "3.4"
+services:
+  mongo:
+    image: mongo
+    hostname: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+  node-service:
+    image: moorara/toys-node-service:${VERSION:-latest}
+    hostname: node-service
+    container_name: node-service
+    depends_on:
+      - mongo
+    ports:
+      - "4020:4020"
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+      - MONGO_URL=mongodb://mongo:27017
+  node-service-test:
+    image: node-service-test
+    container_name: node-service-test
+    depends_on:
+      - node-service
+    environment:
+      - SERVICE_URL=http://node-service:4020
