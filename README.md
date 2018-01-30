@@ -15,6 +15,10 @@ This demo application covers the following topics:
   * [go-service](https://github.com/moorara/microservices-demo/tree/master/go-service)
   * [node-service](https://github.com/moorara/microservices-demo/tree/master/node-service)
 
+## Up & Running
+
+  * [docker-compose](https://github.com/moorara/microservices-demo/tree/master/compose)
+
 
 [travisci-url]: https://travis-ci.org/moorara/microservices-demo
 [travisci-image]: https://travis-ci.org/moorara/microservices-demo.svg?branch=master

@@ -1,0 +1,247 @@
+version: "3.4"
+
+networks:
+  local:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24
+  traefik:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.1.0/24
+
+volumes:
+  redis_data:
+  mongo_data:
+  prometheus_data:
+  grafana_data:
+  elasticsearch_data:
+
+x-labels: &labels
+  orchestrator: "docker-compose"
+  github.repo: "moorara/microservices-demo"
+
+x-logdriver: &logdriver
+  logging:
+    driver: fluentd
+    options:
+      fluentd-address: 172.20.0.250:24224
+      tag: docker.{{.Name}}.{{.ImageName}}
+      labels: orchestrator,github.repo
+      env: SERVICE_NAME,SERVICE_TAGS
+
+services:
+
+  # DATA BACKENDS
+  redis:
+    image: redis:4.0.7
+    hostname: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - local
+    volumes:
+      - "redis_data:/data"
+  mongo:
+    image: mongo:3.6.2
+    hostname: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - local
+    volumes:
+      - "mongo_data:/data/db"
+
+  # LOGGING
+  elasticsearch:
+    image: elasticsearch:5.6.6
+    hostname: elasticsearch
+    container_name: elasticsearch
+    restart: always
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    networks:
+      - local
+    volumes:
+      - "elasticsearch_data:/usr/share/elasticsearch/data"
+      - "./logging/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+  kibana:
+    image: kibana:5.6.6
+    hostname: kibana
+    container_name: kibana
+    restart: always
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    networks:
+      - local
+    volumes:
+      - "./logging/kibana.yml:/usr/share/kibana/config/kibana.yml"
+  fluentd:
+    image: moorara/fluentd:${FLUENTD_VERSION}
+    hostname: fluentd
+    container_name: fluentd
+    restart: always
+    depends_on:
+      - elasticsearch
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    environment:
+      - FLUENTD_CONF=fluentd.conf
+    networks:
+      local:
+        ipv4_address: 172.20.0.250
+    volumes:
+      - "./logging/fluentd.conf:/fluentd/etc/fluentd.conf"
+
+  # METRICS
+  prometheus:
+    image: prom/prometheus:v2.1.0
+    hostname: prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    networks:
+      - local
+      - traefik
+    volumes:
+      - "prometheus_data:/prometheus"
+      - "./metrics/prometheus.yml:/prometheus.yml"
+      - "./metrics/alerts.yml:/alerts.yml"
+    command: "--config.file=/prometheus.yml"
+  grafana:
+    image: grafana/grafana:4.6.3
+    hostname: grafana
+    container_name: grafana
+    restart: always
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=pass
+    networks:
+      - local
+    volumes:
+      - "grafana_data:/var/lib/grafana"
+  alertmanager:
+    image: prom/alertmanager:v0.13.0
+    hostname: alertmanager
+    container_name: alertmanager
+    restart: always
+    ports:
+      - "9093:9093"
+    networks:
+      - local
+    volumes:
+      - "./metrics/alertmanager.yml:/alertmanager.yml"
+    command: "--config.file=/alertmanager.yml"
+
+  # METRICS EXPORTERS
+  node-exporter:
+    image: prom/node-exporter:latest
+    hostname: node-exporter
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - local
+  cadvisor:
+    image: google/cadvisor:latest
+    hostname: cadvisor
+    container_name: cadvisor
+    ports:
+      - "9080:8080"
+    networks:
+      - local
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+
+  # GATEWAYS
+  traefik:
+    image: traefik:1.5.0
+    hostname: traefik
+    container_name: traefik
+    restart: always
+    ports:
+      - "1080:80"
+      - "1443:443"
+      - "2080:8080"
+    networks:
+      - traefik
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./certs:/etc/ssl/certs:ro"
+      - "./gateway/traefik.toml:/etc/traefik/traefik.toml"
+    labels:
+      <<: *labels
+    <<: *logdriver
+
+  # APPLICATION SERVICES
+  go-service:
+    image: moorara/go-service:latest
+    hostname: go-service
+    container_name: go-service
+    depends_on:
+      - redis
+      - fluentd
+    ports:
+      - "4010:4010"
+    environment:
+      - SERVICE_NAME=go-service
+      - SERVICE_TAGS=monitor
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - local
+      - traefik
+    labels:
+      <<: *labels
+      traefik.enable: "true"
+      traefik.docker.network: "compose_traefik"
+      traefik.port: "4010"
+      traefik.backend: "go-service"
+      traefik.frontend.rule: "Host:traefik; PathPrefixStrip:/api/v1/votes; AddPrefix:/v1/votes"
+    <<: *logdriver
+  node-service:
+    image: moorara/node-service:latest
+    hostname: node-service
+    container_name: node-service
+    depends_on:
+      - mongo
+      - fluentd
+    ports:
+      - "4020:4020"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=node-service
+      - SERVICE_TAGS=monitor
+      - MONGO_URL=mongodb://mongo:27017
+    networks:
+      - local
+      - traefik
+    labels:
+      <<: *labels
+      traefik.enable: "true"
+      traefik.docker.network: "compose_traefik"
+      traefik.port: "4020"
+      traefik.backend: "node-service"
+      traefik.frontend.rule: "Host:traefik; PathPrefixStrip:/api/v1/links; AddPrefix:/v1/links"
+    <<: *logdriver

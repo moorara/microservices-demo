@@ -1,0 +1,35 @@
+path := $(shell pwd)
+fluentd_version ?= v1.1.0
+
+
+fluentd:
+	@ cd fluentd && \
+	  docker build \
+	    --build-arg fluentd_version=$(fluentd_version) \
+	    -t moorara/fluentd:$(fluentd_version) .
+
+services:
+	@ cd ../go-service && make docker
+	@ cd ../node-service && make docker
+
+
+pull:
+	@ FLUENTD_VERSION=$(fluentd_version) \
+	  docker-compose pull
+
+up: # fluentd services
+	@ FLUENTD_VERSION=$(fluentd_version) \
+	  docker-compose up -d fluentd
+	@ FLUENTD_VERSION=$(fluentd_version) \
+	  docker-compose up -d
+
+down:
+	@ FLUENTD_VERSION=$(fluentd_version) \
+	  docker-compose down
+
+clean:
+	@ docker volume ls | grep -oe compose_.*_data | xargs docker volume rm
+
+
+.PHONY: fluentd services
+.PHONY: pull up down clean

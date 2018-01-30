@@ -1,0 +1,17 @@
+groups:
+  - name: operations
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: page
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} is down."
+      - alert: HighLoad
+        expr: node_load1 > 0.5
+        for: 5m
+        annotations:
+          summary: "Instance {{ $labels.instance }} under high load"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} is under high load (current load: {{ $value }})."
