@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
-	"github.com/moorara/toys/microservices/go-service/service"
+	"github.com/moorara/microservices-demo/go-service/service"
 	"github.com/stretchr/testify/assert"
 )
 

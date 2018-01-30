@@ -8,7 +8,7 @@ services:
     ports:
       - "27017:27017"
   node-service:
-    image: moorara/toys-node-service:${VERSION:-latest}
+    image: moorara/node-service:${VERSION:-latest}
     hostname: node-service
     container_name: node-service
     depends_on:

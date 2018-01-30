@@ -11,12 +11,12 @@ matrix:
       language: go
       go: 1.9.2
       script:
-        - make ci-test-go-service
+        - make test-go-service
 
     - stage: test
       language: node_js
       node_js: 9
-      before_script:
+      install:
         - npm install -g yarn
       script:
-        - make ci-test-node-service
+        - make test-node-service

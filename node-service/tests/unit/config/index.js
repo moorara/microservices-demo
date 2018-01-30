@@ -27,7 +27,7 @@ describe('ConfigProvider', () => {
     it('should return default values', done => {
       config.getConfig().then(c => {
         c.servicePort.should.equal('4020')
-        c.mongoUrl.should.equal('mongodb://localhost:27017/toys')
+        c.mongoUrl.should.equal('mongodb://localhost:27017/microservices')
         should.equal(c.mongoUser, null)
         should.equal(c.mongoPass, null)
         done()
@@ -42,7 +42,7 @@ describe('ConfigProvider', () => {
 
       config.getConfig().then(c => {
         c.servicePort.should.equal('7000')
-        c.mongoUrl.should.equal('mongodb://mongo.mlab.com:27017/toys')
+        c.mongoUrl.should.equal('mongodb://mongo.mlab.com:27017/microservices')
         c.mongoUser.should.equal('user')
         c.mongoPass.should.equal('pass')
         done()
@@ -69,7 +69,7 @@ describe('ConfigProvider', () => {
 
       config.getConfig().then(c => {
         c.servicePort.should.equal('9000')
-        c.mongoUrl.should.equal('mongodb://user:pass@mongo1:27017,mongo2:27017,mongo3:27017/toys')
+        c.mongoUrl.should.equal('mongodb://user:pass@mongo1:27017,mongo2:27017,mongo3:27017/microservices')
         c.mongoUser.should.equal('root')
         c.mongoPass.should.equal('toor')
         done()
