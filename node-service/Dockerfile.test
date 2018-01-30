@@ -1,0 +1,6 @@
+ARG version=latest
+
+# Test Image
+FROM moorara/toys-node-service:$version
+USER root
+RUN npm install

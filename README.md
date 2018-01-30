@@ -11,3 +11,4 @@ This demo application covers the following topics:
 ## Services
 
   * [go-service](https://github.com/moorara/microservices-demo/tree/master/go-service)
+  * [node-service](https://github.com/moorara/microservices-demo/tree/master/node-service)
