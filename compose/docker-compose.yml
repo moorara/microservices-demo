@@ -15,8 +15,8 @@ networks:
         - subnet: 172.20.1.0/24
 
 volumes:
-  redis_data:
   mongo_data:
+  postgres_data:
   prometheus_data:
   grafana_data:
   elasticsearch_data:
@@ -37,17 +37,6 @@ x-logdriver: &logdriver
 services:
 
   # DATA BACKENDS
-  redis:
-    image: redis:4.0.7
-    hostname: redis
-    container_name: redis
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - local
-    volumes:
-      - "redis_data:/data"
   mongo:
     image: mongo:3.6.2
     hostname: mongo
@@ -59,6 +48,21 @@ services:
       - local
     volumes:
       - "mongo_data:/data/db"
+  postgres:
+    image: postgres:10.1
+    hostname: postgres
+    container_name: postgres
+    restart: always
+    ports:
+      - "54320:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=pass
+    networks:
+      - local
+    volumes:
+      - "postgres_data:/var/lib/postgresql/data"
+      - "./init/go-service.sql:/docker-entrypoint-initdb.d/initdb.sql"
 
   # LOGGING
   elasticsearch:
@@ -177,7 +181,7 @@ services:
 
   # GATEWAYS
   traefik:
-    image: traefik:1.5.0
+    image: traefik:1.5.1
     hostname: traefik
     container_name: traefik
     restart: always
@@ -201,14 +205,14 @@ services:
     hostname: go-service
     container_name: go-service
     depends_on:
-      - redis
+      - postgres
       - fluentd
     ports:
       - "4010:4010"
     environment:
       - SERVICE_NAME=go-service
       - SERVICE_TAGS=monitor
-      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgres://root:pass@postgres
     networks:
       - local
       - traefik
@@ -218,7 +222,7 @@ services:
       traefik.docker.network: "compose_traefik"
       traefik.port: "4010"
       traefik.backend: "go-service"
-      traefik.frontend.rule: "Host:traefik; PathPrefixStrip:/api/v1/votes; AddPrefix:/v1/votes"
+      traefik.frontend.rule: "Host:traefik; ReplacePathRegex: ^/api/v1/votes /v1/votes"
     <<: *logdriver
   node-service:
     image: moorara/node-service:latest
