@@ -11,21 +11,21 @@ import (
 )
 
 type mockServer struct {
-	listenAndServeCalled bool
-	listenAndServeError  error
+	ListenAndServeCalled bool
+	ListenAndServeError  error
 
-	shutdownCalled bool
-	shutdownError  error
+	ShutdownCalled bool
+	ShutdownError  error
 }
 
 func (s *mockServer) ListenAndServe() error {
-	s.listenAndServeCalled = true
-	return s.listenAndServeError
+	s.ListenAndServeCalled = true
+	return s.ListenAndServeError
 }
 
 func (s *mockServer) Shutdown(context.Context) error {
-	s.shutdownCalled = true
-	return s.shutdownError
+	s.ShutdownCalled = true
+	return s.ShutdownError
 }
 
 func TestNew(t *testing.T) {
@@ -39,7 +39,7 @@ func TestNew(t *testing.T) {
 				LogLevel:    "info",
 				ServiceName: "go-service",
 				ServicePort: ":4010",
-				RedisURL:    "redis://redis:6379",
+				PostgresURL: "postgres://localhost",
 			},
 		},
 		{
@@ -48,7 +48,7 @@ func TestNew(t *testing.T) {
 				LogLevel:    "debug",
 				ServiceName: "golang-service",
 				ServicePort: ":4020",
-				RedisURL:    "redis://user:pass@redis:6389",
+				PostgresURL: "postgres://root:pass@localhost",
 			},
 		},
 	}
@@ -89,7 +89,7 @@ func TestStart(t *testing.T) {
 				},
 				logger: tc.logger,
 				server: &mockServer{
-					listenAndServeError: tc.listenAndServeError,
+					ListenAndServeError: tc.listenAndServeError,
 				},
 			}
 

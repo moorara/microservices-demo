@@ -36,17 +36,21 @@ func New(config config.Config) *HTTPServer {
 	metricsMiddleware := middleware.NewMetricsMiddleware(metrics)
 	loggerMiddleware := middleware.NewLoggerMiddleware(logger)
 
-	redisPersister := service.NewRedisPersister(config.RedisURL)
-	voteHandler := handler.NewVoteHandler(redisPersister, logger)
+	postgresDB := service.NewPostgresDB(config.PostgresURL)
+	voteHandler := handler.NewVoteHandler(postgresDB, logger)
 	postVoteHandler := middleware.WrapAll(voteHandler.PostVote, metricsMiddleware, loggerMiddleware)
+	getVotesHandler := middleware.WrapAll(voteHandler.GetVotes, metricsMiddleware, loggerMiddleware)
 	getVoteHandler := middleware.WrapAll(voteHandler.GetVote, metricsMiddleware, loggerMiddleware)
+	deleteVoteHandler := middleware.WrapAll(voteHandler.DeleteVote, metricsMiddleware, loggerMiddleware)
 
 	router := mux.NewRouter()
-	router.NotFoundHandler = handler.GetNotFoundHandler(logger)
-	router.HandleFunc("/health", handler.HealthHandler).Methods("GET")
-	router.HandleFunc("/metrics", metrics.GetHandler().ServeHTTP)
-	router.HandleFunc("/v1/votes", postVoteHandler).Methods("POST")
-	router.HandleFunc("/v1/votes/{id}", getVoteHandler).Methods("GET")
+	router.NotFoundHandler = middleware.WrapAll(handler.GetNotFoundHandler(logger), loggerMiddleware)
+	router.Methods("GET").Path("/health").HandlerFunc(handler.HealthHandler)
+	router.Methods("GET").Path("/metrics").HandlerFunc(metrics.GetHandler().ServeHTTP)
+	router.Methods("POST").Path("/v1/votes").HandlerFunc(postVoteHandler)
+	router.Methods("GET").Path("/v1/votes").Queries("linkId", "{linkId}").HandlerFunc(getVotesHandler)
+	router.Methods("GET").Path("/v1/votes/{id}").HandlerFunc(getVoteHandler)
+	router.Methods("DELETE").Path("/v1/votes/{id}").HandlerFunc(deleteVoteHandler)
 
 	return &HTTPServer{
 		config: config,

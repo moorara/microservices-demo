@@ -3,7 +3,6 @@ package test
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -15,9 +14,6 @@ const (
 )
 
 type (
-	// JSON represent the json type
-	JSON map[string]interface{}
-
 	// Component represents the component under test
 	Component struct {
 		ServiceURL string
@@ -39,19 +35,14 @@ func NewComponent() *Component {
 }
 
 // Call makes a http request to component under test
-func (c *Component) Call(ctx context.Context, method, endpoint string, body JSON) (int, JSON, error) {
+func (c *Component) Call(ctx context.Context, method, endpoint string, body []byte) (int, []byte, error) {
 	client := &http.Client{
 		Transport: c.transport,
 		Timeout:   timeoutMS * time.Millisecond,
 	}
 
-	bodyData, err := json.Marshal(body)
-	if err != nil {
-		return 0, nil, err
-	}
-
 	url := c.ServiceURL + endpoint
-	bodyReader := bytes.NewReader(bodyData)
+	bodyReader := bytes.NewReader(body)
 
 	req, err := http.NewRequest(method, url, bodyReader)
 	if err != nil {
@@ -59,21 +50,17 @@ func (c *Component) Call(ctx context.Context, method, endpoint string, body JSON
 	}
 
 	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/json")
+
 	res, err := client.Do(req)
 	if err != nil {
 		return 0, nil, err
 	}
 
-	resData, err := ioutil.ReadAll(res.Body)
+	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return res.StatusCode, nil, err
 	}
 
-	resJSON := JSON{}
-	err = json.Unmarshal(resData, &resJSON)
-	if err != nil {
-		return res.StatusCode, nil, err
-	}
-
-	return res.StatusCode, resJSON, nil
+	return res.StatusCode, resBody, nil
 }

@@ -1,20 +1,25 @@
 version: "3.4"
 services:
-  redis:
-    image: redis
-    hostname: redis
-    container_name: redis
+  postgres:
+    image: postgres
+    hostname: postgres
+    container_name: postgres
     restart: always
     ports:
-      - "6379:6379"
+      - "54320:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - "./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql"
   go-service:
     image: moorara/go-service:${VERSION:-latest}
     hostname: go-service
     container_name: go-service
     depends_on:
-      - redis
+      - postgres
     ports:
       - "4010:4010"
     environment:
       - LOG_LEVEL=debug
-      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgres://root:pass@postgres
