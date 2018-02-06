@@ -28,6 +28,7 @@ func (lm *loggerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 		start := time.Now()
 		method := r.Method
 		endpoint := r.URL.Path
+		headers := r.Header
 
 		// This only works with mux router
 		for p, v := range mux.Vars(r) {
@@ -45,6 +46,7 @@ func (lm *loggerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 		result := []interface{}{
 			"req.method", method,
 			"req.endpoint", endpoint,
+			"req.headers", headers,
 			"res.statusCode", statusCode,
 			"res.statusClass", statusClass,
 			"responseTime", durationMS,

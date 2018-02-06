@@ -2,99 +2,97 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"testing"
-	"time"
 
+	"github.com/go-kit/kit/log"
 	"github.com/stretchr/testify/assert"
 )
 
-const (
-	delay   = 200 * time.Millisecond
-	timeout = 100 * time.Millisecond
-)
+type mockDB struct {
+	CloseCalled bool
+	CloseError  error
 
-type mockPersister struct {
-	saveCalled bool
-	saveError  error
+	ExecContextCalled bool
+	ExecContextResult sql.Result
+	ExecContextError  error
 
-	loadCalled bool
-	loadData   []byte
-	loadError  error
+	QueryContextCalled bool
+	QueryContextRows   *sql.Rows
+	QueryContextError  error
+
+	QueryRowContextCalled bool
+	QueryRowContextRow    *sql.Row
 }
 
-func (mp *mockPersister) Save(key string, data []byte, ttl time.Duration) error {
-	time.Sleep(delay)
-	mp.saveCalled = true
-	return mp.saveError
+func (mdb *mockDB) Close() error {
+	mdb.CloseCalled = true
+	return mdb.CloseError
 }
 
-func (mp *mockPersister) Load(key string) ([]byte, error) {
-	time.Sleep(delay)
-	mp.loadCalled = true
-	return mp.loadData, mp.loadError
+func (mdb *mockDB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	mdb.ExecContextCalled = true
+	return mdb.ExecContextResult, mdb.ExecContextError
+}
+
+func (mdb *mockDB) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+	mdb.QueryContextCalled = true
+	return mdb.QueryContextRows, mdb.QueryContextError
+}
+
+func (mdb *mockDB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
+	mdb.QueryRowContextCalled = true
+	return mdb.QueryRowContextRow
 }
 
 func TestNewVoteManager(t *testing.T) {
 	tests := []struct {
-		name     string
-		redisURL string
+		name        string
+		postgresURL string
 	}{
 		{
 			"WithoutUserPass",
-			"redis://redis:6379",
+			"postgres://localhost",
 		},
 		{
 			"WithUserPass",
-			"redis://user:pass@redis:6389",
+			"postgres://root:pass@localhost",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			rp := NewRedisPersister(tc.redisURL)
-			sm := NewVoteManager(rp)
-			assert.NotNil(t, sm)
+			db := NewPostgresDB(tc.postgresURL)
+			logger := log.NewNopLogger()
+			vm := NewVoteManager(db, logger)
+
+			assert.NotNil(t, vm)
 		})
 	}
 }
 
 func TestVoteManagerCreate(t *testing.T) {
 	tests := []struct {
-		name        string
-		saveError   error
-		context     func() context.Context
-		linkID      string
-		stars       int
-		expectError bool
+		name             string
+		execContextError error
+		context          context.Context
+		linkID           string
+		stars            int
+		expectError      bool
 	}{
 		{
-			"PersisterError",
+			"DatabaseFailed",
 			errors.New("error"),
-			func() context.Context {
-				return context.Background()
-			},
+			context.Background(),
 			"",
 			0,
 			true,
 		},
 		{
-			"ContextTimeout",
+			"DatabaseSuccessful",
 			nil,
-			func() context.Context {
-				ctx, _ := context.WithTimeout(context.Background(), timeout)
-				return ctx
-			},
-			"",
-			0,
-			true,
-		},
-		{
-			"Successful",
-			nil,
-			func() context.Context {
-				return context.Background()
-			},
+			context.Background(),
 			"2222-bbbb",
 			5,
 			false,
@@ -103,15 +101,18 @@ func TestVoteManagerCreate(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			sm := &redisVoteManager{
-				persister: &mockPersister{
-					saveError: tc.saveError,
-				},
-				voteTTL: 1 * time.Minute,
+			mdb := &mockDB{
+				ExecContextResult: nil,
+				ExecContextError:  tc.execContextError,
+			}
+			vm := &postgresVoteManager{
+				db:     mdb,
+				logger: log.NewNopLogger(),
 			}
 
-			vote, err := sm.Create(tc.context(), tc.linkID, tc.stars)
+			vote, err := vm.Create(tc.context, tc.linkID, tc.stars)
 
+			assert.True(t, mdb.ExecContextCalled)
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {
@@ -123,12 +124,11 @@ func TestVoteManagerCreate(t *testing.T) {
 	}
 }
 
-func TestVoteManagerGet(t *testing.T) {
+func TestVoteManagerDelete(t *testing.T) {
 	tests := []struct {
 		name               string
-		loadData           []byte
-		loadError          error
-		context            func() context.Context
+		execContextError   error
+		context            context.Context
 		voteID             string
 		expectError        bool
 		expectedVoteID     string
@@ -136,32 +136,17 @@ func TestVoteManagerGet(t *testing.T) {
 		expectedVoteStars  int
 	}{
 		{
-			"PersisterError",
-			nil, errors.New("error"),
-			func() context.Context {
-				return context.Background()
-			},
+			"DatabaseFailed",
+			errors.New("error"),
+			context.Background(),
 			"",
 			true,
 			"", "", 0,
 		},
 		{
-			"ContextTimeout",
-			nil, nil,
-			func() context.Context {
-				ctx, _ := context.WithTimeout(context.Background(), timeout)
-				return ctx
-			},
-			"",
-			true,
-			"", "", 0,
-		},
-		{
-			"Successful",
-			[]byte(`{"id": "1111-aaaa", "linkId": "2222-bbbb", "stars": 5}`), nil,
-			func() context.Context {
-				return context.Background()
-			},
+			"DatabaseSuccessful",
+			nil,
+			context.Background(),
 			"2222-bbbb",
 			false,
 			"1111-aaaa", "2222-bbbb", 5,
@@ -170,23 +155,22 @@ func TestVoteManagerGet(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			sm := &redisVoteManager{
-				persister: &mockPersister{
-					loadData:  tc.loadData,
-					loadError: tc.loadError,
-				},
-				voteTTL: 1 * time.Minute,
+			mdb := &mockDB{
+				ExecContextResult: nil,
+				ExecContextError:  tc.execContextError,
+			}
+			vm := &postgresVoteManager{
+				db:     mdb,
+				logger: log.NewNopLogger(),
 			}
 
-			vote, err := sm.Get(tc.context(), tc.voteID)
+			err := vm.Delete(tc.context, tc.voteID)
 
+			assert.True(t, mdb.ExecContextCalled)
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedVoteID, vote.ID)
-				assert.Equal(t, tc.expectedVoteLinkID, vote.LinkID)
-				assert.Equal(t, tc.expectedVoteStars, vote.Stars)
 			}
 		})
 	}

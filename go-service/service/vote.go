@@ -2,15 +2,11 @@ package service
 
 import (
 	"context"
-	"encoding/json"
-	"time"
+	"database/sql"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
-)
-
-const (
-	voteTTLInMin = 60
 )
 
 type (
@@ -24,74 +20,87 @@ type (
 	// VoteManager abstracts CRUD operations for Vote
 	VoteManager interface {
 		Create(ctx context.Context, linkID string, stars int) (*Vote, error)
+		GetAll(ctx context.Context, linkID string) ([]Vote, error)
 		Get(ctx context.Context, id string) (*Vote, error)
+		Delete(ctx context.Context, id string) error
 	}
 
-	redisVoteManager struct {
-		persister Persister
-		voteTTL   time.Duration
+	postgresVoteManager struct {
+		db     DB
+		logger log.Logger
 	}
 )
 
 // NewVoteManager creates a new vote manager
-func NewVoteManager(persister Persister) VoteManager {
-	return &redisVoteManager{
-		persister: persister,
-		voteTTL:   voteTTLInMin * time.Minute,
+func NewVoteManager(db DB, logger log.Logger) VoteManager {
+	return &postgresVoteManager{
+		db:     db,
+		logger: logger,
 	}
 }
 
-func (sm *redisVoteManager) Create(ctx context.Context, linkID string, stars int) (*Vote, error) {
+func (vm *postgresVoteManager) Create(ctx context.Context, linkID string, stars int) (*Vote, error) {
 	vote := &Vote{
 		ID:     uuid.New().String(),
 		LinkID: linkID,
 		Stars:  stars,
 	}
 
-	data, err := json.Marshal(vote)
+	query := `INSERT INTO votes (id, link_id, stars) VALUES ($1, $2, $3)`
+	_, err := vm.db.ExecContext(ctx, query, vote.ID, vote.LinkID, vote.Stars)
 	if err != nil {
+		level.Error(vm.logger).Log("message", err.Error())
 		return nil, err
 	}
 
-	chErr := make(chan error, 1)
-	go func() {
-		chErr <- sm.persister.Save(vote.ID, data, sm.voteTTL)
-	}()
-
-	select {
-	case <-ctx.Done():
-		err = ctx.Err()
-	case err = <-chErr:
-	}
-
-	if err != nil {
-		return nil, errors.Wrap(err, "Vote creation failed")
-	}
 	return vote, nil
 }
 
-func (sm *redisVoteManager) Get(ctx context.Context, id string) (*Vote, error) {
-	var err error
+func (vm *postgresVoteManager) GetAll(ctx context.Context, linkID string) ([]Vote, error) {
+	votes := make([]Vote, 0)
+
+	query := `SELECT * FROM votes WHERE link_id=$1`
+	rows, err := vm.db.QueryContext(ctx, query, linkID)
+	if err != nil {
+		level.Error(vm.logger).Log("message", err.Error())
+		return nil, err
+	}
+
+	for rows.Next() {
+		vote := Vote{}
+		err = rows.Scan(&vote.ID, &vote.LinkID, &vote.Stars)
+		if err == nil {
+			votes = append(votes, vote)
+		}
+	}
+
+	return votes, nil
+}
+
+func (vm *postgresVoteManager) Get(ctx context.Context, id string) (*Vote, error) {
 	vote := new(Vote)
 
-	chErr := make(chan error, 1)
-	go func() {
-		data, err := sm.persister.Load(id)
-		if err != nil {
-			chErr <- err
-			return
-		}
-		chErr <- json.Unmarshal(data, vote)
-	}()
-
-	select {
-	case <-ctx.Done():
-		err = ctx.Err()
-	case err = <-chErr:
-	}
-
+	query := `SELECT * FROM votes WHERE id=$1`
+	row := vm.db.QueryRowContext(ctx, query, id)
+	err := row.Scan(&vote.ID, &vote.LinkID, &vote.Stars)
 	if err != nil {
-		return nil, errors.Wrap(err, "Vote retrieval failed")
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		level.Error(vm.logger).Log("message", err.Error())
+		return nil, err
 	}
+
 	return vote, nil
+}
+
+func (vm *postgresVoteManager) Delete(ctx context.Context, id string) error {
+	query := `DELETE FROM votes WHERE id=$1`
+	_, err := vm.db.ExecContext(ctx, query, id)
+	if err != nil {
+		level.Error(vm.logger).Log("message", err.Error())
+		return err
+	}
+
+	return nil
 }
