@@ -1,7 +1,7 @@
 # BUILD STAGE
 FROM golang:1.9-alpine as builder
 RUN apk add --no-cache ca-certificates make
-WORKDIR /go/src/github.com/moorara/microservices-demo/go-service/
+WORKDIR /go/src/github.com/moorara/microservices-demo/services/go-service/
 COPY . .
 RUN make build && \
     cp ./go-service /

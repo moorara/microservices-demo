@@ -9,7 +9,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/go-service/util"
+	"github.com/moorara/microservices-demo/services/go-service/util"
 )
 
 type loggerMiddleware struct {

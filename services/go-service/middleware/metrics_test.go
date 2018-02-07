@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/moorara/microservices-demo/go-service/util"
+	"github.com/moorara/microservices-demo/services/go-service/util"
 	"github.com/stretchr/testify/assert"
 )
 

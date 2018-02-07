@@ -9,8 +9,8 @@ fluentd:
 	    -t moorara/fluentd:$(fluentd_version) .
 
 services:
-	@ cd ../go-service && make docker
-	@ cd ../node-service && make docker
+	@ cd ../services/go-service && make docker
+	@ cd ../services/node-service && make docker
 
 
 pull:

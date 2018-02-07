@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/go-kit/kit/log"
-	"github.com/moorara/microservices-demo/go-service/config"
+	"github.com/moorara/microservices-demo/services/go-service/config"
 	"github.com/stretchr/testify/assert"
 )
 

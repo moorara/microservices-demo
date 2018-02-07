@@ -11,14 +11,14 @@ jobs:
       language: go
       go: 1.9.2
       script:
-        - cd go-service
+        - cd services/go-service
         - make test
 
     - stage: unit tests
       language: node_js
       node_js: 9
       script:
-        - cd node-service
+        - cd services/node-service
         - yarn
         - yarn run nsp
         - yarn run lint
@@ -28,7 +28,7 @@ jobs:
       language: go
       go: 1.9.2
       script:
-        - cd go-service
+        - cd services/go-service
         - make docker up
         - make test-component
 
@@ -36,7 +36,7 @@ jobs:
       language: node_js
       node_js: 9
       script:
-        - cd node-service
+        - cd services/node-service
         - make docker docker-test up
         - yarn && yarn run test:component
 

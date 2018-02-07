@@ -2,10 +2,12 @@
 
 ## API
 
-| Verb   | Endpoint        | Description                   |
-|--------|-----------------|-------------------------------|
-| `POST` | `/v1/votes`     | Creates a new vote for a link |
-| `GET`  | `/v1/votes/:id` | Retrieves an existing vote    |
+| Verb     | Endpoint               | Description                    |
+|----------|------------------------|--------------------------------|
+| `POST`   | `/v1/votes`            | Creates a new vote for a link  |
+| `GET`    | `/v1/votes?linkId=:id` | Retrieves all votes for a link |
+| `GET`    | `/v1/votes/:id`        | Retrieves an existing vote     |
+| `DELETE` | `/v1/votes/:id`        | Deletes an existing vote       |
 
 ### Examples
 

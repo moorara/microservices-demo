@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/go-service/util"
+	"github.com/moorara/microservices-demo/services/go-service/util"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
