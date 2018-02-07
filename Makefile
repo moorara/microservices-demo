@@ -12,23 +12,8 @@ define print_title
 endef
 
 
-test-go-service:
-	@ cd go-service && \
-	  $(call print_title,RUNNING UNIT TESTS)       &&  make test            && \
-	  $(call print_title,BUILDING DOCKER IMAGES)   &&  make docker up       && \
-	  $(call print_title,RUNNING COMPONENT TESTS)  &&  make test-component  && \
-	  $(call print_title,DONE)
-
-test-node-service:
-	@ cd node-service && \
-	  $(call print_title,INSTALLING DEPENDENCIES)  &&  yarn                        && \
-	  $(call print_title,RUNNING NODE SECURITY)    &&  yarn run nsp                && \
-	  $(call print_title,RUNNING STANDARD LINTER)  &&  yarn run lint               && \
-	  $(call print_title,RUNNING UNIT TESTS)       &&  yarn run test               && \
-	  $(call print_title,BUILDING DOCKER IMAGES)   &&  make docker docker-test up  && \
-	  $(call print_title,RUNNING COMPONENT TESTS)  &&  yarn run test:component     && \
-	  $(call print_title,DONE)
+test:
+	@ $(call print_title,DONE)
 
 
-.PHONY: test-go-service
-.PHONY: test-node-service
+.PHONY: test
