@@ -31,5 +31,17 @@ clean:
 	@ docker volume ls | grep -oe compose_.*_data | xargs docker volume rm
 
 
+test-up:
+	@ FLUENTD_VERSION=$(fluentd_version) \
+	  docker-compose up -d fluentd
+	@ FLUENTD_VERSION=$(fluentd_version) \
+	  docker-compose up -d traefik go-service node-service
+
+test-integration:
+	@ cd tests && \
+	  ./integration.sh
+
+
 .PHONY: fluentd services
 .PHONY: pull up down clean
+.PHONY: test-up test-integration

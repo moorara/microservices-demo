@@ -39,3 +39,11 @@ jobs:
         - cd node-service
         - make docker docker-test up
         - yarn && yarn run test:component
+
+    - stage: integration tests
+      language: generic
+      script:
+        - cd compose
+        - make fluentd services
+        - make test-up && sleep 10
+        - make test-integration
