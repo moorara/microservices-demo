@@ -4,19 +4,38 @@ sudo: required
 services:
   - docker
 
-matrix:
+jobs:
   include:
 
-    - stage: test
+    - stage: unit tests
       language: go
       go: 1.9.2
       script:
-        - make test-go-service
+        - cd go-service
+        - make test
 
-    - stage: test
+    - stage: unit tests
       language: node_js
       node_js: 9
-      install:
-        - npm install -g yarn
       script:
-        - make test-node-service
+        - cd node-service
+        - yarn
+        - yarn run nsp
+        - yarn run lint
+        - yarn run test
+
+    - stage: component tests
+      language: go
+      go: 1.9.2
+      script:
+        - cd go-service
+        - make docker up
+        - make test-component
+
+    - stage: component tests
+      language: node_js
+      node_js: 9
+      script:
+        - cd node-service
+        - make docker docker-test up
+        - yarn && yarn run test:component
