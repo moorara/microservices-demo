@@ -6,11 +6,11 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/go-service/config"
-	"github.com/moorara/microservices-demo/go-service/handler"
-	"github.com/moorara/microservices-demo/go-service/middleware"
-	"github.com/moorara/microservices-demo/go-service/service"
-	"github.com/moorara/microservices-demo/go-service/util"
+	"github.com/moorara/microservices-demo/services/go-service/config"
+	"github.com/moorara/microservices-demo/services/go-service/handler"
+	"github.com/moorara/microservices-demo/services/go-service/middleware"
+	"github.com/moorara/microservices-demo/services/go-service/service"
+	"github.com/moorara/microservices-demo/services/go-service/util"
 )
 
 type (
