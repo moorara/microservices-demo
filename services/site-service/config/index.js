@@ -3,8 +3,9 @@ const Promise = require('bluebird')
 
 const Logger = require('../util/logger')
 
-const dbName = 'microservices'
-const defaultServicePort = '4020'
+const dbName = 'sites'
+const defaultServiceName = 'site-service'
+const defaultServicePort = '4010'
 const defaultMongoURL = 'mongodb://localhost:27017'
 
 class ConfigProvider {
@@ -32,6 +33,7 @@ class ConfigProvider {
 
   getConfig () {
     const config = {
+      serviceName: this._getValue('SERVICE_NAME', defaultServiceName),
       servicePort: this._getValue('SERVICE_PORT', defaultServicePort),
       mongoUrl: this._getValue('MONGO_URL', defaultMongoURL) + `/${dbName}`,
       mongoUser: this._getValue('MONGO_USER'),

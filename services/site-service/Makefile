@@ -1,4 +1,4 @@
-docker_image ?= moorara/node-service
+docker_image ?= moorara/site-service
 docker_tag ?= latest
 
 path := $(shell pwd)
@@ -13,7 +13,7 @@ docker:
 
 up:
 	@ VERSION=$(docker_tag) \
-	  docker-compose up -d node-service
+	  docker-compose up -d site-service
 
 down:
 	@ VERSION=$(docker_tag) \
@@ -24,15 +24,15 @@ docker-test:
 	@ docker build \
 		--file Dockerfile.test \
 		--build-arg version=$(docker_tag) \
-		--tag node-service-test .
+		--tag site-service-test .
 
 test: docker docker-test
 	@ VERSION=$(docker_tag) \
-	  docker-compose run node-service-test npm run test
+	  docker-compose run site-service-test npm run test
 
 test-component: docker docker-test
 	@ VERSION=$(docker_tag) \
-	  docker-compose run node-service-test npm run test:component
+	  docker-compose run site-service-test npm run test:component
 
 
 .PHONY: clean

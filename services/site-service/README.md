@@ -1,23 +1,44 @@
-# node-service
+# site-service
 
 ## API
 
-| Verb     | Endpoint        | Description         |
+| Method   | Endpoint        | Description         |
 |----------|-----------------|---------------------|
-| `POST`   | `/v1/links`     | Creates a new link  |
-| `GET`    | `/v1/links`     | Retrieves all links |
-| `GET`    | `/v1/links/:id` | Retrieves a link    |
-| `PUT`    | `/v1/links/:id` | Updates a link      |
-| `DELETE` | `/v1/links/:id` | Removes a link      |
+| `POST`   | `/v1/sites`     | Creates a new site  |
+| `GET`    | `/v1/sites`     | Retrieves all sites |
+| `GET`    | `/v1/sites/:id` | Retrieves a site    |
+| `PUT`    | `/v1/sites/:id` | Updates a site      |
+| `DELETE` | `/v1/sites/:id` | Removes a site      |
 
 ### Examples
 
 ```bash
-curl -H 'Content-Type: application/json' -X POST -d '{"url":"https://docker.com", "title":"Docker", "tags":["container"], "rank":1}' http://localhost:4020/v1/links
-curl -H 'Content-Type: application/json' -X GET http://localhost:4020/v1/links
-curl -H 'Content-Type: application/json' -X GET http://localhost:4020/v1/links/<linkId>
-curl -H 'Content-Type: application/json' -X PUT -d '{"url":"https://kubernetes.io", "title":"Kubernetes", "tags":["container"]}' http://localhost:4020/v1/links/<linkId>
-curl -H 'Content-Type: application/json' -X DELETE http://localhost:4020/v1/links/<linkId>
+curl \
+  -H 'Content-Type: application/json' \
+  -X POST \
+  -d '{"name":"plant","location":"here","tags":["power"],"priority":3}' \
+  http://localhost:4010/v1/sites
+
+curl \
+  -H 'Content-Type: application/json' \
+  -X GET \
+  http://localhost:4010/v1/sites
+
+curl \
+  -H 'Content-Type: application/json' \
+  -X GET \
+  http://localhost:4010/v1/sites/:id
+
+curl \
+  -H 'Content-Type: application/json' \
+  -X PUT \
+  -d '{"name":"plant site","location":"there","tags":["power","hydro"],"priority":2}' \
+  http://localhost:4010/v1/sites/:id
+
+curl \
+  -H 'Content-Type: application/json' \
+  -X DELETE \
+  http://localhost:4010/v1/sites/:id
 ```
 
 ## Commands

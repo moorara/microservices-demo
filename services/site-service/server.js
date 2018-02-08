@@ -8,12 +8,12 @@ const Middleware = require('./middleware')
 const MetricsMiddleware = require('./middleware/metrics')
 const LoggerMiddleware = require('./middleware/logger')
 const HealthRouter = require('./routes/health')
-const LinkRouter = require('./routes/link')
+const SiteRouter = require('./routes/site')
 
 class Server {
   constructor (options) {
     Logger.addContext({
-      service: process.env.SERVICE_NAME || 'node-service'
+      service: process.env.SERVICE_NAME || 'site-service'
     })
 
     options = options || {}
@@ -31,7 +31,7 @@ class Server {
       // Dependencies
       this.mongo = this.mongo || new Mongo(config)
       this.metricsMiddleware = new MetricsMiddleware()
-      this.routers.links = this.routers.links || new LinkRouter(config)
+      this.routers.sites = this.routers.sites || new SiteRouter(config)
 
       // Unauthenticated routes
       this.app.use('/health', HealthRouter)
@@ -41,7 +41,7 @@ class Server {
       this.app.use(LoggerMiddleware.http())
 
       // Authenticated routes
-      this.app.use('/v1/links', this.routers.links.router)
+      this.app.use('/v1/sites', this.routers.sites.router)
 
       this.app.use(Middleware.catchError({
         environment: process.env.NODE_ENV

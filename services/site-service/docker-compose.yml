@@ -7,22 +7,22 @@ services:
     restart: always
     ports:
       - "27017:27017"
-  node-service:
-    image: moorara/node-service:${VERSION:-latest}
-    hostname: node-service
-    container_name: node-service
+  site-service:
+    image: moorara/site-service:${VERSION:-latest}
+    hostname: site-service
+    container_name: site-service
     depends_on:
       - mongo
     ports:
-      - "4020:4020"
+      - "4010:4010"
     environment:
       - NODE_ENV=development
       - LOG_LEVEL=debug
       - MONGO_URL=mongodb://mongo:27017
-  node-service-test:
-    image: node-service-test
-    container_name: node-service-test
+  site-service-test:
+    image: site-service-test
+    container_name: site-service-test
     depends_on:
-      - node-service
+      - site-service
     environment:
-      - SERVICE_URL=http://node-service:4020
+      - SERVICE_URL=http://site-service:4010

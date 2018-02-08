@@ -2,9 +2,9 @@
 const sinon = require('sinon')
 const should = require('should')
 
-const LinkService = require('../../../services/link')
+const SiteService = require('../../../services/site')
 
-describe('LinkService', () => {
+describe('SiteService', () => {
   let config, logger
   let Model, _Model
   let modelInstance, _modelInstance
@@ -37,9 +37,9 @@ describe('LinkService', () => {
     modelInstance.save = () => {}
     _modelInstance = sinon.mock(modelInstance)
 
-    service = new LinkService(config, {
+    service = new SiteService(config, {
       logger,
-      LinkModel: Model
+      SiteModel: Model
     })
     _service = sinon.mock(service)
   })
@@ -52,29 +52,29 @@ describe('LinkService', () => {
 
   describe('constructor', () => {
     it('should create a new service with defaults', () => {
-      service = new LinkService({})
+      service = new SiteService({})
       should.exist(service.logger)
-      should.exist(service.LinkModel)
+      should.exist(service.SiteModel)
     })
   })
 
   describe('create', () => {
     let specs
-    let savedLink
+    let savedSite
 
     beforeEach(() => {
       specs = {
-        url: 'https://nodejs.org',
-        title: 'Node.js',
-        tags: ['JavaScript'],
-        rank: 1
+        name: 'New Site',
+        location: 'Ottawa, ON',
+        tags: ['hydro', 'power'],
+        priority: 3
       }
-      savedLink = Object.assign({}, specs, {
-        id: '2222-bbbb-4444-dddd',
+      savedSite = Object.assign({}, specs, {
+        id: '1111-aaaa',
         createdAt: new Date(),
         updatedAt: new Date()
       })
-      savedLink.toJSON = () => savedLink
+      savedSite.toJSON = () => savedSite
     })
 
     it('should reject with error when model query fails', done => {
@@ -86,31 +86,31 @@ describe('LinkService', () => {
         done()
       })
     })
-    it('should resolve with new link when model query succeeds', done => {
-      _modelInstance.expects('save').resolves(savedLink)
+    it('should resolve with new site when model query succeeds', done => {
+      _modelInstance.expects('save').resolves(savedSite)
       service.create(specs).then(t => {
         _modelInstance.verify()
-        t.should.eql(savedLink)
+        t.should.eql(savedSite)
         done()
       }).catch(done)
     })
   })
 
-  describe('getAll', () => {
+  describe('all', () => {
     let query
-    let t1, t2, t3
+    let s1, s2, s3
 
     beforeEach(() => {
       query = {}
 
-      t1 = { id: '1111-aaaa' }
-      t1.toJSON = () => t1
+      s1 = { id: '1111-aaaa' }
+      s1.toJSON = () => s1
 
-      t2 = { id: '2222-bbbb' }
-      t2.toJSON = () => t2
+      s2 = { id: '2222-bbbb' }
+      s2.toJSON = () => s2
 
-      t3 = { id: '3333-cccc' }
-      t3.toJSON = () => t3
+      s3 = { id: '3333-cccc' }
+      s3.toJSON = () => s3
     })
 
     it('should rejects with error when model query fails', done => {
@@ -118,46 +118,46 @@ describe('LinkService', () => {
       _Model.expects('limit').returns(Model)
       _Model.expects('skip').returns(Model)
       _Model.expects('exec').rejects(new Error('error'))
-      service.getAll().catch(err => {
+      service.all().catch(err => {
         _Model.verify()
         should.exist(err)
         err.message.should.equal('error')
         done()
       })
     })
-    it('should resolves with links when model query succeeds', done => {
+    it('should resolves with sites when model query succeeds', done => {
       _Model.expects('find').returns(Model)
       _Model.expects('limit').returns(Model)
       _Model.expects('skip').returns(Model)
-      _Model.expects('exec').resolves([ t1, t2, t3 ])
-      service.getAll().then(links => {
+      _Model.expects('exec').resolves([ s1, s2, s3 ])
+      service.all().then(sites => {
         _Model.verify()
-        links.should.eql([ t1, t2, t3 ])
+        sites.should.eql([ s1, s2, s3 ])
         done()
       }).catch(done)
     })
-    it('should resolves with links when model query succeeds', done => {
-      query = { url: 'com', title: 'website', tags: 'javascript,go', minRank: '3', maxRank: '10', limit: '20', skip: '10' }
-      let mongoQuery = { url: /.*com.*/i, title: /.*website.*/i, tags: { $in: ['javascript', 'go'] }, rank: { $gte: 3, $lte: 10 } }
+    it('should resolves with sites when model query succeeds', done => {
+      query = { name: 'Site', location: 'Ottawa', tags: 'hydro,power', minPriority: '2', maxPriority: '4', limit: '10', skip: '10' }
+      let mongoQuery = { name: /.*Site.*/i, location: /.*Ottawa.*/i, tags: { $in: ['hydro', 'power'] }, priority: { $gte: 2, $lte: 4 } }
       _Model.expects('find').withArgs(mongoQuery).returns(Model)
       _Model.expects('limit').withArgs(+query.limit).returns(Model)
       _Model.expects('skip').withArgs(+query.skip).returns(Model)
-      _Model.expects('exec').resolves([ t1, t2, t3 ])
-      service.getAll(query).then(links => {
+      _Model.expects('exec').resolves([ s1, s2, s3 ])
+      service.all(query).then(sites => {
         _Model.verify()
-        links.should.eql([ t1, t2, t3 ])
+        sites.should.eql([ s1, s2, s3 ])
         done()
       }).catch(done)
     })
   })
 
   describe('get', () => {
-    let id, link
+    let id, site
 
     beforeEach(() => {
       id = '1111-aaaa'
-      link = { id }
-      link.toJSON = () => link
+      site = { id }
+      site.toJSON = () => site
     })
 
     it('should rejects with error when model query fails', done => {
@@ -171,30 +171,30 @@ describe('LinkService', () => {
     })
     it('should resolves with empty result when model query returns no result', done => {
       _Model.expects('findById').withArgs(id).resolves()
-      service.get(id).then(t => {
+      service.get(id).then(s => {
         _Model.verify()
-        should.not.exist(t)
+        should.not.exist(s)
         done()
       }).catch(done)
     })
-    it('should resolves with link when model query succeeds', done => {
-      _Model.expects('findById').withArgs(id).resolves(link)
-      service.get(id).then(t => {
+    it('should resolves with site when model query succeeds', done => {
+      _Model.expects('findById').withArgs(id).resolves(site)
+      service.get(id).then(s => {
         _Model.verify()
-        t.id.should.equal(id)
+        s.id.should.equal(id)
         done()
       }).catch(done)
     })
   })
 
   describe('update', () => {
-    let id, specs, link
+    let id, specs, site
 
     beforeEach(() => {
-      id = '2222-bbbb'
-      specs = { url: 'https://nodejs.org', title: 'Node.js', tags: ['javascript'], rank: 1 }
-      link = Object.assign({ id }, specs)
-      link.toJSON = () => link
+      id = '1111-aaaa'
+      specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA', tags: ['hydro', 'power', 'plant'], priority: 2 }
+      site = Object.assign({ id }, specs)
+      site.toJSON = () => site
     })
 
     it('should rejects with error when model query fails', done => {
@@ -208,29 +208,29 @@ describe('LinkService', () => {
     })
     it('should resolves with empty result when model query returns no result', done => {
       _Model.expects('findByIdAndUpdate').withArgs(id, specs).resolves()
-      service.update(id, specs).then(t => {
+      service.update(id, specs).then(s => {
         _Model.verify()
-        should.not.exist(t)
+        should.not.exist(s)
         done()
       }).catch(done)
     })
-    it('should resolves with updated link when model query succeeds', done => {
-      _Model.expects('findByIdAndUpdate').withArgs(id, specs).resolves(link)
-      service.update(id, specs).then(t => {
+    it('should resolves with updated site when model query succeeds', done => {
+      _Model.expects('findByIdAndUpdate').withArgs(id, specs).resolves(site)
+      service.update(id, specs).then(s => {
         _Model.verify()
-        t.id.should.equal(id)
+        s.id.should.equal(id)
         done()
       }).catch(done)
     })
   })
 
   describe('delete', () => {
-    let id, link
+    let id, site
 
     beforeEach(() => {
-      id = '3333-cccc'
-      link = { id }
-      link.toJSON = () => link
+      id = '1111-aaaa'
+      site = { id }
+      site.toJSON = () => site
     })
 
     it('should rejects with error when model query fails', done => {
@@ -244,17 +244,17 @@ describe('LinkService', () => {
     })
     it('should resolves with empty result when model query returns no result', done => {
       _Model.expects('findByIdAndRemove').withArgs(id).resolves()
-      service.delete(id).then(t => {
+      service.delete(id).then(s => {
         _Model.verify()
-        should.not.exist(t)
+        should.not.exist(s)
         done()
       }).catch(done)
     })
-    it('should resolves with deleted link when model query succeeds', done => {
-      _Model.expects('findByIdAndRemove').withArgs(id).resolves(link)
-      service.delete(id).then(t => {
+    it('should resolves with deleted site when model query succeeds', done => {
+      _Model.expects('findByIdAndRemove').withArgs(id).resolves(site)
+      service.delete(id).then(s => {
         _Model.verify()
-        t.id.should.equal(id)
+        s.id.should.equal(id)
         done()
       }).catch(done)
     })
