@@ -28,9 +28,9 @@ scrape_configs:
   - job_name: 'traefik'
     static_configs:
       - targets: ['traefik:8080']
-  - job_name: 'go-service'
+  - job_name: 'site-service'
     static_configs:
-      - targets: ['go-service:4010']
-  - job_name: 'node-service'
+      - targets: ['site-service:4010']
+  - job_name: 'sensor-service'
     static_configs:
-      - targets: ['node-service:4020']
+      - targets: ['sensor-service:4020']

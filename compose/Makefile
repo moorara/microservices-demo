@@ -9,8 +9,8 @@ fluentd:
 	    -t moorara/fluentd:$(fluentd_version) .
 
 services:
-	@ cd ../services/go-service && make docker
-	@ cd ../services/node-service && make docker
+	@ cd ../services/site-service && make docker
+	@ cd ../services/sensor-service && make docker
 
 
 pull:
@@ -35,7 +35,7 @@ test-up:
 	@ FLUENTD_VERSION=$(fluentd_version) \
 	  docker-compose up -d fluentd
 	@ FLUENTD_VERSION=$(fluentd_version) \
-	  docker-compose up -d traefik go-service node-service
+	  docker-compose up -d traefik site-service sensor-service
 
 test-integration:
 	@ cd tests && \
