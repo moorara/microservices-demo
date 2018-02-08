@@ -12,14 +12,14 @@ services:
       POSTGRES_PASSWORD: pass
     volumes:
       - "./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql"
-  go-service:
-    image: moorara/go-service:${VERSION:-latest}
-    hostname: go-service
-    container_name: go-service
+  sensor-service:
+    image: moorara/sensor-service:${VERSION:-latest}
+    hostname: sensor-service
+    container_name: sensor-service
     depends_on:
       - postgres
     ports:
-      - "4010:4010"
+      - "4020:4020"
     environment:
       - LOG_LEVEL=debug
       - POSTGRES_URL=postgres://root:pass@postgres

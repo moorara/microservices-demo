@@ -40,10 +40,10 @@ func TestNewCounter(t *testing.T) {
 			"go_service",
 			"errors_total", "total number of errors",
 			[]string{"resource"},
-			[]string{"vote"},
+			[]string{"object"},
 			5,
 			[]string{
-				`label:<name:"resource" value:"vote" >`,
+				`label:<name:"resource" value:"object" >`,
 			},
 		},
 		{
@@ -51,10 +51,10 @@ func TestNewCounter(t *testing.T) {
 			"go_service",
 			"requests_total", "total number of requests",
 			[]string{"resource"},
-			[]string{"vote"},
+			[]string{"object"},
 			10,
 			[]string{
-				`label:<name:"resource" value:"vote" >`,
+				`label:<name:"resource" value:"object" >`,
 				`counter:<value:11 > `,
 			},
 		},
@@ -86,9 +86,9 @@ func TestNewGauge(t *testing.T) {
 		expectedRegex      []string
 	}{
 		{
-			"VoteGauge",
+			"ObjectGauge",
 			"go_service",
-			"votes", "current number of votes",
+			"objects", "current number of objects",
 			[]string{"active"},
 			[]string{"true"},
 			8, 4,

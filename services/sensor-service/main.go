@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/moorara/microservices-demo/services/go-service/config"
-	"github.com/moorara/microservices-demo/services/go-service/server"
+	"github.com/moorara/microservices-demo/services/sensor-service/config"
+	"github.com/moorara/microservices-demo/services/sensor-service/server"
 )
 
 func main() {

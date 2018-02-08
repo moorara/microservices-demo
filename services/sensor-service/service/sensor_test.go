@@ -46,7 +46,7 @@ func (mdb *mockDB) QueryRowContext(ctx context.Context, query string, args ...in
 	return mdb.QueryRowContextRow
 }
 
-func TestNewVoteManager(t *testing.T) {
+func TestNewSensorManager(t *testing.T) {
 	tests := []struct {
 		name        string
 		postgresURL string
@@ -65,20 +65,77 @@ func TestNewVoteManager(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			db := NewPostgresDB(tc.postgresURL)
 			logger := log.NewNopLogger()
-			vm := NewVoteManager(db, logger)
+			m := NewSensorManager(db, logger)
 
-			assert.NotNil(t, vm)
+			assert.NotNil(t, m)
 		})
 	}
 }
 
-func TestVoteManagerCreate(t *testing.T) {
+func TestSensorManagerCreate(t *testing.T) {
 	tests := []struct {
 		name             string
 		execContextError error
 		context          context.Context
-		linkID           string
-		stars            int
+		sensorSiteID     string
+		sensorName       string
+		sensorUnit       string
+		sensorMinSafe    float64
+		sensorMaxSafe    float64
+		expectError      bool
+	}{
+		{
+			"DatabaseFailed",
+			errors.New("error"),
+			context.Background(),
+			"", "", "", 0.0, 0.0,
+			true,
+		},
+		{
+			"DatabaseSuccessful",
+			nil,
+			context.Background(),
+			"1111-aaaa", "temperature", "celsius", -30.0, 30.0,
+			false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			db := &mockDB{
+				ExecContextResult: nil,
+				ExecContextError:  tc.execContextError,
+			}
+
+			m := &postgresSensorManager{
+				db:     db,
+				logger: log.NewNopLogger(),
+			}
+
+			sensor, err := m.Create(tc.context, tc.sensorSiteID, tc.sensorName, tc.sensorUnit, tc.sensorMinSafe, tc.sensorMaxSafe)
+
+			assert.True(t, db.ExecContextCalled)
+			if tc.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.NotEmpty(t, sensor.ID)
+				assert.Equal(t, tc.sensorSiteID, sensor.SiteID)
+				assert.Equal(t, tc.sensorName, sensor.Name)
+				assert.Equal(t, tc.sensorUnit, sensor.Unit)
+				assert.Equal(t, tc.sensorMinSafe, sensor.MinSafe)
+				assert.Equal(t, tc.sensorMaxSafe, sensor.MaxSafe)
+			}
+		})
+	}
+}
+
+func TestSensorManagerDelete(t *testing.T) {
+	tests := []struct {
+		name             string
+		execContextError error
+		context          context.Context
+		sensorID         string
 		expectError      bool
 	}{
 		{
@@ -86,7 +143,6 @@ func TestVoteManagerCreate(t *testing.T) {
 			errors.New("error"),
 			context.Background(),
 			"",
-			0,
 			true,
 		},
 		{
@@ -94,79 +150,25 @@ func TestVoteManagerCreate(t *testing.T) {
 			nil,
 			context.Background(),
 			"2222-bbbb",
-			5,
 			false,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			mdb := &mockDB{
+			db := &mockDB{
 				ExecContextResult: nil,
 				ExecContextError:  tc.execContextError,
 			}
-			vm := &postgresVoteManager{
-				db:     mdb,
+
+			m := &postgresSensorManager{
+				db:     db,
 				logger: log.NewNopLogger(),
 			}
 
-			vote, err := vm.Create(tc.context, tc.linkID, tc.stars)
+			err := m.Delete(tc.context, tc.sensorID)
 
-			assert.True(t, mdb.ExecContextCalled)
-			if tc.expectError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tc.linkID, vote.LinkID)
-				assert.Equal(t, tc.stars, vote.Stars)
-			}
-		})
-	}
-}
-
-func TestVoteManagerDelete(t *testing.T) {
-	tests := []struct {
-		name               string
-		execContextError   error
-		context            context.Context
-		voteID             string
-		expectError        bool
-		expectedVoteID     string
-		expectedVoteLinkID string
-		expectedVoteStars  int
-	}{
-		{
-			"DatabaseFailed",
-			errors.New("error"),
-			context.Background(),
-			"",
-			true,
-			"", "", 0,
-		},
-		{
-			"DatabaseSuccessful",
-			nil,
-			context.Background(),
-			"2222-bbbb",
-			false,
-			"1111-aaaa", "2222-bbbb", 5,
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			mdb := &mockDB{
-				ExecContextResult: nil,
-				ExecContextError:  tc.execContextError,
-			}
-			vm := &postgresVoteManager{
-				db:     mdb,
-				logger: log.NewNopLogger(),
-			}
-
-			err := vm.Delete(tc.context, tc.voteID)
-
-			assert.True(t, mdb.ExecContextCalled)
+			assert.True(t, db.ExecContextCalled)
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {

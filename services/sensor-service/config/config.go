@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	dbName             = "microservices"
+	dbName             = "sensors"
 	dbOpts             = "?sslmode=disable"
 	defaultLogLevel    = "info"
-	defaultServiceName = "go-service"
-	defaultServicePort = ":4010"
+	defaultServiceName = "sensor-service"
+	defaultServicePort = ":4020"
 	defaultPostgresURL = "postgres://root@localhost"
 )
 

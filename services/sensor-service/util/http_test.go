@@ -36,7 +36,7 @@ func Test(t *testing.T) {
 				assert.Equal(t, "2xx", rw.StatusClass())
 			}
 
-			r := httptest.NewRequest("GET", "http://service/votes", nil)
+			r := httptest.NewRequest("GET", "http://service/resource", nil)
 			w := httptest.NewRecorder()
 			wrapperHandler(w, r)
 		})

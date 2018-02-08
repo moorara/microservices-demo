@@ -1,4 +1,4 @@
-docker_image ?= moorara/go-service
+docker_image ?= moorara/sensor-service
 docker_tag ?= latest
 
 path := $(shell pwd)
@@ -25,7 +25,7 @@ docker:
 
 up:
 	@ VERSION=$(docker_tag) \
-	  docker-compose up -d go-service
+	  docker-compose up -d sensor-service
 
 down:
 	@ VERSION=$(docker_tag) \

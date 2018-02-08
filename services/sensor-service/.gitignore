@@ -1,6 +1,6 @@
 # Compiled files
 main
-go-service
+sensor-service
 
 # Test files
 *.out

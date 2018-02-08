@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/moorara/microservices-demo/services/go-service/util"
+	"github.com/moorara/microservices-demo/services/sensor-service/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,7 +26,7 @@ func TestGetMetricsWrapper(t *testing.T) {
 			metrics := util.NewMetrics("go_service")
 			metricsMiddleware := NewMetricsMiddleware(metrics)
 
-			r := httptest.NewRequest("GET", "http://service/votes", nil)
+			r := httptest.NewRequest("GET", "http://service/resource", nil)
 			w := httptest.NewRecorder()
 
 			handler := metricsMiddleware.Wrap(func(w http.ResponseWriter, r *http.Request) {

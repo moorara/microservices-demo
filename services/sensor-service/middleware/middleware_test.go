@@ -39,7 +39,7 @@ func TestWrapAll(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			r := httptest.NewRequest("GET", "http://service/votes", nil)
+			r := httptest.NewRequest("GET", "http://service/resource", nil)
 			w := httptest.NewRecorder()
 
 			handler := WrapAll(http.NotFound, tc.middleware...)

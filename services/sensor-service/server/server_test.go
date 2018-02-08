@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/go-kit/kit/log"
-	"github.com/moorara/microservices-demo/services/go-service/config"
+	"github.com/moorara/microservices-demo/services/sensor-service/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,8 +37,8 @@ func TestNew(t *testing.T) {
 			"Server1",
 			config.Config{
 				LogLevel:    "info",
-				ServiceName: "go-service",
-				ServicePort: ":4010",
+				ServiceName: "golang-service",
+				ServicePort: ":4020",
 				PostgresURL: "postgres://localhost",
 			},
 		},
@@ -46,7 +46,7 @@ func TestNew(t *testing.T) {
 			"Server2",
 			config.Config{
 				LogLevel:    "debug",
-				ServiceName: "golang-service",
+				ServiceName: "sensor-service",
 				ServicePort: ":4020",
 				PostgresURL: "postgres://root:pass@localhost",
 			},
@@ -85,7 +85,7 @@ func TestStart(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			s := &HTTPServer{
 				config: config.Config{
-					ServicePort: ":4010",
+					ServicePort: ":4020",
 				},
 				logger: tc.logger,
 				server: &mockServer{

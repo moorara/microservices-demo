@@ -11,7 +11,7 @@ jobs:
       language: go
       go: 1.9.2
       script:
-        - cd services/go-service
+        - cd services/sensor-service
         - make test
 
     - stage: unit tests
@@ -28,7 +28,7 @@ jobs:
       language: go
       go: 1.9.2
       script:
-        - cd services/go-service
+        - cd services/sensor-service
         - make docker up
         - make test-component
 

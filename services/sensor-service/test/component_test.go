@@ -23,7 +23,7 @@ func isComponentTest() bool {
 func getServiceURL() string {
 	serviceURL := os.Getenv("SERVICE_URL")
 	if serviceURL == "" {
-		serviceURL = "http://localhost:4010"
+		serviceURL = "http://localhost:4020"
 	}
 	return serviceURL
 }
@@ -56,10 +56,10 @@ func TestUnit(t *testing.T) {
 		},
 		{
 			"SimplePOST",
-			"POST", "/v1/votes",
-			`{"linkId":"1111-aaaa","stars":5.0}`,
+			"POST", "/v1/sensors",
+			`{"siteId":"1111-aaaa","name":"temperature","unit":"celcius","minSafe":-30.0,"maxSafe":30.0}`,
 			201,
-			`{"id": "2222-bbbb","linkId":"1111-aaaa","stars":5.0}`,
+			`{"id": "2222-bbbb","siteId":"1111-aaaa","name":"temperature","unit":"celcius","minSafe":-30.0,"maxSafe":30.0}`,
 		},
 	}
 
@@ -117,10 +117,10 @@ func TestComponentMetrics(t *testing.T) {
 	assert.Contains(t, body, "# TYPE go_memstats_frees_total counter")
 	assert.Contains(t, body, "# TYPE go_memstats_heap_alloc_bytes gauge")
 	assert.Contains(t, body, "# TYPE go_memstats_heap_objects gauge")
-	assert.Contains(t, body, "# TYPE go_service_process_cpu_seconds_total counter")
-	assert.Contains(t, body, "# TYPE go_service_process_open_fds gauge")
-	assert.Contains(t, body, "# TYPE go_service_process_resident_memory_bytes gauge")
-	assert.Contains(t, body, "# TYPE go_service_process_virtual_memory_bytes gauge")
+	assert.Contains(t, body, "# TYPE sensor_service_process_cpu_seconds_total counter")
+	assert.Contains(t, body, "# TYPE sensor_service_process_open_fds gauge")
+	assert.Contains(t, body, "# TYPE sensor_service_process_resident_memory_bytes gauge")
+	assert.Contains(t, body, "# TYPE sensor_service_process_virtual_memory_bytes gauge")
 }
 
 func TestComponentSuccess(t *testing.T) {
@@ -130,24 +130,24 @@ func TestComponentSuccess(t *testing.T) {
 
 	tests := []struct {
 		name                     string
-		linkID                   string
-		postVotes                []JSON
+		siteID                   string
+		postSensors              []JSON
 		expectedPostStatusCode   int
 		expectedGetStatusCode    int
 		expectedDeleteStatusCode int
 	}{
 		{
-			"NoVote",
+			"NoSensor",
 			"0000-0000",
 			[]JSON{},
 			0, 200, 0,
 		},
 		{
-			"WithVotes",
+			"WithSensors",
 			"1111-aaaa",
 			[]JSON{
-				{"linkId": "1111-aaaa"},
-				{"linkId": "1111-aaaa", "stars": 4.0},
+				{"siteId": "1111-aaaa", "name": "temperature", "unit": "celsius", "minSafe": -30.0, "maxSafe": 30.0},
+				{"siteId": "1111-aaaa", "name": "temperature", "unit": "fahrenheit", "minSafe": -22.0, "maxSafe": 86.0},
 			},
 			201, 200, 204,
 		},
@@ -158,12 +158,12 @@ func TestComponentSuccess(t *testing.T) {
 			ids := make([]string, 0)
 			cmp := NewComponent()
 
-			// CREATE VOTES
-			for _, vote := range tc.postVotes {
-				reqBody, err := json.Marshal(vote)
+			// CREATE SENSORS
+			for _, sensor := range tc.postSensors {
+				reqBody, err := json.Marshal(sensor)
 				assert.NoError(t, err)
 
-				statusCode, resBody, err := cmp.Call(context.Background(), "POST", "/v1/votes", reqBody)
+				statusCode, resBody, err := cmp.Call(context.Background(), "POST", "/v1/sensors", reqBody)
 				assert.NoError(t, err)
 
 				res := make(JSON)
@@ -172,15 +172,16 @@ func TestComponentSuccess(t *testing.T) {
 
 				assert.Equal(t, tc.expectedPostStatusCode, statusCode)
 				assert.NotEmpty(t, res["id"])
-				assert.Equal(t, vote["linkId"], res["linkId"])
-				if stars, ok := vote["stars"].(float64); ok && stars > 0 {
-					assert.Equal(t, stars, res["stars"])
-				}
+				assert.Equal(t, sensor["siteId"], res["siteId"])
+				assert.Equal(t, sensor["name"], res["name"])
+				assert.Equal(t, sensor["unit"], res["unit"])
+				assert.Equal(t, sensor["minSafe"], res["minSafe"])
+				assert.Equal(t, sensor["maxSafe"], res["maxSafe"])
 			}
 
-			// GET VOTES
+			// GET SENSORS
 			{
-				endpoint := "/v1/votes?linkId=" + tc.linkID
+				endpoint := "/v1/sensors?siteId=" + tc.siteID
 				statusCode, resBody, err := cmp.Call(context.Background(), "GET", endpoint, nil)
 				assert.NoError(t, err)
 
@@ -189,23 +190,23 @@ func TestComponentSuccess(t *testing.T) {
 				assert.NoError(t, err)
 
 				assert.Equal(t, tc.expectedGetStatusCode, statusCode)
-				for _, vote := range res {
-					ids = append(ids, vote["id"].(string))
+				for _, sensor := range res {
+					ids = append(ids, sensor["id"].(string))
 				}
 			}
 
-			// GET VOTE
+			// GET SENSOR
 			for _, id := range ids {
-				endpoint := "/v1/votes/" + id
+				endpoint := "/v1/sensors/" + id
 				statusCode, _, err := cmp.Call(context.Background(), "GET", endpoint, nil)
 				assert.NoError(t, err)
 
 				assert.Equal(t, tc.expectedGetStatusCode, statusCode)
 			}
 
-			// DELETE VOTE
+			// DELETE SENSOR
 			for _, id := range ids {
-				endpoint := "/v1/votes/" + id
+				endpoint := "/v1/sensors/" + id
 				statusCode, _, err := cmp.Call(context.Background(), "DELETE", endpoint, nil)
 				assert.NoError(t, err)
 
@@ -229,13 +230,13 @@ func TestComponentError(t *testing.T) {
 		expectedResBody    interface{}
 	}{
 		{
-			"GetNotExistVote",
-			"GET", "/v1/votes/0000-0000", nil,
+			"GetNotExistSensor",
+			"GET", "/v1/sensors/0000-0000", nil,
 			404, nil,
 		},
 		{
-			"DeleteNotExistVote",
-			"DELETE", "/v1/votes/0000-0000", nil,
+			"DeleteNotExistSensor",
+			"DELETE", "/v1/sensors/0000-0000", nil,
 			204, nil,
 		},
 	}

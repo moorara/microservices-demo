@@ -25,7 +25,7 @@ type (
 func NewComponent() *Component {
 	serviceURL := os.Getenv("SERVICE_URL")
 	if serviceURL == "" {
-		serviceURL = "http://localhost:4010"
+		serviceURL = "http://localhost:4020"
 	}
 
 	return &Component{

@@ -6,11 +6,11 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/services/go-service/config"
-	"github.com/moorara/microservices-demo/services/go-service/handler"
-	"github.com/moorara/microservices-demo/services/go-service/middleware"
-	"github.com/moorara/microservices-demo/services/go-service/service"
-	"github.com/moorara/microservices-demo/services/go-service/util"
+	"github.com/moorara/microservices-demo/services/sensor-service/config"
+	"github.com/moorara/microservices-demo/services/sensor-service/handler"
+	"github.com/moorara/microservices-demo/services/sensor-service/middleware"
+	"github.com/moorara/microservices-demo/services/sensor-service/service"
+	"github.com/moorara/microservices-demo/services/sensor-service/util"
 )
 
 type (
@@ -30,27 +30,27 @@ type (
 
 // New creates a new http server
 func New(config config.Config) *HTTPServer {
-	metrics := util.NewMetrics("go_service")
+	metrics := util.NewMetrics("sensor_service")
 	logger := util.NewLogger(config.LogLevel, config.ServiceName, "go-kit")
 
 	metricsMiddleware := middleware.NewMetricsMiddleware(metrics)
 	loggerMiddleware := middleware.NewLoggerMiddleware(logger)
 
 	postgresDB := service.NewPostgresDB(config.PostgresURL)
-	voteHandler := handler.NewVoteHandler(postgresDB, logger)
-	postVoteHandler := middleware.WrapAll(voteHandler.PostVote, metricsMiddleware, loggerMiddleware)
-	getVotesHandler := middleware.WrapAll(voteHandler.GetVotes, metricsMiddleware, loggerMiddleware)
-	getVoteHandler := middleware.WrapAll(voteHandler.GetVote, metricsMiddleware, loggerMiddleware)
-	deleteVoteHandler := middleware.WrapAll(voteHandler.DeleteVote, metricsMiddleware, loggerMiddleware)
+	sensorHandler := handler.NewSensorHandler(postgresDB, logger)
+	postSensorHandler := middleware.WrapAll(sensorHandler.PostSensor, metricsMiddleware, loggerMiddleware)
+	getSensorsHandler := middleware.WrapAll(sensorHandler.GetSensors, metricsMiddleware, loggerMiddleware)
+	getSensorHandler := middleware.WrapAll(sensorHandler.GetSensor, metricsMiddleware, loggerMiddleware)
+	deleteSensorHandler := middleware.WrapAll(sensorHandler.DeleteSensor, metricsMiddleware, loggerMiddleware)
 
 	router := mux.NewRouter()
 	router.NotFoundHandler = middleware.WrapAll(handler.GetNotFoundHandler(logger), loggerMiddleware)
 	router.Methods("GET").Path("/health").HandlerFunc(handler.HealthHandler)
 	router.Methods("GET").Path("/metrics").HandlerFunc(metrics.GetHandler().ServeHTTP)
-	router.Methods("POST").Path("/v1/votes").HandlerFunc(postVoteHandler)
-	router.Methods("GET").Path("/v1/votes").Queries("linkId", "{linkId}").HandlerFunc(getVotesHandler)
-	router.Methods("GET").Path("/v1/votes/{id}").HandlerFunc(getVoteHandler)
-	router.Methods("DELETE").Path("/v1/votes/{id}").HandlerFunc(deleteVoteHandler)
+	router.Methods("POST").Path("/v1/sensors").HandlerFunc(postSensorHandler)
+	router.Methods("GET").Path("/v1/sensors").Queries("siteId", "{siteId}").HandlerFunc(getSensorsHandler)
+	router.Methods("GET").Path("/v1/sensors/{id}").HandlerFunc(getSensorHandler)
+	router.Methods("DELETE").Path("/v1/sensors/{id}").HandlerFunc(deleteSensorHandler)
 
 	return &HTTPServer{
 		config: config,
