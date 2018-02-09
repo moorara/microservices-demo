@@ -45,10 +45,10 @@ function whitelist_variable {
   fi
 }
 
-function run_go_service_tests {
-  printf "\n${yellow}  RUNNING TESTS FOR ${blue}go-service${nocolor}\n"
+function run_site_service_tests {
+  printf "\n${yellow}  RUNNING TESTS FOR ${blue}site-service${nocolor}\n"
 
-  linkId=$(get_random_string)
+  siteName=$(get_random_string)
 
   curl --fail http://localhost:4010/health &> /dev/null
   printf "${green}    [✓] GET /health ${nocolor}\n"
@@ -58,21 +58,21 @@ function run_go_service_tests {
 
   curl --fail \
     -H "Content-Type: application/json" \
-    -X POST -d "{ \"linkId\":\"$linkId\", \"stars\":4 }" \
-    http://localhost:4010/v1/votes &> /dev/null
-  printf "${green}    [✓] POST /v1/votes ${nocolor}\n"
+    -X POST -d "{ \"name\":\"$siteName\", \"location\":\"here\" }" \
+    http://localhost:4010/v1/sites &> /dev/null
+  printf "${green}    [✓] POST /v1/sites ${nocolor}\n"
 
   curl --fail \
     -H "Content-Type: application/json" \
     -X GET \
-    http://localhost:4010/v1/votes?linkId=$linkId &> /dev/null
-  printf "${green}    [✓] GET /v1/votes?linkId ${nocolor}\n"
+    http://localhost:4010/v1/sites &> /dev/null
+  printf "${green}    [✓] GET /v1/sites ${nocolor}\n"
 }
 
-function run_node_service_tests {
-  printf "\n${yellow}  RUNNING TESTS FOR ${blue}node-service${nocolor}\n"
+function run_sensor_service_tests {
+  printf "\n${yellow}  RUNNING TESTS FOR ${blue}sensor-service${nocolor}\n"
 
-  linkURL=$(get_random_string)
+  siteId=$(get_random_string)
 
   curl --fail http://localhost:4020/health &> /dev/null
   printf "${green}    [✓] GET /health ${nocolor}\n"
@@ -82,90 +82,97 @@ function run_node_service_tests {
 
   curl --fail \
     -H "Content-Type: application/json" \
-    -X POST -d "{ \"url\":\"$linkURL\", \"title\":\"required\" }" \
-    http://localhost:4020/v1/links &> /dev/null
-  printf "${green}    [✓] POST /v1/links ${nocolor}\n"
+    -X POST -d "{ \"siteId\":\"$siteId\", \"name\":\"temperature\", \"unit\":\"celsius\", \"minSafe\":-30, \"maxSafe\":30 }" \
+    http://localhost:4020/v1/sensors &> /dev/null
+  printf "${green}    [✓] POST /v1/sensors ${nocolor}\n"
 
   curl --fail \
     -H "Content-Type: application/json" \
     -X GET \
-    http://localhost:4020/v1/links &> /dev/null
-  printf "${green}    [✓] GET /v1/links ${nocolor}\n"
+    http://localhost:4020/v1/sensors?siteId=$siteId &> /dev/null
+  printf "${green}    [✓] GET /v1/sensors?siteId ${nocolor}\n"
 }
 
-function run_traefik_tests {
-  printf "\n${yellow}  RUNNING INTEGRATION TESTS FOR ${purple}traefik${nocolor}\n"
+function run_traefik_http_tests {
+  printf "\n${yellow}  RUNNING INTEGRATION TESTS FOR ${purple}traefik (http)${nocolor}\n"
 
-  linkId=$(get_random_string)
-  curl --fail \
-    -H "Host: traefik" \
-    -H "Content-Type: application/json" \
-    -X POST -d "{ \"linkId\":\"$linkId\", \"stars\":4 }" \
-    http://localhost:1080/api/v1/votes &> /dev/null
-  printf "${green}    [✓] POST /api/v1/votes ${nocolor}\n"
+  siteName=$(get_random_string)
+  siteId=$(get_random_string)
 
   curl --fail \
     -H "Host: traefik" \
     -H "Content-Type: application/json" \
-    -X GET \
-    http://localhost:1080/api/v1/votes?linkId=$linkId &> /dev/null
-  printf "${green}    [✓] GET /api/v1/votes?linkId ${nocolor}\n"
-
-  linkURL=$(get_random_string)
-  curl --fail \
-    -H "Host: traefik" \
-    -H "Content-Type: application/json" \
-    -X POST -d "{ \"url\":\"$linkURL\", \"title\":\"required\" }" \
-    http://localhost:1080/api/v1/links &> /dev/null
-  printf "${green}    [✓] POST /api/v1/links ${nocolor}\n"
+    -X POST -d "{ \"name\":\"$siteName\", \"location\":\"here\" }" \
+    http://localhost:1080/api/v1/sites &> /dev/null
+  printf "${green}    [✓] POST /api/v1/sites ${nocolor}\n"
 
   curl --fail \
     -H "Host: traefik" \
     -H "Content-Type: application/json" \
     -X GET \
-    http://localhost:1080/api/v1/links &> /dev/null
-  printf "${green}    [✓] GET /api/v1/links ${nocolor}\n"
+    http://localhost:1080/api/v1/sites &> /dev/null
+  printf "${green}    [✓] GET /api/v1/sites ${nocolor}\n"
 
-  linkId=$(get_random_string)
   curl --fail \
-    --cacert $certs_path/intermediate.ca.chain \
     -H "Host: traefik" \
     -H "Content-Type: application/json" \
-    -X POST -d "{ \"linkId\":\"$linkId\", \"stars\":4 }" \
-    https://localhost:1443/api/v1/votes &> /dev/null
-  printf "${green}    [✓] POST /api/v1/votes (https) ${nocolor}\n"
+    -X POST -d "{ \"siteId\":\"$siteId\", \"name\":\"temperature\", \"unit\":\"celsius\", \"minSafe\":-30, \"maxSafe\":30 }" \
+    http://localhost:1080/api/v1/sensors &> /dev/null
+  printf "${green}    [✓] POST /api/v1/sensors ${nocolor}\n"
 
   curl --fail \
-    --cacert $certs_path/intermediate.ca.chain \
     -H "Host: traefik" \
     -H "Content-Type: application/json" \
     -X GET \
-    https://localhost:1443/api/v1/votes?linkId=$linkId &> /dev/null
-  printf "${green}    [✓] GET /api/v1/votes?linkId (https) ${nocolor}\n"
+    http://localhost:1080/api/v1/sensors?siteId=$siteId &> /dev/null
+  printf "${green}    [✓] GET /api/v1/sensors?siteId ${nocolor}\n"
+}
 
-  linkURL=$(get_random_string)
+function run_traefik_https_tests {
+  printf "\n${yellow}  RUNNING INTEGRATION TESTS FOR ${purple}traefik (https)${nocolor}\n"
+
+  siteName=$(get_random_string)
+  siteId=$(get_random_string)
+
   curl --fail \
     --cacert $certs_path/intermediate.ca.chain \
     -H "Host: traefik" \
     -H "Content-Type: application/json" \
-    -X POST -d "{ \"url\":\"$linkURL\", \"title\":\"required\" }" \
-    https://localhost:1443/api/v1/links &> /dev/null
-  printf "${green}    [✓] POST /api/v1/links (https) ${nocolor}\n"
+    -X POST -d "{ \"name\":\"$siteName\", \"location\":\"here\" }" \
+    https://localhost:1443/api/v1/sites &> /dev/null
+  printf "${green}    [✓] POST /api/v1/sites ${nocolor}\n"
 
   curl --fail \
     --cacert $certs_path/intermediate.ca.chain \
     -H "Host: traefik" \
     -H "Content-Type: application/json" \
     -X GET \
-    https://localhost:1443/api/v1/links &> /dev/null
-  printf "${green}    [✓] GET /api/v1/links (https) ${nocolor}\n"
+    https://localhost:1443/api/v1/sites &> /dev/null
+  printf "${green}    [✓] GET /api/v1/sites ${nocolor}\n"
+
+  curl --fail \
+    --cacert $certs_path/intermediate.ca.chain \
+    -H "Host: traefik" \
+    -H "Content-Type: application/json" \
+    -X POST -d "{ \"siteId\":\"$siteId\", \"name\":\"temperature\", \"unit\":\"celsius\", \"minSafe\":-30, \"maxSafe\":30 }" \
+    https://localhost:1443/api/v1/sensors &> /dev/null
+  printf "${green}    [✓] POST /api/v1/sensors ${nocolor}\n"
+
+  curl --fail \
+    --cacert $certs_path/intermediate.ca.chain \
+    -H "Host: traefik" \
+    -H "Content-Type: application/json" \
+    -X GET \
+    https://localhost:1443/api/v1/sensors?siteId=$siteId &> /dev/null
+  printf "${green}    [✓] GET /api/v1/sensors?siteId ${nocolor}\n"
 }
 
 
 certs_path="../certs"
 
 ensure_command "curl"
-run_go_service_tests
-run_node_service_tests
-run_traefik_tests
+run_site_service_tests
+run_sensor_service_tests
+run_traefik_http_tests
+run_traefik_https_tests
 echo

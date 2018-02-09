@@ -1,0 +1,9 @@
+# Compiled files
+main
+sensor-service
+
+# Test files
+*.out
+*.test
+cover.out
+reports/

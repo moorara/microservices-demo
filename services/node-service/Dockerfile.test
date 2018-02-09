@@ -1,6 +1,0 @@
-ARG version=latest
-
-# Test Image
-FROM moorara/node-service:$version
-USER root
-RUN npm install

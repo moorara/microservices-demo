@@ -1,0 +1,28 @@
+version: "3.4"
+services:
+  mongo:
+    image: mongo
+    hostname: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+  site-service:
+    image: moorara/site-service:${VERSION:-latest}
+    hostname: site-service
+    container_name: site-service
+    depends_on:
+      - mongo
+    ports:
+      - "4010:4010"
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+      - MONGO_URL=mongodb://mongo:27017
+  site-service-test:
+    image: site-service-test
+    container_name: site-service-test
+    depends_on:
+      - site-service
+    environment:
+      - SERVICE_URL=http://site-service:4010

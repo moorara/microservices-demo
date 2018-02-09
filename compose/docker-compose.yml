@@ -62,7 +62,7 @@ services:
       - local
     volumes:
       - "postgres_data:/var/lib/postgresql/data"
-      - "./init/go-service.sql:/docker-entrypoint-initdb.d/initdb.sql"
+      - "./init/sensor-service.sql:/docker-entrypoint-initdb.d/initdb.sql"
 
   # LOGGING
   elasticsearch:
@@ -200,42 +200,18 @@ services:
     <<: *logdriver
 
   # APPLICATION SERVICES
-  go-service:
-    image: moorara/go-service:latest
-    hostname: go-service
-    container_name: go-service
-    depends_on:
-      - postgres
-      - fluentd
-    ports:
-      - "4010:4010"
-    environment:
-      - SERVICE_NAME=go-service
-      - SERVICE_TAGS=monitor
-      - POSTGRES_URL=postgres://root:pass@postgres
-    networks:
-      - local
-      - traefik
-    labels:
-      <<: *labels
-      traefik.enable: "true"
-      traefik.docker.network: "compose_traefik"
-      traefik.port: "4010"
-      traefik.backend: "go-service"
-      traefik.frontend.rule: "Host:traefik; ReplacePathRegex: ^/api/v1/votes /v1/votes"
-    <<: *logdriver
-  node-service:
-    image: moorara/node-service:latest
-    hostname: node-service
-    container_name: node-service
+  site-service:
+    image: moorara/site-service:latest
+    hostname: site-service
+    container_name: site-service
     depends_on:
       - mongo
       - fluentd
     ports:
-      - "4020:4020"
+      - "4010:4010"
     environment:
       - LOG_LEVEL=debug
-      - SERVICE_NAME=node-service
+      - SERVICE_NAME=site-service
       - SERVICE_TAGS=monitor
       - MONGO_URL=mongodb://mongo:27017
     networks:
@@ -245,7 +221,31 @@ services:
       <<: *labels
       traefik.enable: "true"
       traefik.docker.network: "compose_traefik"
+      traefik.port: "4010"
+      traefik.backend: "site-service"
+      traefik.frontend.rule: "Host:traefik; PathPrefixStrip:/api/v1/sites; AddPrefix:/v1/sites"
+    <<: *logdriver
+  sensor-service:
+    image: moorara/sensor-service:latest
+    hostname: sensor-service
+    container_name: sensor-service
+    depends_on:
+      - postgres
+      - fluentd
+    ports:
+      - "4020:4020"
+    environment:
+      - SERVICE_NAME=sensor-service
+      - SERVICE_TAGS=monitor
+      - POSTGRES_URL=postgres://root:pass@postgres
+    networks:
+      - local
+      - traefik
+    labels:
+      <<: *labels
+      traefik.enable: "true"
+      traefik.docker.network: "compose_traefik"
       traefik.port: "4020"
-      traefik.backend: "node-service"
-      traefik.frontend.rule: "Host:traefik; PathPrefixStrip:/api/v1/links; AddPrefix:/v1/links"
+      traefik.backend: "sensor-service"
+      traefik.frontend.rule: "Host:traefik; ReplacePathRegex: ^/api/v1/sensors /v1/sensors"
     <<: *logdriver
