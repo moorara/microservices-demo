@@ -24,6 +24,15 @@ jobs:
         - yarn run lint
         - yarn run test
 
+    - stage: unit tests
+      language: node_js
+      node_js: 9
+      script:
+        - cd services/react-client
+        - yarn install
+        - yarn run lint
+        - yarn run test
+
     - stage: component tests
       language: go
       go: 1.9

@@ -9,7 +9,7 @@
 | `GET`    | `/v1/sites/:id` | `200`  | `site object`    | Retrieves a site    |
 | `PUT`    | `/v1/sites/:id` | `204`  |                  | Updates a site      |
 | `PATCH`  | `/v1/sites/:id` | `200`  | `site object`    | Modifies a site     |
-| `DELETE` | `/v1/sites/:id` | `204`  |                  | Removes a site      |
+| `DELETE` | `/v1/sites/:id` | `200`  | `site object`    | Removes a site      |
 
 ### Examples
 
