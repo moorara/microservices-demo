@@ -41,6 +41,7 @@ func New(config config.Config) *HTTPServer {
 	postSensorHandler := middleware.WrapAll(sensorHandler.PostSensor, metricsMiddleware, loggerMiddleware)
 	getSensorsHandler := middleware.WrapAll(sensorHandler.GetSensors, metricsMiddleware, loggerMiddleware)
 	getSensorHandler := middleware.WrapAll(sensorHandler.GetSensor, metricsMiddleware, loggerMiddleware)
+	putSensorHandler := middleware.WrapAll(sensorHandler.PutSensor, metricsMiddleware, loggerMiddleware)
 	deleteSensorHandler := middleware.WrapAll(sensorHandler.DeleteSensor, metricsMiddleware, loggerMiddleware)
 
 	router := mux.NewRouter()
@@ -50,6 +51,7 @@ func New(config config.Config) *HTTPServer {
 	router.Methods("POST").Path("/v1/sensors").HandlerFunc(postSensorHandler)
 	router.Methods("GET").Path("/v1/sensors").Queries("siteId", "{siteId}").HandlerFunc(getSensorsHandler)
 	router.Methods("GET").Path("/v1/sensors/{id}").HandlerFunc(getSensorHandler)
+	router.Methods("PUT").Path("/v1/sensors/{id}").HandlerFunc(putSensorHandler)
 	router.Methods("DELETE").Path("/v1/sensors/{id}").HandlerFunc(deleteSensorHandler)
 
 	return &HTTPServer{

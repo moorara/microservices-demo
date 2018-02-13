@@ -28,6 +28,10 @@ type mockSensorManager struct {
 	GetResult *service.Sensor
 	GetError  error
 
+	UpdateCalled bool
+	UpdateResult int
+	UpdateError  error
+
 	DeleteCalled bool
 	DeleteError  error
 }
@@ -45,6 +49,11 @@ func (m *mockSensorManager) All(ctx context.Context, siteID string) ([]service.S
 func (m *mockSensorManager) Get(ctx context.Context, id string) (*service.Sensor, error) {
 	m.GetCalled = true
 	return m.GetResult, m.GetError
+}
+
+func (m *mockSensorManager) Update(ctx context.Context, s service.Sensor) (int, error) {
+	m.UpdateCalled = true
+	return m.UpdateResult, m.UpdateError
 }
 
 func (m *mockSensorManager) Delete(ctx context.Context, id string) error {
@@ -88,19 +97,34 @@ func TestPostSensor(t *testing.T) {
 		expectedResBody string
 	}{
 		{
-			"InvalidRequest",
+			"InvalidJSON",
+			nil, nil,
+			`{`,
+			400,
+			``,
+		},
+		{
+			"NoSensorSiteID",
 			nil, nil,
 			`{}`,
 			400,
 			``,
 		},
 		{
-			"InvalidJSON",
+			"NoSensorName",
 			nil, nil,
-			`{"siteId": "1111-aaaa"`,
+			`{"siteId": "1111-aaaa"}`,
 			400,
 			``,
 		},
+		{
+			"NoSensorUnit",
+			nil, nil,
+			`{"siteId": "1111-aaaa", "name": "temperature"}`,
+			400,
+			``,
+		},
+		// TODO
 		{
 			"SensorManagerError",
 			nil, errors.New("error"),
@@ -285,6 +309,124 @@ func TestGetSensor(t *testing.T) {
 			defer ts.Close()
 
 			res, err := http.Get(ts.URL + "/sensors/" + tc.sensorID)
+			assert.NoError(t, err)
+			body, err := ioutil.ReadAll(res.Body)
+			assert.NoError(t, err)
+
+			assert.Equal(t, tc.expectedStatus, res.StatusCode)
+			if tc.expectedStatus == http.StatusOK {
+				assert.Contains(t, string(body), tc.expectedResBody)
+			}
+		})
+	}
+}
+
+func TestPutSensor(t *testing.T) {
+	tests := []struct {
+		name            string
+		updateResult    int
+		updateError     error
+		sensorID        string
+		reqBody         string
+		expectedStatus  int
+		expectedResBody string
+	}{
+		{
+			"NoSensorID",
+			0,
+			nil,
+			"", ``,
+			404,
+			``,
+		},
+		{
+			"InvalidJSON",
+			0,
+			nil,
+			"2222-bbbb", `{`,
+			400,
+			``,
+		},
+		{
+			"NoSensorSiteID",
+			0,
+			nil,
+			"2222-bbbb", `{}`,
+			400,
+			``,
+		},
+		{
+			"NoSensorName",
+			0,
+			nil,
+			"2222-bbbb", `{"siteId": "1111-aaaa"}`,
+			400,
+			``,
+		},
+		{
+			"NoSensorUnit",
+			0,
+			nil,
+			"2222-bbbb", `{"siteId": "1111-aaaa", "name": "temperature"}`,
+			400,
+			``,
+		},
+		{
+			"InvalidMinSafeAndMaxSafe",
+			0,
+			nil,
+			"2222-bbbb", `{"siteId": "1111-aaaa", "name": "temperature", "unit": "fahrenheit", "minSafe": 10, "maxSafe": -10}`,
+			400,
+			``,
+		},
+		{
+			"SensorManagerError",
+			0,
+			errors.New("error"),
+			"2222-bbbb", `{"siteId": "1111-aaaa", "name": "temperature", "unit": "fahrenheit", "minSafe": -22, "maxSafe": 86}`,
+			500,
+			``,
+		},
+		{
+			"SensorNotFound",
+			0,
+			nil,
+			"0000-0000", `{"siteId": "1111-aaaa", "name": "temperature", "unit": "fahrenheit", "minSafe": -22, "maxSafe": 86}`,
+			404,
+			``,
+		},
+		{
+			"Successful",
+			1,
+			nil,
+			"2222-bbbb", `{"siteId": "1111-aaaa", "name": "temperature", "unit": "fahrenheit", "minSafe": -22, "maxSafe": 86}`,
+			204,
+			``,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			m := &mockSensorManager{
+				UpdateResult: tc.updateResult,
+				UpdateError:  tc.updateError,
+			}
+
+			h := &postgresSensorHandler{
+				manager: m,
+				logger:  log.NewNopLogger(),
+			}
+
+			mr := mux.NewRouter()
+			mr.Methods("PUT").Path("/sensors/{id}").HandlerFunc(h.PutSensor)
+			ts := httptest.NewServer(mr)
+			defer ts.Close()
+
+			reqBody := strings.NewReader(tc.reqBody)
+			req, err := http.NewRequest("PUT", ts.URL+"/sensors/"+tc.sensorID, reqBody)
+			assert.NoError(t, err)
+			client := &http.Client{}
+			res, err := client.Do(req)
 			assert.NoError(t, err)
 			body, err := ioutil.ReadAll(res.Body)
 			assert.NoError(t, err)

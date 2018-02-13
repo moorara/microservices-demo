@@ -16,6 +16,7 @@ type (
 		PostSensor(w http.ResponseWriter, r *http.Request)
 		GetSensors(w http.ResponseWriter, r *http.Request)
 		GetSensor(w http.ResponseWriter, r *http.Request)
+		PutSensor(w http.ResponseWriter, r *http.Request)
 		DeleteSensor(w http.ResponseWriter, r *http.Request)
 	}
 
@@ -34,7 +35,7 @@ func NewSensorHandler(db service.DB, logger log.Logger) SensorHandler {
 }
 
 func (h *postgresSensorHandler) PostSensor(w http.ResponseWriter, r *http.Request) {
-	req := struct {
+	s := struct {
 		SiteID  string  `json:"siteId"`
 		Name    string  `json:"name"`
 		Unit    string  `json:"unit"`
@@ -42,21 +43,16 @@ func (h *postgresSensorHandler) PostSensor(w http.ResponseWriter, r *http.Reques
 		MaxSafe float64 `json:"maxSafe"`
 	}{}
 
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(&s)
+	if err != nil || s.SiteID == "" || s.Name == "" || s.Unit == "" || s.MinSafe > s.MaxSafe {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	defer r.Body.Close()
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if req.SiteID == "" || req.Name == "" || req.Unit == "" || req.MinSafe > req.MaxSafe {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	sensor, err := h.manager.Create(context.Background(), req.SiteID, req.Name, req.Unit, req.MinSafe, req.MaxSafe)
+	sensor, err := h.manager.Create(context.Background(), s.SiteID, s.Name, s.Unit, s.MinSafe, s.MaxSafe)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -123,17 +119,49 @@ func (h *postgresSensorHandler) GetSensor(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (h *postgresSensorHandler) DeleteSensor(w http.ResponseWriter, r *http.Request) {
+func (h *postgresSensorHandler) PutSensor(w http.ResponseWriter, r *http.Request) {
+	s := service.Sensor{}
+
 	vars := mux.Vars(r)
-	sensorID := vars["id"]
-	if sensorID == "" {
+	s.ID = vars["id"]
+	if s.ID == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	defer r.Body.Close()
+	err := json.NewDecoder(r.Body).Decode(&s)
+	if err != nil || s.SiteID == "" || s.Name == "" || s.Unit == "" || s.MinSafe > s.MaxSafe {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	err := h.manager.Delete(context.Background(), sensorID)
+	n, err := h.manager.Update(context.Background(), s)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if n == 0 {
+		w.WriteHeader(http.StatusNotFound)
+	} else {
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+func (h *postgresSensorHandler) DeleteSensor(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	err := h.manager.Delete(context.Background(), id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

@@ -22,9 +22,10 @@ type (
 
 	// SensorManager abstracts CRUD operations for Sensor
 	SensorManager interface {
-		Create(ctx context.Context, siteID string, name, unit string, minSafe, maxSafe float64) (*Sensor, error)
+		Create(ctx context.Context, siteID, name, unit string, minSafe, maxSafe float64) (*Sensor, error)
 		All(ctx context.Context, siteID string) ([]Sensor, error)
 		Get(ctx context.Context, id string) (*Sensor, error)
+		Update(ctx context.Context, s Sensor) (int, error)
 		Delete(ctx context.Context, id string) error
 	}
 
@@ -42,7 +43,7 @@ func NewSensorManager(db DB, logger log.Logger) SensorManager {
 	}
 }
 
-func (m *postgresSensorManager) Create(ctx context.Context, siteID string, name, unit string, minSafe, maxSafe float64) (*Sensor, error) {
+func (m *postgresSensorManager) Create(ctx context.Context, siteID, name, unit string, minSafe, maxSafe float64) (*Sensor, error) {
 	sensor := &Sensor{
 		ID:      uuid.New().String(),
 		SiteID:  siteID,
@@ -98,6 +99,23 @@ func (m *postgresSensorManager) Get(ctx context.Context, id string) (*Sensor, er
 	}
 
 	return sensor, nil
+}
+
+func (m *postgresSensorManager) Update(ctx context.Context, s Sensor) (int, error) {
+	query := `update sensors set site_id = $2, name = $3, unit = $4, min_safe = $5, max_safe = $6 where id = $1`
+	res, err := m.db.ExecContext(ctx, query, s.ID, s.SiteID, s.Name, s.Unit, s.MinSafe, s.MaxSafe)
+	if err != nil {
+		level.Error(m.logger).Log("message", err.Error())
+		return 0, err
+	}
+
+	n, err := res.RowsAffected()
+	if err != nil {
+		level.Error(m.logger).Log("message", err.Error())
+		return 0, err
+	}
+
+	return int(n), nil
 }
 
 func (m *postgresSensorManager) Delete(ctx context.Context, id string) error {
