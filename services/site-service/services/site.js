@@ -1,3 +1,5 @@
+// http://mongoosejs.com/docs/api.html
+
 const _ = require('lodash')
 
 const Logger = require('../util/logger')
@@ -63,11 +65,25 @@ class SiteService {
   }
 
   async update (id, specs) {
-    let query = {}
-    query = _.merge(query, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
+    const query = { _id: id }
+    const update = Object.assign({}, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
+    const options = { upsert: false, runValidators: true, overwrite: true }
 
     try {
-      let site = await this.SiteModel.findByIdAndUpdate(id, query, { new: true })
+      let res = await this.SiteModel.update(query, update, options)
+      return res.ok === 1 && res.n === 1
+    } catch (err) {
+      this.logger.error(`Error updating site ${id}.`, err)
+      throw err
+    }
+  }
+
+  async modify (id, specs) {
+    const update = Object.assign({}, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
+    const options = { new: true, upsert: false, runValidators: true }
+
+    try {
+      let site = await this.SiteModel.findByIdAndUpdate(id, update, options)
       return site ? site.toJSON() : null
     } catch (err) {
       this.logger.error(`Error updating site ${id}.`, err)

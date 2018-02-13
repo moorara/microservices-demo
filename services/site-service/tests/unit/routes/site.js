@@ -28,6 +28,7 @@ describe('SiteRouter', () => {
       all () {},
       get () {},
       update () {},
+      modify () {},
       delete () {}
     }
     _siteService = sinon.mock(siteService)
@@ -141,22 +142,21 @@ describe('SiteRouter', () => {
   })
 
   describe('PUT /sites/:id', () => {
-    let id, specs, site
+    let id, specs
 
     beforeEach(() => {
       id = '1111-aaaa'
-      specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA', tags: ['hydro', 'power', 'plant'], priority: 2 }
-      site = Object.assign({ id }, specs)
+      specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA', priority: 2 }
     })
 
-    it('200 - update a site', done => {
-      _siteService.expects('update').withArgs(id, specs).resolves(site)
+    it('204 - update a site', done => {
+      _siteService.expects('update').withArgs(id, specs).resolves(true)
       request.put(`/${id}`)
         .send(specs)
-        .expect(200, site, done)
+        .expect(204, done)
     })
     it('404 - site not found', done => {
-      _siteService.expects('update').withArgs(id, specs).resolves()
+      _siteService.expects('update').withArgs(id, specs).resolves(false)
       request.put(`/${id}`)
         .send(specs)
         .expect(404, done)
@@ -169,6 +169,41 @@ describe('SiteRouter', () => {
     it('500 - error when service fails', done => {
       _siteService.expects('update').withArgs(id, specs).rejects(new Error('error'))
       request.put(`/${id}`)
+        .send(specs)
+        .expect(500, done)
+    })
+  })
+
+  describe('PATCH /sites/:id', () => {
+    let id, specs
+    let site
+
+    beforeEach(() => {
+      id = '1111-aaaa'
+      specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA' }
+      site = Object.assign({ id }, specs)
+    })
+
+    it('200 - modify a site', done => {
+      _siteService.expects('modify').withArgs(id, specs).resolves(site)
+      request.patch(`/${id}`)
+        .send(specs)
+        .expect(200, site, done)
+    })
+    it('404 - site not found', done => {
+      _siteService.expects('modify').withArgs(id, specs).resolves()
+      request.patch(`/${id}`)
+        .send(specs)
+        .expect(404, done)
+    })
+    it('415 - error when body is not json', done => {
+      request.patch(`/${id}`)
+        .send('invalid json')
+        .expect(415, done)
+    })
+    it('500 - error when service fails', done => {
+      _siteService.expects('modify').withArgs(id, specs).rejects(new Error('error'))
+      request.patch(`/${id}`)
         .send(specs)
         .expect(500, done)
     })

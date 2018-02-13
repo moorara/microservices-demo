@@ -19,7 +19,7 @@ jobs:
       node_js: 9
       script:
         - cd services/site-service
-        - yarn
+        - yarn install
         - yarn run nsp
         - yarn run lint
         - yarn run test
@@ -38,7 +38,8 @@ jobs:
       script:
         - cd services/site-service
         - make docker docker-test up
-        - yarn && yarn run test:component
+        - yarn install
+        - yarn run test:component
 
     - stage: integration tests
       language: generic
