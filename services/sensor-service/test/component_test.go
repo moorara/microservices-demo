@@ -132,7 +132,10 @@ func TestComponentSuccess(t *testing.T) {
 		name                     string
 		siteID                   string
 		postSensors              []JSON
+		putSensors               []JSON
 		expectedPostStatusCode   int
+		expectedAllStatusCode    int
+		expectedPutStatusCode    int
 		expectedGetStatusCode    int
 		expectedDeleteStatusCode int
 	}{
@@ -140,16 +143,21 @@ func TestComponentSuccess(t *testing.T) {
 			"NoSensor",
 			"0000-0000",
 			[]JSON{},
-			0, 200, 0,
+			[]JSON{},
+			0, 200, 204, 200, 0,
 		},
 		{
 			"WithSensors",
 			"1111-aaaa",
 			[]JSON{
 				{"siteId": "1111-aaaa", "name": "temperature", "unit": "celsius", "minSafe": -30.0, "maxSafe": 30.0},
-				{"siteId": "1111-aaaa", "name": "temperature", "unit": "fahrenheit", "minSafe": -22.0, "maxSafe": 86.0},
+				{"siteId": "1111-aaaa", "name": "pressure", "unit": "atmosphere", "minSafe": 0.5, "maxSafe": 1.0},
 			},
-			201, 200, 204,
+			[]JSON{
+				{"siteId": "1111-aaaa", "name": "temperature", "unit": "fahrenheit", "minSafe": -22.0, "maxSafe": 86.0},
+				{"siteId": "1111-aaaa", "name": "pressure", "unit": "atmosphere", "minSafe": 50000.0, "maxSafe": 100000.0},
+			},
+			201, 200, 204, 200, 204,
 		},
 	}
 
@@ -159,59 +167,97 @@ func TestComponentSuccess(t *testing.T) {
 			cmp := NewComponent()
 
 			// CREATE SENSORS
-			for _, sensor := range tc.postSensors {
-				reqBody, err := json.Marshal(sensor)
-				assert.NoError(t, err)
+			t.Run("CreateSensors", func(t *testing.T) {
+				for _, sensor := range tc.postSensors {
+					reqBody, err := json.Marshal(sensor)
+					assert.NoError(t, err)
 
-				statusCode, resBody, err := cmp.Call(context.Background(), "POST", "/v1/sensors", reqBody)
-				assert.NoError(t, err)
+					endpoint := "/v1/sensors"
+					statusCode, resBody, err := cmp.Call(context.Background(), "POST", endpoint, reqBody)
+					assert.NoError(t, err)
 
-				res := make(JSON)
-				err = json.Unmarshal(resBody, &res)
-				assert.NoError(t, err)
+					res := make(JSON)
+					err = json.Unmarshal(resBody, &res)
+					assert.NoError(t, err)
 
-				assert.Equal(t, tc.expectedPostStatusCode, statusCode)
-				assert.NotEmpty(t, res["id"])
-				assert.Equal(t, sensor["siteId"], res["siteId"])
-				assert.Equal(t, sensor["name"], res["name"])
-				assert.Equal(t, sensor["unit"], res["unit"])
-				assert.Equal(t, sensor["minSafe"], res["minSafe"])
-				assert.Equal(t, sensor["maxSafe"], res["maxSafe"])
-			}
+					assert.Equal(t, tc.expectedPostStatusCode, statusCode)
+					assert.NotEmpty(t, res["id"])
+					assert.Equal(t, sensor["siteId"], res["siteId"])
+					assert.Equal(t, sensor["name"], res["name"])
+					assert.Equal(t, sensor["unit"], res["unit"])
+					assert.Equal(t, sensor["minSafe"], res["minSafe"])
+					assert.Equal(t, sensor["maxSafe"], res["maxSafe"])
+
+					ids = append(ids, res["id"].(string))
+				}
+			})
 
 			// GET SENSORS
-			{
+			t.Run("GetSensors", func(t *testing.T) {
 				endpoint := "/v1/sensors?siteId=" + tc.siteID
 				statusCode, resBody, err := cmp.Call(context.Background(), "GET", endpoint, nil)
 				assert.NoError(t, err)
 
-				res := make([]JSON, 0)
-				err = json.Unmarshal(resBody, &res)
+				sensors := make([]JSON, 0)
+				err = json.Unmarshal(resBody, &sensors)
 				assert.NoError(t, err)
 
-				assert.Equal(t, tc.expectedGetStatusCode, statusCode)
-				for _, sensor := range res {
-					ids = append(ids, sensor["id"].(string))
+				assert.Equal(t, tc.expectedAllStatusCode, statusCode)
+				for i, sensor := range sensors {
+					assert.Equal(t, ids[i], sensor["id"])
+					assert.Equal(t, tc.postSensors[i]["siteId"], sensor["siteId"])
+					assert.Equal(t, tc.postSensors[i]["name"], sensor["name"])
+					assert.Equal(t, tc.postSensors[i]["unit"], sensor["unit"])
+					assert.Equal(t, tc.postSensors[i]["minSafe"], sensor["minSafe"])
+					assert.Equal(t, tc.postSensors[i]["maxSafe"], sensor["maxSafe"])
 				}
-			}
+			})
+
+			// UPDATE SENSOR
+			t.Run("UpdateSensors", func(t *testing.T) {
+				for i, sensor := range tc.putSensors {
+					reqBody, err := json.Marshal(sensor)
+					assert.NoError(t, err)
+
+					endpoint := "/v1/sensors/" + ids[i]
+					statusCode, _, err := cmp.Call(context.Background(), "PUT", endpoint, reqBody)
+					assert.NoError(t, err)
+
+					assert.Equal(t, tc.expectedPutStatusCode, statusCode)
+				}
+			})
 
 			// GET SENSOR
-			for _, id := range ids {
-				endpoint := "/v1/sensors/" + id
-				statusCode, _, err := cmp.Call(context.Background(), "GET", endpoint, nil)
-				assert.NoError(t, err)
+			t.Run("GetSensor", func(t *testing.T) {
+				for i, id := range ids {
+					endpoint := "/v1/sensors/" + id
+					statusCode, resBody, err := cmp.Call(context.Background(), "GET", endpoint, nil)
+					assert.NoError(t, err)
 
-				assert.Equal(t, tc.expectedGetStatusCode, statusCode)
-			}
+					sensor := make(JSON)
+					err = json.Unmarshal(resBody, &sensor)
+					assert.NoError(t, err)
+
+					assert.Equal(t, tc.expectedGetStatusCode, statusCode)
+					assert.Equal(t, id, sensor["id"])
+					assert.Equal(t, tc.putSensors[i]["siteId"], sensor["siteId"])
+					assert.Equal(t, tc.putSensors[i]["name"], sensor["name"])
+					assert.Equal(t, tc.putSensors[i]["unit"], sensor["unit"])
+					assert.Equal(t, tc.putSensors[i]["minSafe"], sensor["minSafe"])
+					assert.Equal(t, tc.putSensors[i]["maxSafe"], sensor["maxSafe"])
+				}
+			})
 
 			// DELETE SENSOR
-			for _, id := range ids {
-				endpoint := "/v1/sensors/" + id
-				statusCode, _, err := cmp.Call(context.Background(), "DELETE", endpoint, nil)
-				assert.NoError(t, err)
+			t.Run("DeleteSensor", func(t *testing.T) {
+				for _, id := range ids {
+					endpoint := "/v1/sensors/" + id
+					statusCode, _, err := cmp.Call(context.Background(), "DELETE", endpoint, nil)
+					assert.NoError(t, err)
 
-				assert.Equal(t, tc.expectedDeleteStatusCode, statusCode)
-			}
+					assert.Equal(t, tc.expectedDeleteStatusCode, statusCode)
+				}
+			})
 		})
 	}
 }
@@ -232,6 +278,31 @@ func TestComponentError(t *testing.T) {
 		{
 			"GetNotExistSensor",
 			"GET", "/v1/sensors/0000-0000", nil,
+			404, nil,
+		},
+		{
+			"UpdateSensorWithoutSiteId",
+			"PUT", "/v1/sensors/0000-0000", JSON{},
+			400, nil,
+		},
+		{
+			"UpdateSensorWithoutName",
+			"PUT", "/v1/sensors/0000-0000", JSON{"siteId": "1111-aaaa"},
+			400, nil,
+		},
+		{
+			"UpdateSensorWithoutUnit",
+			"PUT", "/v1/sensors/0000-0000", JSON{"siteId": "1111-aaaa", "name": "temperature"},
+			400, nil,
+		},
+		{
+			"UpdateSensorWithInvalidMinSafeAndMaxSafe",
+			"PUT", "/v1/sensors/0000-0000", JSON{"siteId": "1111-aaaa", "name": "temperature", "unit": "celsius", "minSafe": 1.0, "maxSafe": 0.0},
+			400, nil,
+		},
+		{
+			"UpdateNotExistSensor",
+			"PUT", "/v1/sensors/0000-0000", JSON{"siteId": "1111-aaaa", "name": "temperature", "unit": "celsius", "minSafe": -10.0, "maxSafe": 10.0},
 			404, nil,
 		},
 		{

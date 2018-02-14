@@ -16,6 +16,7 @@ class SiteRouter {
 
     this.router.post('*', Middleware.ensureJson())
     this.router.put('*', Middleware.ensureJson())
+    this.router.patch('*', Middleware.ensureJson())
 
     this.router.route('/')
       .post(this.postSite.bind(this))
@@ -24,6 +25,7 @@ class SiteRouter {
     this.router.route('/:id')
       .get(this.getSite.bind(this))
       .put(this.putSite.bind(this))
+      .patch(this.patchSite.bind(this))
       .delete(this.deleteSite.bind(this))
   }
 
@@ -72,12 +74,25 @@ class SiteRouter {
   }
 
   async putSite (req, res, next) {
+    let id = req.params.id
+    let specs = req.body
+
+    try {
+      let updated = await this.siteService.update(id, specs)
+      res.sendStatus(updated ? 204 : 404)
+    } catch (err) {
+      this.logger.error(`Failed to update site ${id}.`, err)
+      return next(err)
+    }
+  }
+
+  async patchSite (req, res, next) {
     let site
     let id = req.params.id
     let specs = req.body
 
     try {
-      site = await this.siteService.update(id, specs)
+      site = await this.siteService.modify(id, specs)
     } catch (err) {
       this.logger.error(`Failed to update site ${id}.`, err)
       return next(err)

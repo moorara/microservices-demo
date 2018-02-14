@@ -95,10 +95,33 @@ describe('site-service', () => {
       }).catch(done)
     })
 
+    it('PATCH /v1/sites/:id', done => {
+      opts.method = 'PATCH'
+      opts.uri = `${serviceUrl}/v1/sites/${id}`
+      opts.body = { name: newName }
+      rp(opts).then(res => {
+        res.should.have.status(200)
+        res.body.id.should.equal(id)
+        res.body.name.should.equal(newName)
+        res.body.location.should.equal(location)
+        done()
+      }).catch(done)
+    })
+
     it('PUT /v1/sites/:id', done => {
       opts.method = 'PUT'
       opts.uri = `${serviceUrl}/v1/sites/${id}`
       opts.body = { name: newName, location: newLocation }
+      rp(opts).then(res => {
+        res.should.have.status(204)
+        should.not.exist(res.body)
+        done()
+      }).catch(done)
+    })
+
+    it('GET /v1/sites/:id', done => {
+      opts.method = 'GET'
+      opts.uri = `${serviceUrl}/v1/sites/${id}`
       rp(opts).then(res => {
         res.should.have.status(200)
         res.body.id.should.equal(id)
@@ -172,10 +195,34 @@ describe('site-service', () => {
       }).catch(done)
     })
 
+    it('PATCH /v1/sites/:id', done => {
+      opts.method = 'PATCH'
+      opts.uri = `${serviceUrl}/v1/sites/${id}`
+      opts.body = { name: newName, location: newLocation }
+      rp(opts).then(res => {
+        res.should.have.status(200)
+        res.body.id.should.equal(id)
+        res.body.name.should.equal(newName)
+        res.body.location.should.equal(newLocation)
+        res.body.priority.should.equal(priority)
+        done()
+      }).catch(done)
+    })
+
     it('PUT /v1/sites/:id', done => {
       opts.method = 'PUT'
       opts.uri = `${serviceUrl}/v1/sites/${id}`
       opts.body = { name: newName, location: newLocation, priority: newPriority }
+      rp(opts).then(res => {
+        res.should.have.status(204)
+        should.not.exist(res.body)
+        done()
+      }).catch(done)
+    })
+
+    it('GET /v1/sites/:id', done => {
+      opts.method = 'GET'
+      opts.uri = `${serviceUrl}/v1/sites/${id}`
       rp(opts).then(res => {
         res.should.have.status(200)
         res.body.id.should.equal(id)
@@ -256,10 +303,35 @@ describe('site-service', () => {
       }).catch(done)
     })
 
+    it('PATCH /v1/sites/:id', done => {
+      opts.method = 'PATCH'
+      opts.uri = `${serviceUrl}/v1/sites/${id}`
+      opts.body = { name: newName, location: newLocation, tags: newTags }
+      rp(opts).then(res => {
+        res.should.have.status(200)
+        res.body.id.should.equal(id)
+        res.body.name.should.equal(newName)
+        res.body.location.should.equal(newLocation)
+        res.body.tags.should.eql(newTags)
+        res.body.priority.should.equal(priority)
+        done()
+      }).catch(done)
+    })
+
     it('PUT /v1/sites/:id', done => {
       opts.method = 'PUT'
       opts.uri = `${serviceUrl}/v1/sites/${id}`
       opts.body = { name: newName, location: newLocation, tags: newTags, priority: newPriority }
+      rp(opts).then(res => {
+        res.should.have.status(204)
+        should.not.exist(res.body)
+        done()
+      }).catch(done)
+    })
+
+    it('GET /v1/sites/:id', done => {
+      opts.method = 'GET'
+      opts.uri = `${serviceUrl}/v1/sites/${id}`
       rp(opts).then(res => {
         res.should.have.status(200)
         res.body.id.should.equal(id)

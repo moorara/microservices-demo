@@ -29,6 +29,7 @@ describe('SiteService', () => {
     Model.exec = () => {}
     Model.find = () => {}
     Model.findById = () => {}
+    Model.update = () => {}
     Model.findByIdAndUpdate = () => {}
     Model.findByIdAndRemove = () => {}
     _Model = sinon.mock(Model)
@@ -113,7 +114,7 @@ describe('SiteService', () => {
       s3.toJSON = () => s3
     })
 
-    it('should rejects with error when model query fails', done => {
+    it('should reject with error when model query fails', done => {
       _Model.expects('find').returns(Model)
       _Model.expects('limit').returns(Model)
       _Model.expects('skip').returns(Model)
@@ -125,7 +126,7 @@ describe('SiteService', () => {
         done()
       })
     })
-    it('should resolves with sites when model query succeeds', done => {
+    it('should resolve with sites when model query succeeds', done => {
       _Model.expects('find').returns(Model)
       _Model.expects('limit').returns(Model)
       _Model.expects('skip').returns(Model)
@@ -136,7 +137,7 @@ describe('SiteService', () => {
         done()
       }).catch(done)
     })
-    it('should resolves with sites when model query succeeds', done => {
+    it('should resolve with sites when model query succeeds', done => {
       query = { name: 'Site', location: 'Ottawa', tags: 'hydro,power', minPriority: '2', maxPriority: '4', limit: '10', skip: '10' }
       let mongoQuery = { name: /.*Site.*/i, location: /.*Ottawa.*/i, tags: { $in: ['hydro', 'power'] }, priority: { $gte: 2, $lte: 4 } }
       _Model.expects('find').withArgs(mongoQuery).returns(Model)
@@ -160,7 +161,7 @@ describe('SiteService', () => {
       site.toJSON = () => site
     })
 
-    it('should rejects with error when model query fails', done => {
+    it('should reject with error when model query fails', done => {
       _Model.expects('findById').withArgs(id).rejects(new Error('error'))
       service.get(id).catch(err => {
         _Model.verify()
@@ -169,7 +170,7 @@ describe('SiteService', () => {
         done()
       })
     })
-    it('should resolves with empty result when model query returns no result', done => {
+    it('should resolve with empty result when model query returns no result', done => {
       _Model.expects('findById').withArgs(id).resolves()
       service.get(id).then(s => {
         _Model.verify()
@@ -177,7 +178,7 @@ describe('SiteService', () => {
         done()
       }).catch(done)
     })
-    it('should resolves with site when model query succeeds', done => {
+    it('should resolve with site when model query succeeds', done => {
       _Model.expects('findById').withArgs(id).resolves(site)
       service.get(id).then(s => {
         _Model.verify()
@@ -188,17 +189,17 @@ describe('SiteService', () => {
   })
 
   describe('update', () => {
-    let id, specs, site
+    let id, query, specs, options
 
     beforeEach(() => {
       id = '1111-aaaa'
-      specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA', tags: ['hydro', 'power', 'plant'], priority: 2 }
-      site = Object.assign({ id }, specs)
-      site.toJSON = () => site
+      query = { _id: id }
+      specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA', priority: 2 }
+      options = { upsert: false, runValidators: true, overwrite: true }
     })
 
-    it('should rejects with error when model query fails', done => {
-      _Model.expects('findByIdAndUpdate').withArgs(id, specs).rejects(new Error('error'))
+    it('should reject with error when model query fails', done => {
+      _Model.expects('update').withArgs(query, specs, options).rejects(new Error('error'))
       service.update(id, specs).catch(err => {
         _Model.verify()
         should.exist(err)
@@ -206,17 +207,56 @@ describe('SiteService', () => {
         done()
       })
     })
-    it('should resolves with empty result when model query returns no result', done => {
-      _Model.expects('findByIdAndUpdate').withArgs(id, specs).resolves()
-      service.update(id, specs).then(s => {
+    it('should resolve with false when model query returns no response', done => {
+      _Model.expects('update').withArgs(query, specs, options).resolves({ ok: 1, n: 0, nModified: 0 })
+      service.update(id, specs).then(r => {
+        _Model.verify()
+        r.should.be.false()
+        done()
+      }).catch(done)
+    })
+    it('should resolve with true when model query returns successful response', done => {
+      _Model.expects('update').withArgs(query, specs, options).resolves({ ok: 1, n: 1, nModified: 1 })
+      service.update(id, specs).then(r => {
+        _Model.verify()
+        r.should.be.true()
+        done()
+      }).catch(done)
+    })
+  })
+
+  describe('modify', () => {
+    let id, specs, options
+    let site
+
+    beforeEach(() => {
+      id = '1111-aaaa'
+      specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA' }
+      options = { new: true, upsert: false, runValidators: true }
+      site = Object.assign({ id }, specs)
+      site.toJSON = () => site
+    })
+
+    it('should reject with error when model query fails', done => {
+      _Model.expects('findByIdAndUpdate').withArgs(id, specs, options).rejects(new Error('error'))
+      service.modify(id, specs).catch(err => {
+        _Model.verify()
+        should.exist(err)
+        err.message.should.equal('error')
+        done()
+      })
+    })
+    it('should resolve with empty result when model query returns no result', done => {
+      _Model.expects('findByIdAndUpdate').withArgs(id, specs, options).resolves()
+      service.modify(id, specs).then(s => {
         _Model.verify()
         should.not.exist(s)
         done()
       }).catch(done)
     })
-    it('should resolves with updated site when model query succeeds', done => {
-      _Model.expects('findByIdAndUpdate').withArgs(id, specs).resolves(site)
-      service.update(id, specs).then(s => {
+    it('should resolve with modified site when model query succeeds', done => {
+      _Model.expects('findByIdAndUpdate').withArgs(id, specs, options).resolves(site)
+      service.modify(id, specs).then(s => {
         _Model.verify()
         s.id.should.equal(id)
         done()
@@ -233,7 +273,7 @@ describe('SiteService', () => {
       site.toJSON = () => site
     })
 
-    it('should rejects with error when model query fails', done => {
+    it('should reject with error when model query fails', done => {
       _Model.expects('findByIdAndRemove').withArgs(id).rejects(new Error('error'))
       service.delete(id).catch(err => {
         _Model.verify()
@@ -242,7 +282,7 @@ describe('SiteService', () => {
         done()
       })
     })
-    it('should resolves with empty result when model query returns no result', done => {
+    it('should resolve with empty result when model query returns no result', done => {
       _Model.expects('findByIdAndRemove').withArgs(id).resolves()
       service.delete(id).then(s => {
         _Model.verify()
@@ -250,7 +290,7 @@ describe('SiteService', () => {
         done()
       }).catch(done)
     })
-    it('should resolves with deleted site when model query succeeds', done => {
+    it('should resolve with deleted site when model query succeeds', done => {
       _Model.expects('findByIdAndRemove').withArgs(id).resolves(site)
       service.delete(id).then(s => {
         _Model.verify()

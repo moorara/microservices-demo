@@ -46,6 +46,26 @@ func (mdb *mockDB) QueryRowContext(ctx context.Context, query string, args ...in
 	return mdb.QueryRowContextRow
 }
 
+type mockResult struct {
+	LastInsertIdCalled bool
+	LastInsertIdResult int64
+	LastInsertIdError  error
+
+	RowsAffectedCalled bool
+	RowsAffectedResult int64
+	RowsAffectedError  error
+}
+
+func (mr *mockResult) LastInsertId() (int64, error) {
+	mr.LastInsertIdCalled = true
+	return mr.LastInsertIdResult, mr.LastInsertIdError
+}
+
+func (mr *mockResult) RowsAffected() (int64, error) {
+	mr.RowsAffectedCalled = true
+	return mr.RowsAffectedResult, mr.RowsAffectedError
+}
+
 func TestNewSensorManager(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -85,14 +105,14 @@ func TestSensorManagerCreate(t *testing.T) {
 		expectError      bool
 	}{
 		{
-			"DatabaseFailed",
+			"DatabaseError",
 			errors.New("error"),
 			context.Background(),
 			"", "", "", 0.0, 0.0,
 			true,
 		},
 		{
-			"DatabaseSuccessful",
+			"CreateSensor",
 			nil,
 			context.Background(),
 			"1111-aaaa", "temperature", "celsius", -30.0, 30.0,
@@ -130,6 +150,76 @@ func TestSensorManagerCreate(t *testing.T) {
 	}
 }
 
+func TestSensorManagerUpdate(t *testing.T) {
+	tests := []struct {
+		name               string
+		execContextResult  *mockResult
+		execContextError   error
+		context            context.Context
+		sensor             Sensor
+		expectError        bool
+		expectedAffectedNo int
+	}{
+		{
+			"DatabaseError",
+			&mockResult{},
+			errors.New("error"),
+			context.Background(),
+			Sensor{"", "", "", "", 0.0, 0.0},
+			true,
+			0,
+		},
+		{
+			"ResultError",
+			&mockResult{
+				RowsAffectedResult: 0,
+				RowsAffectedError:  errors.New("error"),
+			},
+			nil,
+			context.Background(),
+			Sensor{"", "", "", "", 0.0, 0.0},
+			true,
+			0,
+		},
+		{
+			"UpdateSensor",
+			&mockResult{
+				RowsAffectedResult: 1,
+				RowsAffectedError:  nil,
+			},
+			nil,
+			context.Background(),
+			Sensor{"2222-bbbb", "1111-aaaa", "temperature", "fahrenheit", -22.0, 86.0},
+			false,
+			1,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			db := &mockDB{
+				ExecContextResult: tc.execContextResult,
+				ExecContextError:  tc.execContextError,
+			}
+
+			m := &postgresSensorManager{
+				db:     db,
+				logger: log.NewNopLogger(),
+			}
+
+			n, err := m.Update(tc.context, tc.sensor)
+
+			assert.True(t, db.ExecContextCalled)
+			if tc.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedAffectedNo, n)
+			}
+		})
+	}
+}
+
 func TestSensorManagerDelete(t *testing.T) {
 	tests := []struct {
 		name             string
@@ -139,14 +229,14 @@ func TestSensorManagerDelete(t *testing.T) {
 		expectError      bool
 	}{
 		{
-			"DatabaseFailed",
+			"DatabaseError",
 			errors.New("error"),
 			context.Background(),
 			"",
 			true,
 		},
 		{
-			"DatabaseSuccessful",
+			"DeleteSensor",
 			nil,
 			context.Background(),
 			"2222-bbbb",

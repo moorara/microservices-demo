@@ -9,7 +9,7 @@ jobs:
 
     - stage: unit tests
       language: go
-      go: 1.9.2
+      go: 1.9
       script:
         - cd services/sensor-service
         - make test
@@ -19,14 +19,14 @@ jobs:
       node_js: 9
       script:
         - cd services/site-service
-        - yarn
+        - yarn install
         - yarn run nsp
         - yarn run lint
         - yarn run test
 
     - stage: component tests
       language: go
-      go: 1.9.2
+      go: 1.9
       script:
         - cd services/sensor-service
         - make docker up
@@ -38,7 +38,8 @@ jobs:
       script:
         - cd services/site-service
         - make docker docker-test up
-        - yarn && yarn run test:component
+        - yarn install
+        - yarn run test:component
 
     - stage: integration tests
       language: generic
