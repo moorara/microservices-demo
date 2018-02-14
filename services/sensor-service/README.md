@@ -2,12 +2,13 @@
 
 ## API
 
-| Method   | Endpoint                 | Description                      |
-|----------|--------------------------|----------------------------------|
-| `POST`   | `/v1/sensors`            | Creates a new sensor for a site  |
-| `GET`    | `/v1/sensors?siteId=:id` | Retrieves all sensors for a site |
-| `GET`    | `/v1/sensors/:id`        | Retrieves an existing sensor     |
-| `DELETE` | `/v1/sensors/:id`        | Deletes an existing sensor       |
+| Method   | Endpoint                 | Status | Response           | Description                      |
+|----------|--------------------------|:------:|--------------------|----------------------------------|
+| `POST`   | `/v1/sensors`            | `201`  | `sensor object`    | Creates a new sensor for a site  |
+| `GET`    | `/v1/sensors?siteId=:id` | `200`  | `array of sensors` | Retrieves all sensors for a site |
+| `GET`    | `/v1/sensors/:id`        | `200`  | `sensor object`    | Retrieves an existing sensor     |
+| `PUT`    | `/v1/sensors/:id`        | `204`  |                    | Updates an existing sensor       |
+| `DELETE` | `/v1/sensors/:id`        | `204`  |                    | Deletes an existing sensor       |
 
 ### Examples
 
@@ -21,6 +22,22 @@ curl \
 curl \
   -H 'Content-Type: application/json' \
   -X GET \
+  http://localhost:4020/v1/sensors?siteId=1111-aaaa
+
+curl \
+  -H 'Content-Type: application/json' \
+  -X GET \
+  http://localhost:4020/v1/sensors/:id
+
+curl \
+  -H 'Content-Type: application/json' \
+  -X PUT \
+  -d '{"siteId":"1111-aaaa","name":"temperature","unit":"farenheit","minSafe":-22.0,"maxSafe":86.0}' \
+  http://localhost:4020/v1/sensors/:id
+
+curl \
+  -H 'Content-Type: application/json' \
+  -X DELETE \
   http://localhost:4020/v1/sensors/:id
 ```
 
