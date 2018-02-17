@@ -18,6 +18,7 @@ This demo application covers the following topics:
 ## Up & Running
 
   * [docker-compose](https://github.com/moorara/microservices-demo/tree/master/compose)
+  * [docker swarm](https://github.com/moorara/microservices-demo/tree/master/swarm)
 
 
 [travisci-url]: https://travis-ci.org/moorara/microservices-demo
