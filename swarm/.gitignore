@@ -1,0 +1,6 @@
+# Vagrant files
+.vagrant/
+vagrant/
+
+# Misc files
+*config
