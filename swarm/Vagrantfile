@@ -1,0 +1,76 @@
+vm_cpu        = ENV['VM_CPU']        || 1
+vm_memory     = ENV['VM_MEMORY']     || 512
+manager_count = ENV['MANAGER_COUNT'] || 3
+worker_count  = ENV['WORKER_COUNT']  || 2
+
+
+managers = []
+(1..manager_count).each do |i|
+  managers.push({
+    :index => i,
+    :name  => "manager-#{i}",
+    :ip    => "10.10.0.#{i+100}"
+  })
+end
+
+workers = []
+(1..worker_count).each do |i|
+  workers.push({
+    :index => i,
+    :name  => "worker-#{i}",
+    :ip    => "10.10.0.#{i+200}"
+  })
+end
+
+File.open("./vagrant/hosts", "w") do |f|
+  managers.each { |manager| f.write("#{manager[:ip]}  #{manager[:name]}\n") }
+  workers.each  { |worker|  f.write("#{worker[:ip]}  #{worker[:name]}\n") }
+end
+
+
+# v2 configs
+Vagrant.configure("2") do |config|
+  config.vm.provider "virtualbox" do |v|
+    v.cpus = vm_cpu
+    v.memory = vm_memory
+  end
+
+  # Common configs
+  config.vm.box = "debian/contrib-jessie64"
+  config.vm.synced_folder "./vagrant", "/vagrant", type: "virtualbox", create: true
+
+  config.vm.provision "docker"
+  config.vm.provision "shell",
+    privileged: true,
+    inline: "apt-get install -y vim jq"
+
+  if File.file?("./vagrant/hosts")
+    config.vm.provision "shell",
+      privileged: true,
+      inline: "cat /vagrant/hosts >> /etc/hosts"
+  end
+
+  # MANAGERS
+  managers.each do |manager|
+    config.vm.define manager[:name] do |m|
+      m.vm.hostname = manager[:name]
+      m.vm.network "private_network", ip: manager[:ip]
+      m.vm.provision "shell" do |script|
+        script.path = "provision.sh"
+        script.args = manager[:index] == 1 ? "bootstrap" : "manager"
+      end
+    end
+  end
+
+  # WORKERS
+  workers.each do |worker|
+    config.vm.define worker[:name] do |w|
+      w.vm.hostname = worker[:name]
+      w.vm.network "private_network", ip: worker[:ip]
+      w.vm.provision "shell" do |script|
+        script.path = "provision.sh"
+        script.args = "worker"
+      end
+    end
+  end
+end
