@@ -1,0 +1,9 @@
+{
+  "presets": [ "env", "react", "stage-2" ],
+  "plugins": [ "transform-runtime", "transform-class-properties" ],
+  "env": {
+    "development": {},
+    "test": {},
+    "production": {}
+  }
+}

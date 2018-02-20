@@ -1,0 +1,15 @@
+{
+  "sites": [
+    { "id": "1111-1111", "name": "Station 1", "location": "Toronto, ON", "tags": [ "oxygen", "hydrogen" ], "priority": 2 },
+    { "id": "2222-2222", "name": "Station 2", "location": "Kingston, ON", "tags": [ "gold", "silver" ], "priority": 3 },
+    { "id": "3333-3333", "name": "Station 3", "location": "Ottawa, ON", "tags": [ "helium", "nitrogen" ], "priority": 4 },
+    { "id": "4444-4444", "name": "Station 4", "location": "Montreal, QC", "tags": [ "carbon", "iron" ], "priority": 5 }
+  ],
+
+  "sensors": [
+    { "id": "aaaa-aaaa", "siteId": "1111-1111", "name": "temperature", "unit": "celsius", "minSafe": -30, "maxSafe": 30 },
+    { "id": "bbbb-bbbb", "siteId": "2222-2222", "name": "temperature", "unit": "fahrenheit", "minSafe": -22, "maxSafe": 86 },
+    { "id": "cccc-cccc", "siteId": "3333-3333", "name": "pressure", "unit": "pascal", "minSafe": 50000, "maxSafe": 100000 },
+    { "id": "dddd-dddd", "siteId": "4444-4444", "name": "pressure", "unit": "atmosphere", "minSafe": 0.5, "maxSafe": 1 }
+  ]
+}
