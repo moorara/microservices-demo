@@ -40,9 +40,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./vagrant", "/vagrant", type: "virtualbox", create: true
 
   config.vm.provision "docker"
-  config.vm.provision "shell",
-    privileged: true,
-    inline: "apt-get install -y vim jq"
+  config.vm.provision "shell", privileged: true, path: "scripts/provision.sh"
 
   if File.file?("./vagrant/hosts")
     config.vm.provision "shell",
@@ -56,8 +54,8 @@ Vagrant.configure("2") do |config|
       m.vm.hostname = manager[:name]
       m.vm.network "private_network", ip: manager[:ip]
       m.vm.provision "shell" do |script|
-        script.path = "provision.sh"
-        script.args = manager[:index] == 1 ? "bootstrap" : "manager"
+        script.path = "scripts/bootstrap.sh"
+        script.args = manager[:index] == 1 ? "init" : "manager"
       end
     end
   end
@@ -68,7 +66,7 @@ Vagrant.configure("2") do |config|
       w.vm.hostname = worker[:name]
       w.vm.network "private_network", ip: worker[:ip]
       w.vm.provision "shell" do |script|
-        script.path = "provision.sh"
+        script.path = "scripts/bootstrap.sh"
         script.args = "worker"
       end
     end

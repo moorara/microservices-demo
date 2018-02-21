@@ -2,9 +2,9 @@
 
 #
 # USAGE:
-#   ./provision.sh bootstrap
-#   ./provision.sh manager
-#   ./provision.sh worker
+#   ./bootstrap.sh int
+#   ./bootstrap.sh manager
+#   ./bootstrap.sh worker
 #
 
 set -euo pipefail
@@ -46,17 +46,17 @@ function whitelist_variable {
 function process_args {
   while [[ $# > 0 ]]; do
     case $1 in
-      bootstrap|manager|worker) role="$1" ;;
+      init|manager|worker) role="$1" ;;
     esac
     shift
   done
 
   role=${role:-""}
-  whitelist_variable "node role" "bootstrap manager worker" "$role"
+  whitelist_variable "node role" "init manager worker" "$role"
 }
 
 
-function bootstrap_swarm {
+function init_swarm {
   addr=$(hostname -i | cut -d' ' -f2)
 
   docker swarm init --advertise-addr $addr &> /dev/null
@@ -83,7 +83,7 @@ ensure_command "docker"
 process_args "$@"
 
 case $role in
-  bootstrap)  bootstrap_swarm  ;;
-  manager)    join_manager     ;;
-  worker)     join_worker      ;;
+  init)     init_swarm    ;;
+  manager)  join_manager  ;;
+  worker)   join_worker   ;;
 esac
