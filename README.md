@@ -12,8 +12,8 @@ This demo application covers the following topics:
 
 ## Services
 
-  * [go-service](https://github.com/moorara/microservices-demo/tree/master/services/go-service)
-  * [node-service](https://github.com/moorara/microservices-demo/tree/master/services/node-service)
+  * [site-service](https://github.com/moorara/microservices-demo/tree/master/services/site-service)
+  * [sensor-service](https://github.com/moorara/microservices-demo/tree/master/services/sensor-service)
   * [react-client](https://github.com/moorara/microservices-demo/tree/master/services/react-client)
 
 ## Up & Running
