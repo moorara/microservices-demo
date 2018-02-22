@@ -1,7 +1,11 @@
+/*
+ * This is for building the client application bundle using Node.js
+ */
+
 import chalk from 'chalk'
 import webpack from 'webpack'
 
-import webpackConfig from '../webpack.prod'
+import webpackConfig from '../../webpack.prod'
 
 webpack(webpackConfig, (err, stats) => {
   if (err) {

@@ -1,28 +1,28 @@
 import * as actions from '../actions/sensor'
 
-export const sensorInitialState = {
+export const defaultState = {
   callsInProgress: 0,
   items: []
 }
 
-export default function (state = sensorInitialState, action) {
+export default function (state = defaultState, action) {
   switch (action.type) {
     case actions.SITE_SENSORS_REQUESTED:
       return {
-        callsInProgress: state.callsInProgress + 1,
-        items: Object.assign([], state.items)
+        ...state,
+        callsInProgress: state.callsInProgress + 1
       }
 
     case actions.SITE_SENSORS_FAILED:
       return {
-        callsInProgress: state.callsInProgress - 1,
-        items: Object.assign([], state.items)
+        ...state,
+        callsInProgress: state.callsInProgress - 1
       }
 
     case actions.SITE_SENSORS_RECEIVED:
       return {
-        callsInProgress: state.callsInProgress - 1,
-        items: Object.assign([], action.sensors)
+        items: action.sensors,
+        callsInProgress: state.callsInProgress - 1
       }
 
     default:

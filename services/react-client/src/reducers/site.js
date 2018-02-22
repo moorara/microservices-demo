@@ -1,28 +1,28 @@
 import * as actions from '../actions/site'
 
-export const siteInitialState = {
+export const defaultState = {
   callsInProgress: 0,
   items: []
 }
 
-export default function (state = siteInitialState, action) {
+export default function (state = defaultState, action) {
   switch (action.type) {
     case actions.ALL_SITES_REQUESTED:
       return {
-        callsInProgress: state.callsInProgress + 1,
-        items: Object.assign([], state.items)
+        ...state,
+        callsInProgress: state.callsInProgress + 1
       }
 
     case actions.ALL_SITES_FAILED:
       return {
-        callsInProgress: state.callsInProgress - 1,
-        items: Object.assign([], state.items)
+        ...state,
+        callsInProgress: state.callsInProgress - 1
       }
 
     case actions.ALL_SITES_RECEIVED:
       return {
+        items: action.sites,
         callsInProgress: state.callsInProgress - 1,
-        items: Object.assign([], action.sites)
       }
 
     default:

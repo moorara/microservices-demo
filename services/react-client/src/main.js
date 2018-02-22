@@ -7,9 +7,8 @@ import { Provider } from 'react-redux'
 
 import App from './components/App'
 import createStore from './store'
-import { initialState } from './reducers'
 
-const store = createStore(initialState, {
+const store = createStore({
   logger: true
 })
 
