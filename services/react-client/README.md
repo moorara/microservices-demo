@@ -12,8 +12,8 @@
 | `yarn run start:node`    | Starts `dev server` using `node.js`                     |
 | `yarn run start:api`     | Starts `api server` using `json-server`                 |
 | `yarn run start:webpack` | Starts `dev server` using built-in `webpack dev server` |
-| `yarn run build:node`    | Builds application for `production` using `node.js`     |
 | `yarn run build:webpack` | Builds application for `production` using `webpack cli` |
+| `yarn run build:node`    | Builds application for `production` using `node.js`     |
 | `yarn run server:node`   | Runs a `production server` for serving the application  |
 
 ## Guides
@@ -50,6 +50,7 @@
   * **Redux**:
     - https://redux.js.org/advanced/async-actions
     - https://redux.js.org/recipes/structuring-reducers/initializing-state
+    - https://redux.js.org/recipes/server-rendering
 
   * **Jest**:
     - https://facebook.github.io/jest/docs/en/jest-object.html

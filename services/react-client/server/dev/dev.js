@@ -1,16 +1,20 @@
+/*
+ * This is for serving the client application in development mode.
+ */
+
 import 'colors'
 import _ from 'lodash'
 import opn from 'opn'
 import express from 'express'
 import webpack from 'webpack'
+import jsonServer from 'json-server'
 import webpackDevMiddleware from 'webpack-dev-middleware'
 import webpackHotMiddleware from 'webpack-hot-middleware'
-import jsonServer from 'json-server'
 
-import webpackConfig from '../webpack.dev'
-import mockData from '../api/data'
+import mockData from './api/data'
+import webpackConfig from '../../webpack.dev'
 
-const port = process.env.PORT || 4000
+const port = parseInt(process.env.PORT, 10) || 4000
 const hmr = 'webpack-hot-middleware/client?path=/webpack_hmr&timeout=2000'
 
 const app = express()
@@ -42,8 +46,7 @@ app.use('/api/v1', apiMiddleware, apiRouter)
 
 app.listen(port, err => {
   if (err) {
-    console.log(err.red)
-    return 1
+    return console.log(err.red)
   }
   console.log(`Dev server listening on http://localhost:${port}`.bold.green)
   opn(`http://localhost:${port}`)
