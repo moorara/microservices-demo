@@ -2,13 +2,12 @@ path := $(shell pwd)
 
 
 up:
-	@ mkdir -p vagrant && \
-	  vagrant up
+	@ vagrant up
 
 down:
 	@ vagrant destroy --force
 
 clean:
-	@ rm -rf .vagrant vagrant
+	@ rm -rf .vagrant vagrant/hosts
 
 .PHONY: up down clean
