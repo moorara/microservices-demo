@@ -4,8 +4,8 @@
 
 | Command         | Description                                             |
 |-----------------|---------------------------------------------------------|
-| `make up`       | Brings up a local swarm environment using `vagrant` vms |
-| `make down`     | Destroys the swarm environment `vagrant` vms            |
+| `make up`       | Brings up a local Swarm environment using `vagrant` vms |
+| `make down`     | Destroys the Swarm environment `vagrant` vms            |
 | `make clean`    | Removes created directories and files                   |
 
 ## Accessing Swarm
