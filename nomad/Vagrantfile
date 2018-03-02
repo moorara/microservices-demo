@@ -1,0 +1,66 @@
+vm_cpu       = ENV['VM_CPU']       || 1
+vm_memory    = ENV['VM_MEMORY']    || 512
+server_count = ENV['SERVER_COUNT'] || 3
+client_count = ENV['CLIENT_COUNT'] || 2
+
+
+servers = []
+(1..server_count).each do |i|
+  servers.push({
+    :index => i,
+    :name  => "server-#{i}",
+    :ip    => "10.10.2.#{i+100}"
+  })
+end
+
+clients = []
+(1..client_count).each do |i|
+  clients.push({
+    :index => i,
+    :name  => "client-#{i}",
+    :ip    => "10.10.2.#{i+200}"
+  })
+end
+
+File.open("./vagrant/hosts", "w") do |f|
+  servers.each { |server| f.write("#{server[:ip]}  #{server[:name]}\n") }
+  clients.each { |client| f.write("#{client[:ip]}  #{client[:name]}\n") }
+end
+
+
+# v2 configs
+Vagrant.configure("2") do |config|
+  config.vm.provider "virtualbox" do |v|
+    v.cpus = vm_cpu
+    v.memory = vm_memory
+  end
+
+  # Common configs
+  config.vm.box = "debian/contrib-jessie64"
+  config.vm.synced_folder "./vagrant", "/vagrant", type: "virtualbox", create: true
+
+  config.vm.provision "docker"
+  config.vm.provision "shell", privileged: true, path: "scripts/provision.sh"
+
+  if File.file?("./vagrant/hosts")
+    config.vm.provision "shell",
+      privileged: true,
+      inline: "cat /vagrant/hosts >> /etc/hosts"
+  end
+
+  # SERVERS
+  servers.each do |server|
+    config.vm.define server[:name] do |s|
+      s.vm.hostname = server[:name]
+      s.vm.network "private_network", ip: server[:ip]
+    end
+  end
+
+  # CLIENTS
+  clients.each do |client|
+    config.vm.define client[:name] do |c|
+      c.vm.hostname = client[:name]
+      c.vm.network "private_network", ip: client[:ip]
+    end
+  end
+end
