@@ -53,6 +53,14 @@ Vagrant.configure("2") do |config|
     config.vm.define server[:name] do |s|
       s.vm.hostname = server[:name]
       s.vm.network "private_network", ip: server[:ip]
+      s.vm.provision "shell" do |script|
+        script.path = "scripts/bootstrap.sh"
+        script.args = [
+          "--addr", server[:ip],
+          "--name", server[:name],
+          "--count", server_count
+        ]
+      end
     end
   end
 
@@ -61,6 +69,13 @@ Vagrant.configure("2") do |config|
     config.vm.define client[:name] do |c|
       c.vm.hostname = client[:name]
       c.vm.network "private_network", ip: client[:ip]
+      c.vm.provision "shell" do |script|
+        script.path = "scripts/bootstrap.sh"
+        script.args = [
+          "--addr", client[:ip],
+          "--name", client[:name]
+        ]
+      end
     end
   end
 end

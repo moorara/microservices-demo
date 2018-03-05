@@ -2,7 +2,7 @@
 
 #
 # USAGE:
-#   ./bootstrap.sh int
+#   ./bootstrap.sh init
 #   ./bootstrap.sh manager
 #   ./bootstrap.sh worker
 #
