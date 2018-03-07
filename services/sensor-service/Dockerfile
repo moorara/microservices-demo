@@ -1,5 +1,5 @@
 # BUILD STAGE
-FROM golang:1.9-alpine as builder
+FROM golang:1.10-alpine as builder
 RUN apk add --no-cache ca-certificates make
 WORKDIR /go/src/github.com/moorara/microservices-demo/services/sensor-service/
 COPY . .

@@ -29,6 +29,7 @@ func TestNewCounter(t *testing.T) {
 	tests := []struct {
 		name          string
 		service       string
+		prefixName    bool
 		metric, help  string
 		labels        []string
 		labelValues   []string
@@ -38,6 +39,7 @@ func TestNewCounter(t *testing.T) {
 		{
 			"ErrorCounter",
 			"go_service",
+			true,
 			"errors_total", "total number of errors",
 			[]string{"resource"},
 			[]string{"object"},
@@ -49,6 +51,7 @@ func TestNewCounter(t *testing.T) {
 		{
 			"RequestCounter",
 			"go_service",
+			true,
 			"requests_total", "total number of requests",
 			[]string{"resource"},
 			[]string{"object"},
@@ -63,7 +66,7 @@ func TestNewCounter(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			metrics := NewMetrics(tc.service)
-			counter := metrics.NewCounter(tc.metric, tc.help, tc.labels)
+			counter := metrics.NewCounter(tc.prefixName, tc.metric, tc.help, tc.labels)
 			counter.WithLabelValues(tc.labelValues...).Inc()
 			counter.WithLabelValues(tc.labelValues...).Add(tc.addValue)
 			output := getMetricString(t, metrics, tc.service, tc.metric)
@@ -79,6 +82,7 @@ func TestNewGauge(t *testing.T) {
 	tests := []struct {
 		name               string
 		service            string
+		prefixName         bool
 		metric, help       string
 		labels             []string
 		labelValues        []string
@@ -88,6 +92,7 @@ func TestNewGauge(t *testing.T) {
 		{
 			"ObjectGauge",
 			"go_service",
+			true,
 			"objects", "current number of objects",
 			[]string{"active"},
 			[]string{"true"},
@@ -100,6 +105,7 @@ func TestNewGauge(t *testing.T) {
 		{
 			"ConnectionGauge",
 			"go_service",
+			true,
 			"connections", "active number of connections",
 			[]string{"type"},
 			[]string{"tcp"},
@@ -114,7 +120,7 @@ func TestNewGauge(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			metrics := NewMetrics(tc.service)
-			gauge := metrics.NewGauge(tc.metric, tc.help, tc.labels)
+			gauge := metrics.NewGauge(tc.prefixName, tc.metric, tc.help, tc.labels)
 			gauge.WithLabelValues(tc.labelValues...).Inc()
 			gauge.WithLabelValues(tc.labelValues...).Dec()
 			gauge.WithLabelValues(tc.labelValues...).Add(tc.addValue)
@@ -132,6 +138,7 @@ func TestNewHistogram(t *testing.T) {
 	tests := []struct {
 		name          string
 		service       string
+		prefixName    bool
 		metric, help  string
 		buckets       []float64
 		labels        []string
@@ -142,6 +149,7 @@ func TestNewHistogram(t *testing.T) {
 		{
 			"DurationHistogram",
 			"go_service",
+			true,
 			"op_duration_seconds", "operation durations in seconds",
 			[]float64{0.01, 0.1, 1},
 			[]string{"op", "success"},
@@ -159,6 +167,7 @@ func TestNewHistogram(t *testing.T) {
 		{
 			"ThroughputHistogram",
 			"go_service",
+			true,
 			"throughput_bytes_per_second", "operation throughput in bytes per second",
 			[]float64{0.01, 0.1, 0.5, 1, 5, 10},
 			[]string{"op", "success"},
@@ -181,7 +190,7 @@ func TestNewHistogram(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			metrics := NewMetrics(tc.service)
-			histogram := metrics.NewHistogram(tc.metric, tc.help, tc.buckets, tc.labels)
+			histogram := metrics.NewHistogram(tc.prefixName, tc.metric, tc.help, tc.buckets, tc.labels)
 			histogram.WithLabelValues(tc.labelValues...).Observe(tc.value)
 			output := getMetricString(t, metrics, tc.service, tc.metric)
 
@@ -196,6 +205,7 @@ func TestNewSummary(t *testing.T) {
 	tests := []struct {
 		name          string
 		service       string
+		prefixName    bool
 		metric, help  string
 		quantiles     map[float64]float64
 		labels        []string
@@ -206,6 +216,7 @@ func TestNewSummary(t *testing.T) {
 		{
 			"DurationSummary",
 			"go_service",
+			true,
 			"op_duration_seconds", "operation durations in seconds",
 			map[float64]float64{0.5: 0.05, 0.9: 0.01},
 			[]string{"op", "success"},
@@ -222,6 +233,7 @@ func TestNewSummary(t *testing.T) {
 		{
 			"ThroughputSummary",
 			"go_service",
+			true,
 			"throughput_bytes_per_second", "operation throughput in bytes per second",
 			map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 			[]string{"op", "success"},
@@ -241,7 +253,7 @@ func TestNewSummary(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			metrics := NewMetrics(tc.service)
-			summmary := metrics.NewSummary(tc.metric, tc.help, tc.quantiles, tc.labels)
+			summmary := metrics.NewSummary(tc.prefixName, tc.metric, tc.help, tc.quantiles, tc.labels)
 			summmary.WithLabelValues(tc.labelValues...).Observe(tc.value)
 			output := getMetricString(t, metrics, tc.service, tc.metric)
 
@@ -263,7 +275,7 @@ func TestGetHandler(t *testing.T) {
 			"Histogram",
 			"go_service",
 			func(m *Metrics) {
-				histogram := m.NewHistogram("op_duration_seconds", "operation durations", []float64{0.01, 0.1, 1}, []string{"op", "success"})
+				histogram := m.NewHistogram(true, "op_duration_seconds", "operation durations", []float64{0.01, 0.1, 1}, []string{"op", "success"})
 				histogram.WithLabelValues("creation", "true").Observe(0.27)
 			},
 			[]string{
@@ -284,7 +296,7 @@ func TestGetHandler(t *testing.T) {
 			"Summary",
 			"go_service",
 			func(m *Metrics) {
-				summary := m.NewSummary("op_duration_seconds", "operation durations", map[float64]float64{0.5: 0.05, 0.9: 0.01}, []string{"op", "success"})
+				summary := m.NewSummary(true, "op_duration_seconds", "operation durations", map[float64]float64{0.5: 0.05, 0.9: 0.01}, []string{"op", "success"})
 				summary.WithLabelValues("creation", "true").Observe(0.27)
 			},
 			[]string{

@@ -27,63 +27,67 @@ func NewMetrics(service string) *Metrics {
 }
 
 // NewCounter creates and registers a new counter metric
-func (m *Metrics) NewCounter(name, help string, labels []string) *prometheus.CounterVec {
-	counter := prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: m.service,
-			Name:      name,
-			Help:      help,
-		},
-		labels,
-	)
+func (m *Metrics) NewCounter(prefixName bool, name, help string, labels []string) *prometheus.CounterVec {
+	opts := prometheus.CounterOpts{
+		Name: name,
+		Help: help,
+	}
 
+	if prefixName == true {
+		opts.Namespace = m.service
+	}
+
+	counter := prometheus.NewCounterVec(opts, labels)
 	m.registry.MustRegister(counter)
 	return counter
 }
 
 // NewGauge creates and registers a new gauge metric
-func (m *Metrics) NewGauge(name, help string, labels []string) *prometheus.GaugeVec {
-	gauge := prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: m.service,
-			Name:      name,
-			Help:      help,
-		},
-		labels,
-	)
+func (m *Metrics) NewGauge(prefixName bool, name, help string, labels []string) *prometheus.GaugeVec {
+	opts := prometheus.GaugeOpts{
+		Name: name,
+		Help: help,
+	}
 
+	if prefixName == true {
+		opts.Namespace = m.service
+	}
+
+	gauge := prometheus.NewGaugeVec(opts, labels)
 	m.registry.MustRegister(gauge)
 	return gauge
 }
 
 // NewHistogram creates and registers a new histogram metric
-func (m *Metrics) NewHistogram(name, help string, buckets []float64, labels []string) *prometheus.HistogramVec {
-	histogram := prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Namespace: m.service,
-			Name:      name,
-			Help:      help,
-			Buckets:   buckets,
-		},
-		labels,
-	)
+func (m *Metrics) NewHistogram(prefixName bool, name, help string, buckets []float64, labels []string) *prometheus.HistogramVec {
+	opts := prometheus.HistogramOpts{
+		Name:    name,
+		Help:    help,
+		Buckets: buckets,
+	}
 
+	if prefixName == true {
+		opts.Namespace = m.service
+	}
+
+	histogram := prometheus.NewHistogramVec(opts, labels)
 	m.registry.MustRegister(histogram)
 	return histogram
 }
 
 // NewSummary creates and registers a new summary metric
-func (m *Metrics) NewSummary(name, help string, quantiles map[float64]float64, labels []string) *prometheus.SummaryVec {
-	summary := prometheus.NewSummaryVec(
-		prometheus.SummaryOpts{
-			Namespace:  m.service,
-			Name:       name,
-			Help:       help,
-			Objectives: quantiles,
-		},
-		labels,
-	)
+func (m *Metrics) NewSummary(prefixName bool, name, help string, quantiles map[float64]float64, labels []string) *prometheus.SummaryVec {
+	opts := prometheus.SummaryOpts{
+		Name:       name,
+		Help:       help,
+		Objectives: quantiles,
+	}
 
+	if prefixName == true {
+		opts.Namespace = m.service
+	}
+
+	summary := prometheus.NewSummaryVec(opts, labels)
 	m.registry.MustRegister(summary)
 	return summary
 }

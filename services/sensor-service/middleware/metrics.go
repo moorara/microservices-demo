@@ -28,12 +28,14 @@ type metricsMiddleware struct {
 func NewMetricsMiddleware(metrics *util.Metrics) Middleware {
 	return &metricsMiddleware{
 		histogram: metrics.NewHistogram(
+			false,
 			histogramName,
 			"duration histogram of http requests",
 			defaultBuckets,
 			defaultLabels,
 		),
 		summary: metrics.NewSummary(
+			false,
 			summaryName,
 			"duration summary of http requests",
 			defaultQuantiles,
