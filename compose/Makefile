@@ -1,12 +1,6 @@
-path := $(shell pwd)
-fluentd_version ?= v1.1.0
 
-
-fluentd:
-	@ cd fluentd && \
-	  docker build \
-	    --build-arg fluentd_version=$(fluentd_version) \
-	    -t moorara/fluentd:$(fluentd_version) .
+images:
+	@ cd ../images && make all
 
 services:
 	@ cd ../services/site-service && make docker
@@ -17,7 +11,7 @@ pull:
 	@ FLUENTD_VERSION=$(fluentd_version) \
 	  docker-compose pull
 
-up: # fluentd services
+up: images services
 	@ FLUENTD_VERSION=$(fluentd_version) \
 	  docker-compose up -d fluentd
 	@ FLUENTD_VERSION=$(fluentd_version) \
@@ -42,6 +36,6 @@ test-integration:
 	  ./integration.sh
 
 
-.PHONY: fluentd services
+.PHONY: images services
 .PHONY: pull up down clean
 .PHONY: test-up test-integration
