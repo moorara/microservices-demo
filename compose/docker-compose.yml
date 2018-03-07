@@ -38,7 +38,7 @@ services:
 
   # DATA BACKENDS
   mongo:
-    image: mongo:3.6.2
+    image: mongo:3.6.3
     hostname: mongo
     container_name: mongo
     restart: always
@@ -49,7 +49,7 @@ services:
     volumes:
       - "mongo_data:/data/db"
   postgres:
-    image: postgres:10.1
+    image: postgres:10.3
     hostname: postgres
     container_name: postgres
     restart: always
@@ -66,7 +66,7 @@ services:
 
   # LOGGING
   elasticsearch:
-    image: elasticsearch:5.6.6
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
     hostname: elasticsearch
     container_name: elasticsearch
     restart: always
@@ -81,7 +81,7 @@ services:
       - "elasticsearch_data:/usr/share/elasticsearch/data"
       - "./logging/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
   kibana:
-    image: kibana:5.6.6
+    image: moorara/kibana:6.2.2
     hostname: kibana
     container_name: kibana
     restart: always
@@ -93,8 +93,9 @@ services:
       - local
     volumes:
       - "./logging/kibana.yml:/usr/share/kibana/config/kibana.yml"
+      - "./logging/logtrail.json:/usr/share/kibana/plugins/logtrail/logtrail.json"
   fluentd:
-    image: moorara/fluentd:${FLUENTD_VERSION}
+    image: moorara/fluentd:v1.1.1
     hostname: fluentd
     container_name: fluentd
     restart: always
@@ -128,7 +129,7 @@ services:
       - "./metrics/alerts.yml:/alerts.yml"
     command: "--config.file=/prometheus.yml"
   grafana:
-    image: grafana/grafana:4.6.3
+    image: grafana/grafana:5.0.0
     hostname: grafana
     container_name: grafana
     restart: always
@@ -137,13 +138,14 @@ services:
     ports:
       - "3000:3000"
     environment:
+      # http://docs.grafana.org/installation/configuration
       - GF_SECURITY_ADMIN_PASSWORD=pass
     networks:
       - local
     volumes:
       - "grafana_data:/var/lib/grafana"
   alertmanager:
-    image: prom/alertmanager:v0.13.0
+    image: prom/alertmanager:v0.14.0
     hostname: alertmanager
     container_name: alertmanager
     restart: always
@@ -181,7 +183,7 @@ services:
 
   # GATEWAYS
   traefik:
-    image: traefik:1.5.1
+    image: traefik:1.5.3
     hostname: traefik
     container_name: traefik
     restart: always

@@ -54,6 +54,6 @@ jobs:
       language: generic
       script:
         - cd compose
-        - make fluentd services
+        - make images services
         - make test-up && sleep 10
         - make test-integration

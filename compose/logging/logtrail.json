@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "index_patterns": [{
+    "es": {
+      "default_index": "fluentd*"
+    },
+    "tail_interval_in_seconds": 2,
+    "es_index_time_offset_in_seconds": 0,
+    "display_timezone": "local",
+    "display_timestamp_format": "MMM DD HH:mm:ss",
+    "default_time_range_in_days" : 0,
+    "max_hosts": 100,
+    "max_buckets": 500,
+    "max_events_to_keep_in_viewer": 1000,
+    "fields" : {
+      "mapping" : {
+        "timestamp" : "@timestamp",
+        "message": "message"
+      },
+      "message_format": "{{{container_image}}}  -->  {{message}}"
+    },
+    "color_mapping" : {
+      "field": "level",
+      "mapping": {
+        "error": "#ff0000",
+        "warn": "#ffef96",
+        "debug": "#b5e7a0",
+        "trace": "#cfe0e8"
+      }
+    }
+  }]
+}

@@ -1,4 +1,4 @@
-ARG fluentd_version=v1.1.0
+ARG fluentd_version
 
 FROM fluent/fluentd:$fluentd_version
 RUN apk add --update --virtual .build-deps sudo build-base ruby-dev && \

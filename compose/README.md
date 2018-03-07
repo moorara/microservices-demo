@@ -5,7 +5,7 @@
 | Command         | Description                                          |
 |-----------------|------------------------------------------------------|
 | `make pull`     | Pulls required Docker images                         |
-| `make fluentd`  | Builds custom `fluentd` Docker image                 |
+| `make images`   | Builds custom Docker images                          |
 | `make services` | Builds Docker images for application services        |
 | `make up`       | Brings up a local environment using `docker-compose` |
 | `make down`     | Takes down the local environment containers          |
