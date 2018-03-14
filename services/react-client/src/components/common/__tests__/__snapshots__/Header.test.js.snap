@@ -1,0 +1,131 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Header renders react component with isLoading false 1`] = `
+<section
+  className="hero is-dark is-medium is-bold"
+>
+  <div
+    className="hero-body"
+  >
+    <div
+      className="container"
+    >
+      <h1
+        className="title"
+      >
+        Control Center
+      </h1>
+      <h2
+        className="subtitle"
+      >
+        Monitoring Remote Sites in Real-Time!
+      </h2>
+    </div>
+  </div>
+  <div
+    className="hero-foot"
+  >
+    <nav
+      className="tabs"
+    >
+      <div
+        className="container"
+      >
+        <ul>
+          <li>
+            <Link
+              replace={false}
+              to="/"
+            >
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              replace={false}
+              to="/sites"
+            >
+              Sites
+            </Link>
+          </li>
+          <li>
+            <Link
+              replace={false}
+              to="/about"
+            >
+              About
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</section>
+`;
+
+exports[`Header renders react component with isLoading true 1`] = `
+<section
+  className="hero is-dark is-medium is-bold"
+>
+  <div
+    className="hero-body"
+  >
+    <div
+      className="container"
+    >
+      <h1
+        className="title"
+      >
+        Control Center
+      </h1>
+      <h2
+        className="subtitle"
+      >
+        Monitoring Remote Sites in Real-Time!
+      </h2>
+    </div>
+  </div>
+  <div
+    className="hero-foot"
+  >
+    <nav
+      className="tabs"
+    >
+      <div
+        className="container"
+      >
+        <ul>
+          <li>
+            <Link
+              replace={false}
+              to="/"
+            >
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              replace={false}
+              to="/sites"
+            >
+              Sites
+            </Link>
+          </li>
+          <li>
+            <Link
+              replace={false}
+              to="/about"
+            >
+              About
+            </Link>
+          </li>
+          <Loading
+            dots={5}
+            interval={100}
+          />
+        </ul>
+      </div>
+    </nav>
+  </div>
+</section>
+`;

@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SiteListItem renders react component with props 1`] = `
+<tr>
+  <td>
+    <Link
+      replace={false}
+      to="/sites/1111-1111"
+    >
+      Station 1
+    </Link>
+  </td>
+  <td>
+    Toronto, ON
+  </td>
+  <td>
+    2
+  </td>
+  <td>
+    oxygen hydrogen
+  </td>
+</tr>
+`;
+
+exports[`SiteListItem renders react component with props 2`] = `
+<tr>
+  <td>
+    <Link
+      replace={false}
+      to="/sites/2222-2222"
+    >
+      Station 2
+    </Link>
+  </td>
+  <td>
+    Kingston, ON
+  </td>
+  <td>
+    3
+  </td>
+  <td>
+    gold silver
+  </td>
+</tr>
+`;

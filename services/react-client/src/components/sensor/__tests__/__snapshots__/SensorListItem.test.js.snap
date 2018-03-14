@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SensorListItem renders react component with props 1`] = `
+<tr>
+  <td>
+    <Link
+      replace={false}
+      to="/sensors/aaaa-aaaa"
+    >
+      temperature
+    </Link>
+  </td>
+  <td>
+    celsius
+  </td>
+  <td>
+    -30
+  </td>
+  <td>
+    30
+  </td>
+</tr>
+`;
+
+exports[`SensorListItem renders react component with props 2`] = `
+<tr>
+  <td>
+    <Link
+      replace={false}
+      to="/sensors/aaaa-aaaa"
+    >
+      temperature
+    </Link>
+  </td>
+  <td>
+    celsius
+  </td>
+  <td>
+    -30
+  </td>
+  <td>
+    30
+  </td>
+</tr>
+`;
