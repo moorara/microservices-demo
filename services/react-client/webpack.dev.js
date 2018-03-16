@@ -13,6 +13,7 @@ const apiPort = process.env.API_PORT || 4001
 
 module.exports = {
   target: 'web',
+  mode: 'development',
   devtool: 'eval-source-map',
 
   entry: {
@@ -128,6 +129,7 @@ module.exports = {
     hot: true,
     noInfo: true,
     open: true,
+    historyApiFallback: true,
     overlay: {
       errors: true,
       warnings: true

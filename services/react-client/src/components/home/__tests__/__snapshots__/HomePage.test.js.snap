@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HomePage renders react component 1`] = `
+<section
+  className="hero is-light is-large is-bold"
+>
+  <div
+    className="hero-body"
+  >
+    <div
+      className="container"
+    >
+      <h1
+        className="title"
+      >
+        Welcome!
+      </h1>
+      <div
+        className="content"
+      >
+        <p>
+          You are landed on home page a cool application built using cool technologies both in the front and in the end!
+        </p>
+        <p>
+          <Link
+            className="button is-primary is-medium is-outlined"
+            replace={false}
+            to="/sites"
+          >
+            Sites
+          </Link>
+          <span>
+              
+          </span>
+          <Link
+            className="button is-info is-medium is-outlined"
+            replace={false}
+            to="/about-us"
+          >
+            About
+          </Link>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+`;

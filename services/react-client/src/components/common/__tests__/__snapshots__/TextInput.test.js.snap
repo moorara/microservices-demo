@@ -1,0 +1,125 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextInput renders react component in error case 1`] = `
+<div
+  className="field"
+>
+  <label
+    className="label"
+    htmlFor="firstName"
+  >
+    First Name
+  </label>
+  <div
+    className="control has-icons-right"
+  >
+    <input
+      className="input is-danger"
+      name="firstName"
+      onChange={[MockFunction]}
+      placeholder=""
+      type="text"
+      value=""
+    />
+    <span
+      className="icon is-small is-right"
+    >
+      <i
+        className="fa fa-exclamation-circle"
+      />
+    </span>
+  </div>
+  <p
+    className="help is-danger"
+  >
+    name is invalid
+  </p>
+</div>
+`;
+
+exports[`TextInput renders react component in success case 1`] = `
+<div
+  className="field"
+>
+  <label
+    className="label"
+    htmlFor="firstName"
+  >
+    First Name
+  </label>
+  <div
+    className="control has-icons-right"
+  >
+    <input
+      className="input is-success"
+      name="firstName"
+      onChange={[MockFunction]}
+      placeholder=""
+      type="text"
+      value=""
+    />
+    <span
+      className="icon is-small is-right"
+    >
+      <i
+        className="fa fa-check-circle"
+      />
+    </span>
+  </div>
+  <p
+    className="help is-success"
+  >
+    name is valid
+  </p>
+</div>
+`;
+
+exports[`TextInput renders react component with placeholder 1`] = `
+<div
+  className="field"
+>
+  <label
+    className="label"
+    htmlFor="firstName"
+  >
+    First Name
+  </label>
+  <div
+    className="control has-icons-right"
+  >
+    <input
+      className="input"
+      name="firstName"
+      onChange={[MockFunction]}
+      placeholder="Your Name"
+      type="text"
+      value=""
+    />
+  </div>
+</div>
+`;
+
+exports[`TextInput renders react component with value 1`] = `
+<div
+  className="field"
+>
+  <label
+    className="label"
+    htmlFor="firstName"
+  >
+    First Name
+  </label>
+  <div
+    className="control has-icons-right"
+  >
+    <input
+      className="input"
+      name="firstName"
+      onChange={[MockFunction]}
+      placeholder=""
+      type="text"
+      value="Me"
+    />
+  </div>
+</div>
+`;

@@ -1,0 +1,123 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SitePage SitePage renders connected react component with props 1`] = `
+<section
+  className="hero is-light is-large is-bold"
+>
+  <div
+    className="hero-body"
+  >
+    <div
+      className="container"
+    >
+      <h1
+        className="title"
+      >
+        All Sites
+      </h1>
+      <SiteList
+        sites={
+          Array [
+            Object {
+              "id": "1111-1111",
+              "location": "Toronto, ON",
+              "name": "Station 1",
+              "priority": 2,
+              "tags": Array [
+                "oxygen",
+                "hydrogen",
+              ],
+            },
+            Object {
+              "id": "2222-2222",
+              "location": "Kingston, ON",
+              "name": "Station 2",
+              "priority": 3,
+              "tags": Array [
+                "gold",
+                "silver",
+              ],
+            },
+          ]
+        }
+      />
+      <input
+        className="button is-link is-rounded"
+        onClick={[Function]}
+        type="submit"
+        value="Back"
+      />
+      <span>
+          
+      </span>
+      <input
+        className="button is-success is-rounded"
+        onClick={[Function]}
+        type="submit"
+        value="Add Site"
+      />
+    </div>
+  </div>
+</section>
+`;
+
+exports[`SitePage SitePage renders connected react component with props 2`] = `
+<section
+  className="hero is-light is-large is-bold"
+>
+  <div
+    className="hero-body"
+  >
+    <div
+      className="container"
+    >
+      <h1
+        className="title"
+      >
+        All Sites
+      </h1>
+      <SiteList
+        sites={
+          Array [
+            Object {
+              "id": "3333-3333",
+              "location": "Ottawa, ON",
+              "name": "Station 3",
+              "priority": 4,
+              "tags": Array [
+                "helium",
+                "nitrogen",
+              ],
+            },
+            Object {
+              "id": "4444-4444",
+              "location": "Montreal, QC",
+              "name": "Station 4",
+              "priority": 5,
+              "tags": Array [
+                "carbon",
+                "iron",
+              ],
+            },
+          ]
+        }
+      />
+      <input
+        className="button is-link is-rounded"
+        onClick={[Function]}
+        type="submit"
+        value="Back"
+      />
+      <span>
+          
+      </span>
+      <input
+        className="button is-success is-rounded"
+        onClick={[Function]}
+        type="submit"
+        value="Add Site"
+      />
+    </div>
+  </div>
+</section>
+`;

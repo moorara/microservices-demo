@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SensorPage SensorPage renders connected react component with props 1`] = `
+<section
+  className="hero is-light is-large is-bold"
+>
+  <div
+    className="hero-body"
+  >
+    <div
+      className="container"
+    >
+      <h1
+        className="title"
+      >
+        Station 1 Sensors
+      </h1>
+      <SensorList
+        sensors={
+          Array [
+            Object {
+              "id": "aaaa-aaaa",
+              "maxSafe": 30,
+              "minSafe": -30,
+              "name": "temperature",
+              "siteId": "1111-1111",
+              "unit": "celsius",
+            },
+          ]
+        }
+      />
+      <input
+        className="button is-link is-rounded"
+        onClick={[Function]}
+        type="submit"
+        value="Back"
+      />
+      <span>
+          
+      </span>
+      <input
+        className="button is-danger is-rounded"
+        onClick={[Function]}
+        type="submit"
+        value="Add Sensor"
+      />
+    </div>
+  </div>
+</section>
+`;
+
+exports[`SensorPage SensorPage renders connected react component with props 2`] = `
+<section
+  className="hero is-light is-large is-bold"
+>
+  <div
+    className="hero-body"
+  >
+    <div
+      className="container"
+    >
+      <h1
+        className="title"
+      >
+        Station 1 Sensors
+      </h1>
+      <SensorList
+        sensors={
+          Array [
+            Object {
+              "id": "bbbb-bbbb",
+              "maxSafe": 86,
+              "minSafe": -22,
+              "name": "temperature",
+              "siteId": "2222-2222",
+              "unit": "fahrenheit",
+            },
+          ]
+        }
+      />
+      <input
+        className="button is-link is-rounded"
+        onClick={[Function]}
+        type="submit"
+        value="Back"
+      />
+      <span>
+          
+      </span>
+      <input
+        className="button is-danger is-rounded"
+        onClick={[Function]}
+        type="submit"
+        value="Add Sensor"
+      />
+    </div>
+  </div>
+</section>
+`;

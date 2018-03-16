@@ -17,6 +17,7 @@ const extractSASS = new ExtractTextPlugin('[name].[contenthash:8].css')
 
 module.exports = {
   target: 'web',
+  mode: 'production',
   devtool: 'source-map',
 
   entry: {

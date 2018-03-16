@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SiteList renders react component with props 1`] = `
+<table
+  className="table is-bordered is-striped is-fullwidth is-hoverable"
+>
+  <thead>
+    <tr>
+      <th>
+        Name
+      </th>
+      <th>
+        Location
+      </th>
+      <th>
+        Priority
+      </th>
+      <th>
+        Tags
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <SiteListItem
+      key="1111-1111"
+      site={
+        Object {
+          "id": "1111-1111",
+          "location": "Toronto, ON",
+          "name": "Station 1",
+          "priority": 2,
+          "tags": Array [
+            "oxygen",
+            "hydrogen",
+          ],
+        }
+      }
+    />
+    <SiteListItem
+      key="2222-2222"
+      site={
+        Object {
+          "id": "2222-2222",
+          "location": "Kingston, ON",
+          "name": "Station 2",
+          "priority": 3,
+          "tags": Array [
+            "gold",
+            "silver",
+          ],
+        }
+      }
+    />
+  </tbody>
+</table>
+`;
+
+exports[`SiteList renders react component with props 2`] = `
+<table
+  className="table is-bordered is-striped is-fullwidth is-hoverable"
+>
+  <thead>
+    <tr>
+      <th>
+        Name
+      </th>
+      <th>
+        Location
+      </th>
+      <th>
+        Priority
+      </th>
+      <th>
+        Tags
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <SiteListItem
+      key="3333-3333"
+      site={
+        Object {
+          "id": "3333-3333",
+          "location": "Ottawa, ON",
+          "name": "Station 3",
+          "priority": 4,
+          "tags": Array [
+            "helium",
+            "nitrogen",
+          ],
+        }
+      }
+    />
+    <SiteListItem
+      key="4444-4444"
+      site={
+        Object {
+          "id": "4444-4444",
+          "location": "Montreal, QC",
+          "name": "Station 4",
+          "priority": 5,
+          "tags": Array [
+            "carbon",
+            "iron",
+          ],
+        }
+      }
+    />
+  </tbody>
+</table>
+`;

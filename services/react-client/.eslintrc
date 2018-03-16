@@ -23,6 +23,7 @@
     "comma-dangle": [ "off" ],
     "jsx-quotes": ["error", "prefer-double"],
 
-    "react/prop-types": [ "error" ]
+    "react/prop-types": "error",
+    "react/self-closing-comp": "warn"
   }
 }

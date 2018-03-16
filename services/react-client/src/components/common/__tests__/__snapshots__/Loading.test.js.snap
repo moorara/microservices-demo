@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Loading renders react component with custom props 1`] = `
+<div
+  className="dots"
+>
+  <span>
+    •
+  </span>
+</div>
+`;
+
+exports[`Loading renders react component with default props 1`] = `
+<div
+  className="dots"
+>
+  <span>
+    •
+  </span>
+</div>
+`;
