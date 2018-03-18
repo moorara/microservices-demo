@@ -32,6 +32,7 @@ jobs:
         - yarn install
         - yarn run lint
         - yarn run test
+        - yarn run build:webpack
 
     - stage: component tests
       language: go

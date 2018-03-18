@@ -5,8 +5,8 @@
 
 const path = require('path')
 const webpack = require('webpack')
-const InterpolateHtmlPlugin = require('interpolate-html-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const InterpolateHtmlPlugin = require('./config/webpack/interpolate-html-plugin')
 
 const port = process.env.PORT || 4000
 const apiPort = process.env.API_PORT || 4001
@@ -96,15 +96,19 @@ module.exports = {
     ]
   },
 
+  performance: {
+    hints: false
+  },
+
   plugins: [
-    new InterpolateHtmlPlugin({
-      'PAGE_TITLE': 'Control Center (dev)'
-    }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/index.html'),
       filename: 'index.html',
       inject: 'body',
       favicon: 'src/favicon.ico'
+    }),
+    new InterpolateHtmlPlugin({
+      PAGE_TITLE: 'Control Center (dev)'
     }),
     new webpack.DefinePlugin({
       'process.env': {
@@ -115,10 +119,6 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/) // Required if using Moment.js
   ],
-
-  performance: {
-    hints: false
-  },
 
   devServer: {
     contentBase: path.resolve(__dirname, 'public'),
