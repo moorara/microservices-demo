@@ -11,6 +11,7 @@ import * as sensorActions from '../../actions/sensor'
 export class SensorPage extends React.Component {
   static propTypes = {
     history: PropTypes.object.isRequired,
+    match: PropTypes.object.isRequired,
     site: PropTypes.object.isRequired,
     sensors: PropTypes.array.isRequired,
     actions: PropTypes.object.isRequired,
@@ -36,8 +37,9 @@ export class SensorPage extends React.Component {
   }
 
   componentDidMount () {
-    const { site, actions } = this.props
-    actions.getSiteSensors(site.id)
+    const { actions } = this.props
+    const siteId = this.props.match.params.id
+    actions.getSiteSensors(siteId)
   }
 
   render () {
@@ -66,7 +68,7 @@ export class SensorPage extends React.Component {
 export function mapStateToProps (state, ownProps) {
   const siteId = ownProps.match.params.id
   return {
-    site: state.site.items.find(site => site.id === siteId),
+    site: state.site.items.find(site => site.id === siteId) || {},
     sensors: state.sensor.items.filter(sensor => sensor.siteId === siteId)
   }
 }
