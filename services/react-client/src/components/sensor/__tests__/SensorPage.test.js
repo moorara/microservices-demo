@@ -10,6 +10,7 @@ describe('SensorPage', () => {
     let nextProps, nextState
     const props = {
       history: {},
+      match: { params: {} },
       site: {},
       sensors: [],
       actions: {}
@@ -21,6 +22,7 @@ describe('SensorPage', () => {
     })
 
     test('renders connected react component with props', () => {
+      props.match.params.id = '1111-1111'
       props.site = { id: '1111-1111', name: 'Station 1', location: 'Toronto, ON', priority: 2, tags: [ 'oxygen', 'hydrogen' ] }
       props.sensors = [
         { id: 'aaaa-aaaa', siteId: '1111-1111', name: 'temperature', unit: 'celsius', minSafe: -30, maxSafe: 30 }
@@ -39,6 +41,7 @@ describe('SensorPage', () => {
       expect(props.history.goBack).toHaveBeenCalled()
     })
     test('renders connected react component with props', () => {
+      props.match.params.id = '2222-2222'
       props.sites = { id: '2222-2222', name: 'Station 2', location: 'Kingston, ON', priority: 3, tags: [ 'gold', 'silver' ] }
       props.sensors = [
         { id: 'bbbb-bbbb', siteId: '2222-2222', name: 'temperature', unit: 'fahrenheit', minSafe: -22, maxSafe: 86 }
