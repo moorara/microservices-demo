@@ -5,6 +5,7 @@ images:
 services:
 	@ cd ../services/site-service && make docker
 	@ cd ../services/sensor-service && make docker
+	@ cd ../services/react-client && make docker
 
 
 pull:

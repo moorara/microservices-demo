@@ -1,0 +1,12 @@
+dist/
+public/
+build/
+
+reports/
+coverage/
+node_modules/
+
+*.log
+*.lock
+yarn.lock
+package-lock.json

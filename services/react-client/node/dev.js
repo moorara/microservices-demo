@@ -11,7 +11,7 @@ import webpackDevMiddleware from 'webpack-dev-middleware'
 import webpackHotMiddleware from 'webpack-hot-middleware'
 
 import mockApiServer from './api'
-import webpackConfig from '../../webpack.dev'
+import webpackConfig from '../webpack.dev'
 
 const port = parseInt(process.env.PORT, 10) || 4000
 
