@@ -1,8 +1,10 @@
 # https://docs.traefik.io/basics
 # https://docs.traefik.io/user-guide/examples
 # https://docs.traefik.io/configuration/commons
+# https://docs.traefik.io/configuration/api
+# https://docs.traefik.io/configuration/metrics
 # https://docs.traefik.io/configuration/entrypoints
-# https://docs.traefik.io/configuration/backends/web
+# https://docs.traefik.io/configuration/backends/rest
 # https://docs.traefik.io/configuration/backends/docker
 
 
