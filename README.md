@@ -4,11 +4,11 @@
 This demo application shows how a microservices architecture can be implemented and applied!
 This demo application covers the following topics:
 
-  * Front-End Services
-  * Back-End Sevices
-  * Metrics, Logging, and Tracing
-  * API Gateway and Web Gateway
-  * Containerization and Orchestration
+  * front-end client
+  * back-end services
+  * metrics, logging, and tracing
+  * api gateway and web gateway
+  * containerization and orchestration
 
 ## Services
 
