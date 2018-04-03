@@ -6,3 +6,5 @@ services:
     container_name: react-client
     ports:
       - "4000:4000"
+    environment:
+      - LOG_LEVEL=debug

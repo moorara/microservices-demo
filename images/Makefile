@@ -1,4 +1,4 @@
-fluentd_version ?= v1.1.1
+fluentd_version ?= v1.1.2
 kibana_version ?= 6.2.2
 
 

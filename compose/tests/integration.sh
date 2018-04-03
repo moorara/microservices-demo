@@ -11,7 +11,8 @@ set -euo pipefail
 red='\033[1;31m'
 green='\033[1;32m'
 yellow='\033[1;33m'
-purple='\033[1;35m'
+purple='\033[1;34m'
+pink='\033[1;35m'
 blue='\033[1;36m'
 nocolor='\033[0m'
 
@@ -43,6 +44,18 @@ function whitelist_variable {
     printf "${red}Invalid $1 $3${nocolor}\n"
     exit 1
   fi
+}
+
+function run_react_client_tests {
+  printf "\n${yellow}  RUNNING TESTS FOR ${blue}react-client${nocolor}\n"
+
+  curl --fail http://localhost:4000/health &> /dev/null
+  printf "${green}    [✓] GET /health ${nocolor}\n"
+
+  curl --fail \
+    -X GET \
+    http://localhost:4000 &> /dev/null
+  printf "${green}    [✓] GET / ${nocolor}\n"
 }
 
 function run_site_service_tests {
@@ -101,6 +114,12 @@ function run_traefik_http_tests {
 
   curl --fail \
     -H "Host: traefik" \
+    -X GET \
+    http://localhost:1080 &> /dev/null
+  printf "${green}    [✓] GET / ${nocolor}\n"
+
+  curl --fail \
+    -H "Host: traefik" \
     -H "Content-Type: application/json" \
     -X POST -d "{ \"name\":\"$siteName\", \"location\":\"here\" }" \
     http://localhost:1080/api/v1/sites &> /dev/null
@@ -129,10 +148,17 @@ function run_traefik_http_tests {
 }
 
 function run_traefik_https_tests {
-  printf "\n${yellow}  RUNNING INTEGRATION TESTS FOR ${purple}traefik (https)${nocolor}\n"
+  printf "\n${yellow}  RUNNING INTEGRATION TESTS FOR ${pink}traefik (https)${nocolor}\n"
 
   siteName=$(get_random_string)
   siteId=$(get_random_string)
+
+  curl --fail \
+    --cacert $certs_path/intermediate.ca.chain \
+    -H "Host: traefik" \
+    -X GET \
+    https://localhost:1443 &> /dev/null
+  printf "${green}    [✓] GET / ${nocolor}\n"
 
   curl --fail \
     --cacert $certs_path/intermediate.ca.chain \
@@ -171,6 +197,7 @@ function run_traefik_https_tests {
 certs_path="../certs"
 
 ensure_command "curl"
+run_react_client_tests
 run_site_service_tests
 run_sensor_service_tests
 run_traefik_http_tests

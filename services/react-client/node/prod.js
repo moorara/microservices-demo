@@ -10,6 +10,11 @@ const port = parseInt(process.env.PORT, 10) || 4000
 
 const app = express()
 
+// Healthcheck endpoint
+app.get('/health', (req, res) => {
+  res.sendStatus(200)
+})
+
 app.use(compression())
 app.use(
   express.static(
@@ -17,14 +22,9 @@ app.use(
   )
 )
 
-// Healthcheck endpoint
-app.use('/health', (req, res) => {
-  res.sendStatus(200)
-})
-
 app.listen(port, err => {
   if (err) {
     return console.log(err)
   }
-  console.log(`Server listening on http://localhost:${port}`)
+  console.log(`Listening on port ${port} ...`)
 })

@@ -38,7 +38,7 @@ services:
 
   # DATA BACKENDS
   mongo:
-    image: mongo:3.6.3
+    image: mongo:3.7.3
     hostname: mongo
     container_name: mongo
     restart: always
@@ -54,7 +54,7 @@ services:
     container_name: postgres
     restart: always
     ports:
-      - "54320:5432"
+      - "5432:5432"
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=pass
@@ -62,11 +62,11 @@ services:
       - local
     volumes:
       - "postgres_data:/var/lib/postgresql/data"
-      - "./init/sensor-service.sql:/docker-entrypoint-initdb.d/initdb.sql"
+      - "./init/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
 
   # LOGGING
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.3
     hostname: elasticsearch
     container_name: elasticsearch
     restart: always
@@ -95,7 +95,7 @@ services:
       - "./logging/kibana.yml:/usr/share/kibana/config/kibana.yml"
       - "./logging/logtrail.json:/usr/share/kibana/plugins/logtrail/logtrail.json"
   fluentd:
-    image: moorara/fluentd:v1.1.1
+    image: moorara/fluentd:v1.1.2
     hostname: fluentd
     container_name: fluentd
     restart: always
@@ -114,7 +114,7 @@ services:
 
   # METRICS
   prometheus:
-    image: prom/prometheus:v2.1.0
+    image: prom/prometheus:v2.2.0
     hostname: prometheus
     container_name: prometheus
     restart: always
@@ -129,7 +129,7 @@ services:
       - "./metrics/alerts.yml:/alerts.yml"
     command: "--config.file=/prometheus.yml"
   grafana:
-    image: grafana/grafana:5.0.0
+    image: grafana/grafana:5.0.3
     hostname: grafana
     container_name: grafana
     restart: always
@@ -183,7 +183,7 @@ services:
 
   # GATEWAYS
   traefik:
-    image: traefik:1.5.3
+    image: traefik:1.5.4
     hostname: traefik
     container_name: traefik
     restart: always
@@ -202,6 +202,29 @@ services:
     <<: *logdriver
 
   # APPLICATION SERVICES
+  react-client:
+    image: moorara/react-client:latest
+    hostname: react-client
+    container_name: react-client
+    depends_on:
+      - fluentd
+    ports:
+      - "4000:4000"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=react-client
+      - SERVICE_TAGS=monitor
+    networks:
+      - local
+      - traefik
+    labels:
+      <<: *labels
+      traefik.enable: "true"
+      traefik.docker.network: "compose_traefik"
+      traefik.port: "4000"
+      traefik.backend: "react-client"
+      traefik.frontend.rule: "Host:traefik,localhost;"
+    <<: *logdriver
   site-service:
     image: moorara/site-service:latest
     hostname: site-service
@@ -225,7 +248,7 @@ services:
       traefik.docker.network: "compose_traefik"
       traefik.port: "4010"
       traefik.backend: "site-service"
-      traefik.frontend.rule: "Host:traefik; PathPrefixStrip:/api/v1/sites; AddPrefix:/v1/sites"
+      traefik.frontend.rule: "Host:traefik,localhost; PathPrefixStrip:/api/v1/sites; AddPrefix:/v1/sites"
     <<: *logdriver
   sensor-service:
     image: moorara/sensor-service:latest
@@ -249,5 +272,5 @@ services:
       traefik.docker.network: "compose_traefik"
       traefik.port: "4020"
       traefik.backend: "sensor-service"
-      traefik.frontend.rule: "Host:traefik; ReplacePathRegex: ^/api/v1/sensors /v1/sensors"
+      traefik.frontend.rule: "Host:traefik,localhost; PathPrefix:/api/v1/sensors; ReplacePathRegex: ^/api/(.*) /$$1"
     <<: *logdriver

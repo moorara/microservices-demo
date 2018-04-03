@@ -31,7 +31,7 @@ When it comes to snapshot testing React components with `jest`, there are two op
 
 ### Resources
 
-  * **Webpack**:
+  * **Webpack**
     - https://webpack.js.org/concepts
     - https://webpack.js.org/configuration
     - https://webpack.js.org/guides
@@ -42,14 +42,14 @@ When it comes to snapshot testing React components with `jest`, there are two op
     - https://github.com/webpack/webpack-dev-middleware
     - https://github.com/glenjamin/webpack-hot-middleware
 
-  * **Babel**:
+  * **Babel**
     - https://babeljs.io/docs/plugins
     - https://babeljs.io/docs/plugins/preset-env
     - https://babeljs.io/docs/plugins/preset-react
     - https://babeljs.io/docs/plugins/preset-stage-2
     - https://babeljs.io/docs/plugins/transform-runtime
 
-  * **ESLint**:
+  * **ESLint**
     - https://eslint.org/docs/user-guide/getting-started
     - https://eslint.org/docs/user-guide/configuring
     - https://eslint.org/docs/rules
@@ -57,17 +57,17 @@ When it comes to snapshot testing React components with `jest`, there are two op
     - https://www.npmjs.com/package/eslint-config-standard
     - https://www.npmjs.com/package/eslint-config-standard-react
 
-  * **React**:
+  * **React**
     - https://reactjs.org/docs/forms.html
     - https://reactjs.org/docs/fragments.html
 
-  * **Redux**:
+  * **Redux**
     - https://redux.js.org/advanced/async-actions
     - https://redux.js.org/recipes/structuring-reducers/initializing-state
     - https://redux.js.org/recipes/server-rendering
     - https://redux.js.org/recipes/writing-tests
 
-  * **Jest**:
+  * **Jest**
     - https://facebook.github.io/jest/docs/en/jest-object.html
     - https://facebook.github.io/jest/docs/en/mock-function-api.html
     - https://facebook.github.io/jest/docs/en/mock-functions.html
@@ -77,7 +77,7 @@ When it comes to snapshot testing React components with `jest`, there are two op
     - https://facebook.github.io/jest/docs/en/snapshot-testing.html
     - https://facebook.github.io/jest/docs/en/configuration.html
 
-  * **Enzyme**:
+  * **Enzyme**
     - http://airbnb.io/enzyme/docs/api/shallow.html
     - http://airbnb.io/enzyme/docs/api/mount.html
     - http://airbnb.io/enzyme/docs/api/render.html
@@ -85,6 +85,6 @@ When it comes to snapshot testing React components with `jest`, there are two op
     - https://github.com/adriantoine/enzyme-to-json
     - https://github.com/airbnb/enzyme/tree/master/packages/enzyme-adapter-react-16
 
-  * **Misc**:
+  * **Misc**
     - https://github.com/typicode/json-server
     - https://www.jstwister.com/post/jest-snapshot-testing-with-enzyme

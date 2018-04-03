@@ -50,3 +50,10 @@ jobs:
         - make docker docker-test up
         - yarn install
         - yarn run test:component
+
+    - stage: component tests
+      language: node_js
+      node_js: 9
+      script:
+        - cd services/react-client
+        - make docker
