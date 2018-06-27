@@ -1,0 +1,221 @@
+##
+
+node-job-init: &node-job-init
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:10
+
+go-job-init: &go-job-init
+  working_directory: /go/src/github.com/moorara/microservices-demo
+  docker:
+    - image: circleci/golang:1.10
+
+version: 2
+jobs:
+
+  site-service-build-images:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Build Docker Image
+          working_directory: services/site-service
+          command: make docker
+      - run:
+          name: Build Docker Test Image
+          working_directory: services/site-service
+          command: make docker-test
+      - run:
+          name: Save Docker Images
+          working_directory: services/site-service
+          command: make save-images
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker.tar
+            - docker-test.tar
+
+  site-service-unit-tests:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - run:
+          name: Install Packages
+          working_directory: services/site-service
+          command: yarn install
+      - run:
+          name: Checking Security
+          working_directory: services/site-service
+          command: yarn run nsp
+      - run:
+          name: Linting
+          working_directory: services/site-service
+          command: yarn run lint
+      - run:
+          name: Unit Testing
+          working_directory: services/site-service
+          command: yarn run test
+      - store_artifacts:
+          path: services/site-service/coverage
+          prefix: coverage
+
+  site-service-component-tests:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Load Docker Images
+          command: |
+            docker image load -i /tmp/workspace/docker.tar
+            docker image load -i /tmp/workspace/docker-test.tar
+      - run:
+          name: Component Testing
+          working_directory: services/site-service
+          command: make test-component
+
+  sensor-service-build-images:
+    <<: *go-job-init
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Build Docker Image
+          working_directory: services/sensor-service
+          command: make docker
+      - run:
+          name: Build Docker Test Image
+          working_directory: services/sensor-service
+          command: make docker-test
+      - run:
+          name: Save Docker Images
+          working_directory: services/sensor-service
+          command: make save-images
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker.tar
+            - docker-test.tar
+
+  sensor-service-unit-tests:
+    <<: *go-job-init
+    steps:
+      - checkout
+      - run:
+          name: Unit Testing
+          working_directory: services/sensor-service
+          command: make test
+      - run:
+          name: Unit Testing + Coverage
+          working_directory: services/sensor-service
+          command: make coverage
+      - store_artifacts:
+          path: services/sensor-service/reports
+          prefix: reports
+
+  sensor-service-component-tests:
+    <<: *go-job-init
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Load Docker Images
+          command: |
+            docker image load -i /tmp/workspace/docker.tar
+            docker image load -i /tmp/workspace/docker-test.tar
+      - run:
+          name: Component Testing
+          working_directory: services/sensor-service
+          command: |
+            # This is a very hacky trick since we cannot mount a volume
+            docker-compose up -d postgres
+            sleep 2
+            docker exec postgres psql -c "CREATE DATABASE sensors"
+            docker exec postgres psql -d sensors -c "CREATE TABLE sensors (id varchar(256) PRIMARY KEY, site_id varchar(256) NOT NULL, name varchar(256) NOT NULL, unit varchar(256) NOT NULL, min_safe double precision NOT NULL, max_safe double precision NOT NULL)"
+            docker-compose run sensor-service-test make test-component
+
+  react-client-build-images:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Build Docker Image
+          working_directory: services/react-client
+          command: make docker
+      - run:
+          name: Save Docker Images
+          working_directory: services/react-client
+          command: make save-images
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker.tar
+
+  react-client-unit-tests:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - run:
+          name: Install Packages
+          working_directory: services/react-client
+          command: yarn install
+      - run:
+          name: Linting
+          working_directory: services/react-client
+          command: yarn run lint
+      - run:
+          name: Unit Testing
+          working_directory: services/react-client
+          command: yarn run test
+      - store_artifacts:
+          path: services/react-client/coverage
+          prefix: coverage
+
+  react-client-build-app:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - run:
+          name: Install Packages
+          working_directory: services/react-client
+          command: yarn install
+      - run:
+          name: Build App
+          working_directory: services/react-client
+          command: yarn run build:webpack
+      - store_artifacts:
+          path: services/react-client/public
+          prefix: public
+
+workflows:
+  version: 2
+  site-service:
+    jobs:
+      - site-service-build-images
+      - site-service-unit-tests
+      - site-service-component-tests:
+          requires:
+            - site-service-build-images
+  sensor-service:
+    jobs:
+      - sensor-service-build-images
+      - sensor-service-unit-tests
+      - sensor-service-component-tests:
+          requires:
+            - sensor-service-build-images
+  react-client:
+    jobs:
+      - react-client-build-images
+      - react-client-unit-tests
+      - react-client-build-app
