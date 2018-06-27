@@ -1,4 +1,4 @@
-[![Build Status][travisci-image]][travisci-url]
+[![Build Status][circleci-image]][circleci-url]
 
 # Microservices
 This demo application shows how a microservices architecture can be implemented and applied!
@@ -22,5 +22,5 @@ This demo application covers the following topics:
   * [docker swarm](https://github.com/moorara/microservices-demo/tree/master/swarm)
 
 
-[travisci-url]: https://travis-ci.org/moorara/microservices-demo
-[travisci-image]: https://travis-ci.org/moorara/microservices-demo.svg?branch=master
+[circleci-url]: https://circleci.com/gh/moorara/microservices-demo/tree/master
+[circleci-image]: https://circleci.com/gh/moorara/microservices-demo/tree/master.svg?style=shield

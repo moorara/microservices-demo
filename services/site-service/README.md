@@ -58,8 +58,9 @@ curl \
 | `yarn run test`           | Runs the unit tests                        |
 | `yarn run test-component` | Runs the component tests                   |
 | `make docker`             | Builds Docker image                        |
+| `make docker-test`        | Builds Docker test image                   |
+| `make save-images`        | Saves built Docker images                  |
 | `make up`                 | Runs the service locally in containers     |
 | `make down`               | Stops and removes local containers         |
-| `make docker-test`        | Builds Docker test image                   |
 | `make test`               | Runs the unit tests in containers          |
 | `make test-component`     | Runs the component tests in containers     |

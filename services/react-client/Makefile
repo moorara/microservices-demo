@@ -1,9 +1,10 @@
-docker_image ?= moorara/react-client
 docker_tag ?= latest
+docker_image ?= moorara/react-client
 
 path := $(shell pwd)
 build_dir := $(path)/public
 report_dir := $(path)/coverage
+docker_dir := /tmp/workspace
 
 
 clean:
@@ -11,6 +12,10 @@ clean:
 
 docker:
 	@ docker build -t $(docker_image):$(docker_tag) .
+
+save-images:
+	@ mkdir -p $(docker_dir)
+	@ docker image save -o $(docker_dir)/docker.tar $(docker_image):$(docker_tag)
 
 up:
 	@ VERSION=$(docker_tag) \
@@ -22,4 +27,5 @@ down:
 
 
 .PHONY: clean
-.PHONY: docker up down
+.PHONY: docker save-images
+.PHONY: up down
