@@ -1,8 +1,10 @@
-docker_image ?= moorara/site-service
 docker_tag ?= latest
+docker_image ?= moorara/site-service
+docker_test_image ?= site-service-test
 
 path := $(shell pwd)
 report_dir := $(path)/coverage
+docker_dir := /tmp/workspace
 
 
 clean:
@@ -10,6 +12,17 @@ clean:
 
 docker:
 	@ docker build -t $(docker_image):$(docker_tag) .
+
+docker-test:
+	@ docker build \
+		--file Dockerfile.test \
+		--build-arg version=$(docker_tag) \
+		--tag $(docker_test_image) .
+
+save-images:
+	@ mkdir -p $(docker_dir)
+	@ docker image save -o $(docker_dir)/docker.tar $(docker_image):$(docker_tag)
+	@ docker image save -o $(docker_dir)/docker-test.tar $(docker_test_image)
 
 up:
 	@ VERSION=$(docker_tag) \
@@ -19,22 +32,16 @@ down:
 	@ VERSION=$(docker_tag) \
 	  docker-compose down
 
-
-docker-test:
-	@ docker build \
-		--file Dockerfile.test \
-		--build-arg version=$(docker_tag) \
-		--tag site-service-test .
-
-test: docker docker-test
+test: # docker docker-test
 	@ VERSION=$(docker_tag) \
 	  docker-compose run site-service-test npm run test
 
-test-component: docker docker-test
+test-component: # docker docker-test
 	@ VERSION=$(docker_tag) \
 	  docker-compose run site-service-test npm run test:component
 
 
 .PHONY: clean
-.PHONY: docker up down
-.PHONY: docker-test test test-component
+.PHONY: docker docker-test save-images
+.PHONY: up down
+.PHONY: test test-component

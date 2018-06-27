@@ -1,0 +1,5 @@
+# TEST IMAGE
+FROM golang:1.10-alpine
+RUN apk add --no-cache ca-certificates make
+WORKDIR /go/src/github.com/moorara/microservices-demo/services/sensor-service/
+COPY . .

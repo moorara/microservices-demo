@@ -17,6 +17,7 @@
 | `yarn run build:node`    | Builds application for production using `node.js`             |
 | `yarn run prod:server`   | Runs a production server for serving the application          |
 | `make docker`            | Builds Docker image                                           |
+| `make save-images`       | Saves built Docker images                                     |
 | `make up`                | Runs the service locally in containers                        |
 | `make down`              | Stops and removes local containers                            |
 

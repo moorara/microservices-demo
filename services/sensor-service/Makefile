@@ -1,8 +1,10 @@
-docker_image ?= moorara/sensor-service
 docker_tag ?= latest
+docker_image ?= moorara/sensor-service
+docker_test_image ?= sensor-service-test
 
 path := $(shell pwd)
 report_dir := $(path)/reports
+docker_dir := /tmp/workspace
 go_packages := $(shell go list ./... | grep -v //)
 
 
@@ -22,6 +24,16 @@ build:
 
 docker:
 	@ docker build -t $(docker_image):$(docker_tag) .
+
+docker-test:
+	@ docker build \
+		--file Dockerfile.test \
+		--tag $(docker_test_image) .
+
+save-images:
+	@ mkdir -p $(docker_dir)
+	@ docker image save -o $(docker_dir)/docker.tar $(docker_image):$(docker_tag)
+	@ docker image save -o $(docker_dir)/docker-test.tar $(docker_test_image)
 
 up:
 	@ VERSION=$(docker_tag) \
@@ -43,12 +55,16 @@ coverage:
 	@ go tool cover -html=$(report_dir)/cover.out -o $(report_dir)/cover.html && \
 	  rm cover.out $(report_dir)/cover.out
 
-test-component: up
-	@ echo
-	@ COMPONENT_TEST=true \
-		go test -v ./test
+test-component: # docker up
+	@ COMPONENT_TEST=true go test -v ./test
+
+test-component-docker: # docker docker-test
+	@ VERSION=$(docker_tag) \
+	  docker-compose run sensor-service-test make test-component
 
 
 .PHONY: clean dep
-.PHONY: run build docker up down
-.PHONY: test coverage test-component
+.PHONY: run build
+.PHONY: docker docker-test save-images
+.PHONY: up down
+.PHONY: test coverage test-component test-component-docker

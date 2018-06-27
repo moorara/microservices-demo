@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: pass
     volumes:
-      - "./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql"
+      - "./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql"
   sensor-service:
     image: moorara/sensor-service:${VERSION:-latest}
     hostname: sensor-service
@@ -23,3 +23,10 @@ services:
     environment:
       - LOG_LEVEL=debug
       - POSTGRES_URL=postgres://root:pass@postgres
+  sensor-service-test:
+    image: sensor-service-test
+    container_name: sensor-service-test
+    depends_on:
+      - sensor-service
+    environment:
+      - SERVICE_URL=http://sensor-service:4020

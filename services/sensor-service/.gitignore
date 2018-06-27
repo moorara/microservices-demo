@@ -7,3 +7,6 @@ sensor-service
 *.test
 cover.out
 reports/
+
+# Exceptions
+!Dockerfile.test
