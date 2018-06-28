@@ -23,7 +23,7 @@
 
 [[constraint]]
   name = "github.com/go-kit/kit"
-  version = "0.6.0"
+  version = "0.7.0"
 
 [[constraint]]
   name = "github.com/google/uuid"
@@ -31,7 +31,7 @@
 
 [[constraint]]
   name = "github.com/gorilla/mux"
-  version = "1.6.1"
+  version = "1.6.2"
 
 [[constraint]]
   branch = "master"
@@ -43,4 +43,4 @@
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-  version = "1.2.1"
+  version = "1.2.2"
