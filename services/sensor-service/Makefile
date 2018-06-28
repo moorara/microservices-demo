@@ -12,9 +12,7 @@ clean:
 	@ rm -rf $(report_dir)
 
 dep:
-	@ dep ensure && \
-	  dep ensure -update && \
-	  dep prune
+	@ dep ensure -update
 
 run:
 	@ go run main.go
