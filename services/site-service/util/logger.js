@@ -94,7 +94,7 @@ Logger.getWinstonLogger = function () {
       : new winston.transports.File({ filename: '/dev/null' })
   ]
 
-  Logger.winston = new winston.Logger({
+  Logger.winston = winston.createLogger({
     transports,
     levels: LOG_LEVELS
   })
