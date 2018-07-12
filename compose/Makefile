@@ -29,8 +29,7 @@ test-up:
 	@ docker-compose up -d traefik site-service sensor-service
 
 test-integration:
-	@ cd tests && \
-	  ./integration.sh
+	@ cd tests && ./integration.sh
 
 
 init-data:

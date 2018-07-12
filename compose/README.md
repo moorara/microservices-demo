@@ -16,14 +16,14 @@
 
 ## Dashboards
 
-| Dashboard     | URL                                            | Required Information                 |
-|---------------|------------------------------------------------|--------------------------------------|
-| Kibana        | [http://localhost:5601](http://localhost:5601) | Index Pattern: `fluentd`             |
-| Grafana       | [http://localhost:3000](http://localhost:3000) | User: `admin` <br/> Password: `pass` |
-| Prometheus    | [http://localhost:9090](http://localhost:9090) | -                                    |
-| Alert Manager | [http://localhost:9093](http://localhost:9093) | -                                    |
-| cAdvisor      | [http://localhost:9080](http://localhost:9080) | -                                    |
-| Træfik        | [http://localhost:2080](http://localhost:2080) | -                                    |
+| Dashboard     | URL                                            | Required Information                                                        |
+|---------------|------------------------------------------------|-----------------------------------------------------------------------------|
+| Kibana        | [http://localhost:5601](http://localhost:5601) | Index Pattern: `fluentd`                                                    |
+| Grafana       | [http://localhost:3000](http://localhost:3000) | User: `admin` <br/> Password: `pass` <br/> Source: `http://prometheus:9090` |
+| Prometheus    | [http://localhost:9090](http://localhost:9090) |                                                                             |
+| Alert Manager | [http://localhost:9093](http://localhost:9093) |                                                                             |
+| cAdvisor      | [http://localhost:9080](http://localhost:9080) |                                                                             |
+| Træfik        | [http://localhost:2080](http://localhost:2080) |                                                                             |
 
 ## Guides
 

@@ -1,5 +1,5 @@
-fluentd_version ?= v1.1.2
-kibana_version ?= 6.2.2
+fluentd_version ?= v1.2.2
+kibana_version ?= 6.3.1
 
 
 all: fluentd kibana
