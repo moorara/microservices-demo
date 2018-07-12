@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
+import { hot } from 'react-hot-loader'
 
 import Header from './common/Header'
 import Routes from './Routes'
@@ -30,4 +31,4 @@ const mapStateToProps = (state) => ({
   sensorsLoading: state.sensor.callsInProgress > 0,
 })
 
-export default connect(mapStateToProps)(App)
+export default hot(module)(connect(mapStateToProps)(App))

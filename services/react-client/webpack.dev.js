@@ -1,8 +1,3 @@
-// https://webpack.js.org/concepts
-// https://webpack.js.org/configuration
-// https://webpack.js.org/loaders
-// https://webpack.js.org/plugins
-
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -16,8 +11,9 @@ module.exports = {
   mode: 'development',
   devtool: 'eval-source-map',
 
+  context: path.resolve(__dirname),
   entry: {
-    app: path.resolve(__dirname, 'src/main.js')
+    app: './src/main.js'
   },
 
   output: {
@@ -29,8 +25,7 @@ module.exports = {
   resolve: {
     modules: [ 'node_modules' ],
     extensions: [ '.js', '.json', '.jsx' ],
-    alias: {
-    }
+    alias: {}
   },
 
   module: {
@@ -94,10 +89,6 @@ module.exports = {
         }]
       }
     ]
-  },
-
-  performance: {
-    hints: false
   },
 
   plugins: [
