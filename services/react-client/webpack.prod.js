@@ -1,19 +1,11 @@
-// https://webpack.js.org/concepts
-// https://webpack.js.org/configuration
-// https://webpack.js.org/loaders
-// https://webpack.js.org/plugins
-
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin")
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const InterpolateHtmlPlugin = require('./config/webpack/interpolate-html-plugin')
-
-const extractCSS = new ExtractTextPlugin('[name].[contenthash:8].bundle.css')
-const extractLESS = new ExtractTextPlugin('[name].[contenthash:8].bundle.css')
-const extractSASS = new ExtractTextPlugin('[name].[contenthash:8].bundle.css')
 
 module.exports = [
   {
@@ -22,20 +14,52 @@ module.exports = [
     mode: 'production',
     devtool: 'source-map',
 
+    context: path.resolve(__dirname),
     entry: {
-      app: path.resolve(__dirname, 'src/main.js')
-    },
-
-    output: {
-      path: path.resolve(__dirname, 'public'),
-      filename: '[name].[hash:8].bundle.js',
-      chunkFilename: '[name].[chunkhash:8].bundle.js'
+      app: './src/main.js'
     },
 
     resolve: {
       modules: [ 'node_modules' ],
       extensions: [ '.js', '.json', '.jsx' ],
-      alias: {
+      alias: {}
+    },
+
+    output: {
+      publicPath: 'static/',
+      path: path.resolve(__dirname, 'public'),
+      filename: '[name].[chunkhash:8].bundle.js',
+      chunkFilename: '[name].[chunkhash:8].chunk.js'
+    },
+
+    performance: {
+      hints: 'warning',
+      maxAssetSize: 500000
+    },
+
+    optimization: {
+      minimizer: [
+        new UglifyJsPlugin({
+          cache: true,
+          parallel: true,
+          sourceMap: true
+        }),
+        new OptimizeCSSAssetsPlugin({})
+      ],
+      splitChunks: {
+        cacheGroups: {
+          vendors: {
+            name: 'vendors',
+            test: /[\\/]node_modules[\\/]/,
+            chunks: 'all'
+          },
+          styles: {
+            name: 'styles',
+            test: /\.css$/,
+            chunks: 'all',
+            enforce: true
+          }
+        }
       }
     },
 
@@ -52,24 +76,15 @@ module.exports = [
         // Stylesheets
         {
           test: /\.css$/,
-          use: extractCSS.extract({
-            fallback: 'style-loader',
-            use: [ 'css-loader' ]
-          })
+          use: [ MiniCssExtractPlugin.loader, 'css-loader' ]
         },
         {
           test: /\.less$/,
-          use: extractLESS.extract({
-            fallback: 'style-loader',
-            use: [ 'css-loader', 'less-loader' ]
-          })
+          use: [ MiniCssExtractPlugin.loader, 'css-loader', 'less-loader' ]
         },
         {
           test: /\.(scss|sass)$/,
-          use: extractSASS.extract({
-            fallback: 'style-loader',
-            use: [ 'css-loader', 'sass-loader' ]
-          })
+          use: [ MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader' ]
         },
 
         // Fonts
@@ -111,24 +126,6 @@ module.exports = [
       ]
     },
 
-    performance: {
-      hints: 'warning',
-      maxAssetSize: 400000
-    },
-
-    optimization: {
-      runtimeChunk: false,
-      splitChunks: {
-        cacheGroups: {
-          vendors: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all'
-          }
-        }
-      }
-    },
-
     plugins: [
       new CleanWebpackPlugin([ 'public' ]),
       new HtmlWebpackPlugin({
@@ -156,15 +153,9 @@ module.exports = [
           'NODE_ENV': JSON.stringify('production')
         }
       }),
-      new UglifyJsPlugin({
-        sourceMap: true,
-        uglifyOptions: {
-          mangle: {
-            safari10: true
-          }
-        }
+      new MiniCssExtractPlugin({
+        filename: "[name].[contenthash:8].css"
       }),
-      extractCSS, extractLESS, extractSASS,
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/) // Required if using Moment.js
     ]
   }

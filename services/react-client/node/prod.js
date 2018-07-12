@@ -5,26 +5,56 @@
 const path = require('path')
 const express = require('express')
 const compression = require('compression')
+const winston = require('winston')
+const expressWinston = require('express-winston')
 
 const port = parseInt(process.env.PORT, 10) || 4000
 
 const app = express()
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console()
+  ]
+})
+
+const loggerMiddleware = expressWinston.logger({
+  winstonInstance: logger,
+  statusLevels: true
+})
 
 // Healthcheck endpoint
 app.get('/health', (req, res) => {
   res.sendStatus(200)
 })
 
+// Handling api paths
+app.use('/api', (req, res) => {
+  res.sendStatus(404)
+})
+
 app.use(compression())
-app.use(
-  express.static(
-    path.resolve(__dirname, '../public')
-  )
-)
+app.use(loggerMiddleware)
+
+// Serving static assets
+app.use('/static', express.static(
+  path.resolve(__dirname, '../public')
+))
+
+// Serving application
+app.get('/*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../public/index.html'))
+})
 
 app.listen(port, err => {
   if (err) {
-    return console.log(err)
+    return logger.error(err)
   }
-  console.log(`Listening on port ${port} ...`)
+
+  logger.info(`Listening on port ${port} ...`)
 })
