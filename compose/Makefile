@@ -10,9 +10,6 @@ services:
 	@ cd ../services/react-client && make docker
 
 
-pull:
-	@ docker-compose pull
-
 up: images services
 	@ docker-compose up -d fluentd
 	@ docker-compose up -d
@@ -33,6 +30,7 @@ test-integration:
 
 
 init-data:
+	@ chmod 0600 $(path)/init/pgpass
 	@ docker run \
 	    --network compose_local --link mongo \
 	    --volume "$(path)/init/sites.json:/data/sites.json" \
@@ -47,6 +45,6 @@ init-data:
 
 
 .PHONY: images services
-.PHONY: pull up down clean
+.PHONY: up down clean
 .PHONY: test-up test-integration
 .PHONY: init-data
