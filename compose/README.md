@@ -26,7 +26,9 @@
 | `4000`   | `react-client`   | react-client service             |
 | `4010`   | `site-service`   | site-service service             |
 | `4020`   | `sensor-service` | sensor-service service           |
+| `6379`   | `redis`          | Redis service                    |
 | `27017`  | `mongo`          | MongoDB service                  |
+| `8529`   | `arango`         | ArangoDB service                 |
 | `5432`   | `postgres`       | PostgreSQL service               |
 | `9200`   | `elasticsearch`  | Elasticsearch RESTful API        |
 | `9300`   | `elasticsearch`  | Elasticsearch transport protocol |

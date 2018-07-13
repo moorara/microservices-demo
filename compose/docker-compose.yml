@@ -21,7 +21,9 @@ networks:
         - subnet: 172.20.2.0/24
 
 volumes:
+  redis_data:
   mongo_data:
+  arango_data:
   postgres_data:
   prometheus_data:
   grafana_data:
@@ -43,6 +45,17 @@ x-logdriver: &logdriver
 services:
 
   # DATA BACKENDS
+  redis:
+    image: redis:4.0.10
+    hostname: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - local
+    volumes:
+      - "redis_data:/data"
   mongo:
     image: mongo:4.0.0
     hostname: mongo
@@ -54,6 +67,19 @@ services:
       - local
     volumes:
       - "mongo_data:/data/db"
+  arango:
+    image: arangodb:3.3.10
+    hostname: arango
+    container_name: arango
+    restart: always
+    ports:
+      - "8529:8529"
+    environment:
+      - ARANGO_ROOT_PASSWORD=pass
+    networks:
+      - local
+    volumes:
+      - "arango_data:/var/lib/arangodb3"
   postgres:
     image: postgres:10.4
     hostname: postgres
