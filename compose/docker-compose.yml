@@ -13,6 +13,12 @@ networks:
       driver: default
       config:
         - subnet: 172.20.1.0/24
+  caddy:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.2.0/24
 
 volumes:
   mongo_data:
@@ -120,6 +126,7 @@ services:
     restart: always
     ports:
       - "9090:9090"
+      - "9091:9091"
     networks:
       - local
       - traefik
@@ -171,7 +178,7 @@ services:
     hostname: cadvisor
     container_name: cadvisor
     ports:
-      - "9080:8080"
+      - "9800:8080"
     networks:
       - local
     volumes:
@@ -187,16 +194,39 @@ services:
     hostname: traefik
     container_name: traefik
     restart: always
+    depends_on:
+      - fluentd
     ports:
       - "1080:80"
       - "1443:443"
-      - "2080:8080"
+      - "1900:8080"
     networks:
       - traefik
+      - caddy
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./certs:/etc/ssl/certs:ro"
       - "./gateway/traefik.toml:/etc/traefik/traefik.toml"
+    labels:
+      <<: *labels
+    <<: *logdriver
+  caddy:
+    image: moorara/caddy:v0.11.0
+    hostname: caddy
+    container_name: caddy
+    restart: always
+    depends_on:
+      - fluentd
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9900:9900"
+    networks:
+      - caddy
+    volumes:
+      - "./certs:/etc/ssl/certs:ro"
+      - "./gateway/Caddyfile:/www/Caddyfile"
+    command: [ "-conf", "/www/Caddyfile" ]
     labels:
       <<: *labels
     <<: *logdriver
@@ -216,14 +246,9 @@ services:
       - SERVICE_TAGS=monitor
     networks:
       - local
-      - traefik
+      - caddy
     labels:
       <<: *labels
-      traefik.enable: "true"
-      traefik.docker.network: "compose_traefik"
-      traefik.port: "4000"
-      traefik.backend: "react-client"
-      traefik.frontend.rule: "Host:traefik,localhost;"
     <<: *logdriver
   site-service:
     image: moorara/site-service:latest
