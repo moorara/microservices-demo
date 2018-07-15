@@ -23,7 +23,7 @@ clean:
 
 test-up:
 	@ docker-compose up -d fluentd
-	@ docker-compose up -d traefik site-service sensor-service
+	@ docker-compose up -d caddy traefik react-client site-service sensor-service
 
 test-integration:
 	@ cd tests && ./integration.sh

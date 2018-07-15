@@ -107,16 +107,10 @@ function run_sensor_service_tests {
 }
 
 function run_traefik_http_tests {
-  printf "\n${yellow}  RUNNING INTEGRATION TESTS FOR ${purple}traefik (http)${nocolor}\n"
+  printf "\n${yellow}  RUNNING INTEGRATION TESTS FOR ${pink}traefik (http)${nocolor}\n"
 
   siteName=$(get_random_string)
   siteId=$(get_random_string)
-
-  curl --fail \
-    -H "Host: traefik" \
-    -X GET \
-    http://localhost:1080 &> /dev/null
-  printf "${green}    [✓] GET / ${nocolor}\n"
 
   curl --fail \
     -H "Host: traefik" \
@@ -156,13 +150,6 @@ function run_traefik_https_tests {
   curl --fail \
     --cacert $certs_path/intermediate.ca.chain \
     -H "Host: traefik" \
-    -X GET \
-    https://localhost:1443 &> /dev/null
-  printf "${green}    [✓] GET / ${nocolor}\n"
-
-  curl --fail \
-    --cacert $certs_path/intermediate.ca.chain \
-    -H "Host: traefik" \
     -H "Content-Type: application/json" \
     -X POST -d "{ \"name\":\"$siteName\", \"location\":\"here\" }" \
     https://localhost:1443/api/v1/sites &> /dev/null
@@ -193,6 +180,47 @@ function run_traefik_https_tests {
   printf "${green}    [✓] GET /api/v1/sensors?siteId ${nocolor}\n"
 }
 
+function run_caddy_https_tests {
+  printf "\n${yellow}  RUNNING INTEGRATION TESTS FOR ${purple}caddy (https)${nocolor}\n"
+
+  siteName=$(get_random_string)
+  siteId=$(get_random_string)
+
+  curl --fail \
+    --cacert $certs_path/intermediate.ca.chain \
+    -X GET \
+    https://localhost &> /dev/null
+  printf "${green}    [✓] GET / ${nocolor}\n"
+
+  curl --fail \
+    --cacert $certs_path/intermediate.ca.chain \
+    -H "Content-Type: application/json" \
+    -X POST -d "{ \"name\":\"$siteName\", \"location\":\"here\" }" \
+    https://localhost/api/v1/sites &> /dev/null
+  printf "${green}    [✓] POST /api/v1/sites ${nocolor}\n"
+
+  curl --fail \
+    --cacert $certs_path/intermediate.ca.chain \
+    -H "Content-Type: application/json" \
+    -X GET \
+    https://localhost/api/v1/sites &> /dev/null
+  printf "${green}    [✓] GET /api/v1/sites ${nocolor}\n"
+
+  curl --fail \
+    --cacert $certs_path/intermediate.ca.chain \
+    -H "Content-Type: application/json" \
+    -X POST -d "{ \"siteId\":\"$siteId\", \"name\":\"temperature\", \"unit\":\"celsius\", \"minSafe\":-30, \"maxSafe\":30 }" \
+    https://localhost/api/v1/sensors &> /dev/null
+  printf "${green}    [✓] POST /api/v1/sensors ${nocolor}\n"
+
+  curl --fail \
+    --cacert $certs_path/intermediate.ca.chain \
+    -H "Content-Type: application/json" \
+    -X GET \
+    https://localhost/api/v1/sensors?siteId=$siteId &> /dev/null
+  printf "${green}    [✓] GET /api/v1/sensors?siteId ${nocolor}\n"
+}
+
 
 certs_path="../certs"
 
@@ -202,4 +230,5 @@ run_site_service_tests
 run_sensor_service_tests
 run_traefik_http_tests
 run_traefik_https_tests
+run_caddy_https_tests
 echo
