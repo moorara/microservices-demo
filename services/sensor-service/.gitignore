@@ -3,9 +3,9 @@ main
 sensor-service
 
 # Test files
+*.log
 *.out
 *.test
-cover.out
 reports/
 
 # Exceptions

@@ -47,9 +47,9 @@ func (mdb *mockDB) QueryRowContext(ctx context.Context, query string, args ...in
 }
 
 type mockResult struct {
-	LastInsertIdCalled bool
-	LastInsertIdResult int64
-	LastInsertIdError  error
+	LastInsertIDCalled bool
+	LastInsertIDResult int64
+	LastInsertIDError  error
 
 	RowsAffectedCalled bool
 	RowsAffectedResult int64
@@ -57,8 +57,8 @@ type mockResult struct {
 }
 
 func (mr *mockResult) LastInsertId() (int64, error) {
-	mr.LastInsertIdCalled = true
-	return mr.LastInsertIdResult, mr.LastInsertIdError
+	mr.LastInsertIDCalled = true
+	return mr.LastInsertIDResult, mr.LastInsertIDError
 }
 
 func (mr *mockResult) RowsAffected() (int64, error) {
