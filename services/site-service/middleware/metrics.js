@@ -1,4 +1,3 @@
-const express = require('express')
 const promClient = require('prom-client')
 const onFinished = require('on-finished')
 
@@ -8,41 +7,27 @@ const defaultLabels = [ 'method', 'endpoint', 'statusCode', 'statusClass' ]
 const defaultBuckets = [ 0.01, 0.1, 0.5, 1 ]
 const defaultPercentiles = [ 0.1, 0.5, 0.95, 0.99 ]
 
-class MetricsMiddleware {
-  constructor (options) {
-    options = options || {}
+module.exports.create = options => {
+  options = options || {}
+  options.register = options.register || promClient.register
 
-    this.registery = new promClient.Registry()
-    this.httpHistogram = new promClient.Histogram({
-      name: histogramName,
-      help: 'duration histogram of http requests',
-      labelNames: defaultLabels,
-      buckets: defaultBuckets,
-      registers: [ this.registery ]
-    })
-    this.httpSummary = new promClient.Summary({
-      name: summaryName,
-      help: 'duration summary of http requests',
-      labelNames: defaultLabels,
-      percentiles: defaultPercentiles,
-      registers: [ this.registery ]
-    })
+  const httpHistogram = new promClient.Histogram({
+    name: histogramName,
+    help: 'duration histogram of http requests',
+    labelNames: defaultLabels,
+    buckets: defaultBuckets,
+    registers: [ options.register ]
+  })
 
-    this.interval = promClient.collectDefaultMetrics({
-      register: this.registery
-    })
+  const httpSummary = new promClient.Summary({
+    name: summaryName,
+    help: 'duration summary of http requests',
+    labelNames: defaultLabels,
+    percentiles: defaultPercentiles,
+    registers: [ options.register ]
+  })
 
-    this.router = express.Router()
-    this.router.get('/metrics', this.getMetrics.bind(this))
-    this.router.use(this.observeDuration.bind(this))
-  }
-
-  getMetrics (req, res) {
-    res.type('text')
-    res.send(this.registery.metrics())
-  }
-
-  observeDuration (req, res, next) {
+  return (req, res, next) => {
     let startTime = +new Date()
 
     onFinished(res, (err, res) => {
@@ -60,12 +45,10 @@ class MetricsMiddleware {
         statusClass: res.statusClass
       }
 
-      this.httpHistogram.observe(labelValues, duration)
-      this.httpSummary.observe(labelValues, duration)
+      httpHistogram.observe(labelValues, duration)
+      httpSummary.observe(labelValues, duration)
     })
 
     next()
   }
 }
-
-module.exports = MetricsMiddleware

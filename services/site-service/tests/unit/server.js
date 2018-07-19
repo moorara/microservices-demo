@@ -1,95 +1,93 @@
 /* eslint-env mocha */
 const http = require('http')
+const EventEmitter = require('events')
+const promClient = require('prom-client')
 const sinon = require('sinon')
 const should = require('should')
-const EventEmitter = require('events')
 
 const Server = require('../../server')
 
 describe('Server', () => {
-  let app, routers, logger
-  let mongo, _mongo
-  let configProvider, _configProvider
-  let httpServer
-  let server
-
-  beforeEach(() => {
-    app = {
-      use () {}
-    }
-    routers = {
-      sites: {
-        router: {}
-      }
-    }
-    logger = {
-      debug () {},
-      verbose () {},
-      info () {},
-      warn () {},
-      error () {},
-      fatal () {}
-    }
-
-    mongo = {
-      connect () {}
-    }
-    _mongo = sinon.mock(mongo)
-
-    configProvider = {
-      getConfig () {}
-    }
-    _configProvider = sinon.mock(configProvider)
-
-    httpServer = {
-      close () {},
-      listen (port, cb) { cb() }
-    }
-
-    server = new Server({ app, routers, logger, mongo, configProvider })
-  })
-
-  afterEach(() => {
-    _mongo.restore()
-    _configProvider.restore()
-  })
-
   describe('constructor', () => {
     it('should create a new server with defaults', () => {
-      server = new Server()
+      const server = new Server()
       should.exist(server.app)
       should.exist(server.routers)
       should.exist(server.logger)
+      should.exist(server.metrics)
       should.exist(server.configProvider)
     })
   })
 
   describe('start', () => {
-    let config
-    let conn
-    let _http, _listen, _close
+    let httpServer, _http, _listen, _close
+    let app, routers
+    let mongo, _mongo
+    let configProvider, _configProvider
+    let logger, metrics
+    let server
+    let config, conn
 
     beforeEach(() => {
+      httpServer = {
+        close () {},
+        listen (port, cb) { cb() }
+      }
+      _http = sinon.stub(http, 'createServer')
+      _http.callsFake(() => httpServer)
+      _listen = sinon.spy(httpServer, 'listen')
+      _close = sinon.spy(httpServer, 'close')
+
+      app = {
+        use () {}
+      }
+      routers = {
+        sites: {
+          router: {}
+        }
+      }
+
+      mongo = {
+        connect () {},
+        disconnect () {}
+      }
+      _mongo = sinon.mock(mongo)
+
+      configProvider = {
+        getConfig () {}
+      }
+      _configProvider = sinon.mock(configProvider)
+
+      logger = {
+        debug () {},
+        verbose () {},
+        info () {},
+        warn () {},
+        error () {},
+        fatal () {}
+      }
+      metrics = {
+        router: {},
+        register: new promClient.Registry()
+      }
+
+      server = new Server({ app, routers, mongo, configProvider, logger, metrics })
+
       config = {
         servicePort: '10000',
         mongoUrl: 'mongodb://mongo:27017',
         mongoUser: 'user',
         mongoPass: 'pass'
       }
-
       conn = new EventEmitter()
-
-      _http = sinon.stub(http, 'createServer')
-      _http.callsFake(() => httpServer)
-
-      _listen = sinon.spy(httpServer, 'listen')
-      _close = sinon.spy(httpServer, 'close')
     })
 
     afterEach(() => {
       _http.restore()
       _listen.restore()
       _close.restore()
+      _mongo.restore()
+      _configProvider.restore()
     })
 
     it('should error when cannot get config', done => {

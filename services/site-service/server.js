@@ -2,11 +2,12 @@ const http = require('http')
 const express = require('express')
 
 const Logger = require('./util/logger')
+const Metrics = require('./util/metrics')
 const ConfigProvider = require('./config')
 const Mongo = require('./models/mongo')
 const Middleware = require('./middleware')
-const MetricsMiddleware = require('./middleware/metrics')
 const LoggerMiddleware = require('./middleware/logger')
+const MetricsMiddleware = require('./middleware/metrics')
 const HealthRouter = require('./routes/health')
 const SiteRouter = require('./routes/site')
 
@@ -21,6 +22,7 @@ class Server {
     this.routers = options.routers || {}
     this.mongo = options.mongo
     this.logger = options.logger || new Logger('Server')
+    this.metrics = options.metrics || new Metrics()
     this.configProvider = options.configProvider || new ConfigProvider()
   }
 
@@ -30,15 +32,15 @@ class Server {
 
       // Dependencies
       this.mongo = this.mongo || new Mongo(config)
-      this.metricsMiddleware = new MetricsMiddleware()
       this.routers.sites = this.routers.sites || new SiteRouter(config)
 
       // Unauthenticated routes
       this.app.use('/health', HealthRouter)
+      this.app.use(this.metrics.router)
 
       this.app.use(Middleware.normalize())
-      this.app.use(this.metricsMiddleware.router)
-      this.app.use(LoggerMiddleware.http())
+      this.app.use(LoggerMiddleware.create())
+      this.app.use(MetricsMiddleware.create({ register: this.metrics.register }))
 
       // Authenticated routes
       this.app.use('/v1/sites', this.routers.sites.router)

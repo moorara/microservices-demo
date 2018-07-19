@@ -38,7 +38,9 @@ test: # docker docker-test
 
 test-component: # docker docker-test
 	@ VERSION=$(docker_tag) \
-	  docker-compose run site-service-test npm run test:component
+	  docker-compose run site-service-test npm run test:component && \
+		docker container logs site-service | jq . > component-tests.log && \
+		docker-compose down
 
 
 .PHONY: clean

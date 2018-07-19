@@ -78,6 +78,9 @@ jobs:
           name: Component Testing
           working_directory: services/site-service
           command: make test-component
+      - store_artifacts:
+          path: services/site-service/component-tests.log
+          destination: component-tests.log
 
   sensor-service-build-images:
     <<: *go-job-init
