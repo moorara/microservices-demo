@@ -2,17 +2,19 @@
 const express = require('express')
 const supertest = require('supertest')
 
+const { normalize } = require('../../../middleware')
 const LoggerMiddleware = require('../../../middleware/logger')
 
 describe('LoggerMiddleware', () => {
   let middleware
   let app, request
 
-  describe('http', () => {
+  describe('create', () => {
     it('should create a logger middleware with defaults', done => {
-      middleware = LoggerMiddleware.http()
+      middleware = LoggerMiddleware.create()
 
       app = express()
+      app.use(normalize())
       app.use(middleware)
       app.use('/:id', (req, res) => res.sendStatus(200))
 
@@ -21,7 +23,7 @@ describe('LoggerMiddleware', () => {
         .expect(200, done)
     })
     it('should create a logger middleware with options', done => {
-      middleware = LoggerMiddleware.http({
+      middleware = LoggerMiddleware.create({
         level: 'debug',
         skip: (req, res) => false,
         ignoreRoute: (req, res) => false,
@@ -33,6 +35,7 @@ describe('LoggerMiddleware', () => {
       })
 
       app = express()
+      app.use(normalize())
       app.use(middleware)
       app.use('/', (req, res) => res.sendStatus(200))
 

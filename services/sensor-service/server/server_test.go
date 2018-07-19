@@ -31,11 +31,11 @@ func (s *mockServer) Shutdown(context.Context) error {
 func TestNew(t *testing.T) {
 	tests := []struct {
 		name   string
-		config config.Config
+		config config.Spec
 	}{
 		{
 			"Server1",
-			config.Config{
+			config.Spec{
 				LogLevel:    "info",
 				ServiceName: "golang-service",
 				ServicePort: ":4020",
@@ -44,7 +44,7 @@ func TestNew(t *testing.T) {
 		},
 		{
 			"Server2",
-			config.Config{
+			config.Spec{
 				LogLevel:    "debug",
 				ServiceName: "sensor-service",
 				ServicePort: ":4020",
@@ -84,7 +84,7 @@ func TestStart(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			s := &HTTPServer{
-				config: config.Config{
+				config: config.Spec{
 					ServicePort: ":4020",
 				},
 				logger: tc.logger,

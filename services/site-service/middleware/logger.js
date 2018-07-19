@@ -15,31 +15,29 @@ const defaultRequestWhitelist = [
 const defaultResponseFilter = (res, propName) => res[propName]
 const defaultResponseWhitelist = [ 'statusCode', 'statusClass' ]
 
-module.exports = {
-  http (options) {
-    options = options || {}
-    options.winston = options.winston || Logger.getWinstonLogger()
-    let context = Object.assign({}, Logger.context, { logger: 'HttpMiddleware' })
+module.exports.create = options => {
+  options = options || {}
+  options.winston = options.winston || Logger.getWinstonLogger()
+  let context = Object.assign({}, Logger.context, { logger: 'HttpMiddleware' })
 
-    let loggerMiddleware = expressWinston.logger({
-      winstonInstance: options.winston,
-      expressFormat: process.env.NODE_ENV === 'development',
+  let loggerMiddleware = expressWinston.logger({
+    winstonInstance: options.winston,
+    expressFormat: process.env.NODE_ENV === 'development',
 
-      statusLevels: true,
-      meta: true,
-      baseMeta: context,
+    statusLevels: true,
+    meta: true,
+    baseMeta: context,
 
-      skip: options.skip || defaultSkip,
-      ignoreRoute: options.ignoreRoute || defaultIgnoreRoute,
-      ignoredRoutes: options.ignoredRoutes || defaultIgnoredRoutes,
+    skip: options.skip || defaultSkip,
+    ignoreRoute: options.ignoreRoute || defaultIgnoreRoute,
+    ignoredRoutes: options.ignoredRoutes || defaultIgnoredRoutes,
 
-      requestFilter: options.requestFilter || defaultRequestFilter,
-      requestWhitelist: options.requestWhitelist || defaultRequestWhitelist,
+    requestFilter: options.requestFilter || defaultRequestFilter,
+    requestWhitelist: options.requestWhitelist || defaultRequestWhitelist,
 
-      responseFilter: options.responseFilter || defaultResponseFilter,
-      responseWhitelist: options.responseWhitelist || defaultResponseWhitelist
-    })
+    responseFilter: options.responseFilter || defaultResponseFilter,
+    responseWhitelist: options.responseWhitelist || defaultResponseWhitelist
+  })
 
-    return loggerMiddleware
-  }
+  return loggerMiddleware
 }

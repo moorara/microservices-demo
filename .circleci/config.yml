@@ -78,6 +78,9 @@ jobs:
           name: Component Testing
           working_directory: services/site-service
           command: make test-component
+      - store_artifacts:
+          path: services/site-service/component-tests.log
+          destination: component-tests.log
 
   sensor-service-build-images:
     <<: *go-job-init
@@ -142,6 +145,9 @@ jobs:
             docker exec postgres psql -c "CREATE DATABASE sensors"
             docker exec postgres psql -d sensors -c "CREATE TABLE sensors (id varchar(256) PRIMARY KEY, site_id varchar(256) NOT NULL, name varchar(256) NOT NULL, unit varchar(256) NOT NULL, min_safe double precision NOT NULL, max_safe double precision NOT NULL)"
             docker-compose run sensor-service-test make test-component
+      - store_artifacts:
+          path: services/sensor-service/component-tests.log
+          destination: component-tests.log
 
   react-client-build-images:
     <<: *node-job-init

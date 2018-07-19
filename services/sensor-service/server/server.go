@@ -20,23 +20,23 @@ type (
 		Shutdown(context.Context) error
 	}
 
-	// HTTPServer representa a http server
+	// HTTPServer represents a http server
 	HTTPServer struct {
-		config config.Config
+		config config.Spec
 		logger log.Logger
 		server Server
 	}
 )
 
 // New creates a new http server
-func New(config config.Config) *HTTPServer {
+func New(config config.Spec) *HTTPServer {
 	metrics := util.NewMetrics("sensor_service")
-	logger := util.NewLogger(config.LogLevel, config.ServiceName, "go-kit")
+	logger := util.NewLogger(config.LogLevel, config.ServiceName, "global")
 
 	metricsMiddleware := middleware.NewMetricsMiddleware(metrics)
 	loggerMiddleware := middleware.NewLoggerMiddleware(logger)
 
-	postgresDB := service.NewPostgresDB(config.PostgresURL)
+	postgresDB := service.NewPostgresDB(config.GetFullPostgresURL())
 	sensorHandler := handler.NewSensorHandler(postgresDB, logger)
 	postSensorHandler := middleware.WrapAll(sensorHandler.PostSensor, metricsMiddleware, loggerMiddleware)
 	getSensorsHandler := middleware.WrapAll(sensorHandler.GetSensors, metricsMiddleware, loggerMiddleware)
