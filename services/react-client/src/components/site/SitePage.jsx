@@ -14,8 +14,8 @@ export class SitePage extends React.Component {
     sites: PropTypes.array.isRequired
   }
 
-  constructor (props, context) {
-    super(props, context)
+  constructor (props) {
+    super(props)
     this.handleBack = this.handleBack.bind(this)
     this.handleAddSite = this.handleAddSite.bind(this)
   }

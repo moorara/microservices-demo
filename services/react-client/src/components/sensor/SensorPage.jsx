@@ -17,8 +17,8 @@ export class SensorPage extends React.Component {
     actions: PropTypes.object.isRequired,
   }
 
-  constructor (props, context) {
-    super(props, context)
+  constructor (props) {
+    super(props)
     this.handleBack = this.handleBack.bind(this)
     this.handleAddSensor = this.handleAddSensor.bind(this)
   }
