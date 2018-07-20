@@ -60,6 +60,12 @@ class Mongo {
       })
     })
   }
+
+  disconnect (callback) {
+    const promise = this.mongoose.disconnect(callback)
+    promise.catch(err => this.logger.error('Error disconnecting from Mongo.', err))
+    return promise
+  }
 }
 
 module.exports = Mongo
