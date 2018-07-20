@@ -36,19 +36,25 @@ func TestNew(t *testing.T) {
 		{
 			"Server1",
 			config.Config{
-				LogLevel:    "info",
-				ServiceName: "golang-service",
-				ServicePort: ":4020",
-				PostgresURL: "postgres://localhost",
+				LogLevel:               "info",
+				ServiceName:            "go-service",
+				ServicePort:            ":4020",
+				PostgresURL:            "postgres://localhost",
+				JaegerAgentHost:        "localhost",
+				JaegerAgentPort:        6831,
+				JaegerReporterLogSpans: false,
 			},
 		},
 		{
 			"Server2",
 			config.Config{
-				LogLevel:    "debug",
-				ServiceName: "sensor-service",
-				ServicePort: ":4020",
-				PostgresURL: "postgres://root:pass@localhost",
+				LogLevel:               "debug",
+				ServiceName:            "sensor-service",
+				ServicePort:            ":4020",
+				PostgresURL:            "postgres://root:pass@localhost",
+				JaegerAgentHost:        "localhost",
+				JaegerAgentPort:        6831,
+				JaegerReporterLogSpans: true,
 			},
 		},
 	}

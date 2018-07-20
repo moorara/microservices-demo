@@ -12,6 +12,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
 	"github.com/moorara/microservices-demo/services/sensor-service/service"
+	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -80,7 +81,8 @@ func TestNewSensorHandler(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			db := service.NewPostgresDB(tc.postgresURL)
 			logger := log.NewNopLogger()
-			h := NewSensorHandler(db, logger)
+			tracer := mocktracer.New()
+			h := NewSensorHandler(db, logger, tracer)
 
 			assert.NotNil(t, h)
 		})

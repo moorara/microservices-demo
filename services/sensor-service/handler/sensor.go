@@ -8,6 +8,8 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
 	"github.com/moorara/microservices-demo/services/sensor-service/service"
+
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 type (
@@ -23,14 +25,16 @@ type (
 	postgresSensorHandler struct {
 		manager service.SensorManager
 		logger  log.Logger
+		tracer  opentracing.Tracer
 	}
 )
 
 // NewSensorHandler creates a new sensor handler
-func NewSensorHandler(db service.DB, logger log.Logger) SensorHandler {
+func NewSensorHandler(db service.DB, logger log.Logger, tracer opentracing.Tracer) SensorHandler {
 	return &postgresSensorHandler{
-		manager: service.NewSensorManager(db, logger),
+		manager: service.NewSensorManager(db, logger, tracer),
 		logger:  logger,
+		tracer:  tracer,
 	}
 }
 
