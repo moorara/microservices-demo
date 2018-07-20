@@ -32,8 +32,9 @@ const AboutPage = (props) => (
             <dt>Gateways</dt>
             <dd><strong>Traefik, Caddy</strong></dd>
             <dt>Monitoring</dt>
-            <dd><strong>Fluentd, ElasticSearch, Kibana</strong></dd>
             <dd><strong>Prometheus, Grafana</strong></dd>
+            <dd><strong>Fluentd, ElasticSearch, Kibana</strong></dd>
+            <dd><strong>OpenTracing, Jaeger</strong></dd>
           </dl>
         </div>
       </div>

@@ -34,7 +34,8 @@ down:
 
 test: # docker docker-test
 	@ VERSION=$(docker_tag) \
-	  docker-compose run site-service-test npm run test
+	  docker-compose run site-service-test npm run test && \
+		docker-compose down
 
 test-component: # docker docker-test
 	@ VERSION=$(docker_tag) \

@@ -37,14 +37,16 @@ describe('Mongo', () => {
 
     mongoose = {
       connect () {},
+      disconnect () {},
       connection: new EventEmitter()
     }
     _mongoose = sinon.mock(mongoose)
 
-    mongo = new Mongo(config, {
-      logger,
-      mongoose
-    })
+    mongo = new Mongo(config, { logger, mongoose })
+  })
+
+  afterEach(() => {
+    _mongoose.restore()
   })
 
   describe('constructor', () => {
@@ -66,10 +68,6 @@ describe('Mongo', () => {
           pass: config.mongoPass
         }
       }
-    })
-
-    afterEach(() => {
-      _mongoose.restore()
     })
 
     it('should error when mongoose connect fails', done => {
@@ -119,6 +117,42 @@ describe('Mongo', () => {
       mongo.connect().then(conn => {
         _mongoose.verify()
         conn.should.eql(mongoose.connection)
+        done()
+      }).catch(done)
+    })
+  })
+
+  describe('disconnect', () => {
+    it('should error when mongoose disconnect fails', done => {
+      _mongoose.expects('disconnect').yields(new Error('error'))
+      mongo.disconnect(err => {
+        _mongoose.verify()
+        should.exist(err)
+        err.message.should.equal('error')
+        done()
+      })
+    })
+    it('should reject when mongoose disconnect fails', done => {
+      _mongoose.expects('disconnect').rejects(new Error('error'))
+      mongo.disconnect().catch(err => {
+        _mongoose.verify()
+        should.exist(err)
+        err.message.should.equal('error')
+        done()
+      })
+    })
+    it('should succeed when mongoose disconnects from Mongo', done => {
+      _mongoose.expects('disconnect').yields()
+      mongo.disconnect(err => {
+        _mongoose.verify()
+        should.not.exist(err)
+        done()
+      })
+    })
+    it('should resolve when mongoose disconnects from Mongo', done => {
+      _mongoose.expects('disconnect').resolves()
+      mongo.disconnect().then(() => {
+        _mongoose.verify()
         done()
       }).catch(done)
     })

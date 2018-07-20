@@ -57,3 +57,13 @@ curl \
 | `make coverage`              | Runs the unit tests with coverage report          |
 | `make test-component`        | Runs the component tests                          |
 | `make test-component-docker` | Runs the component tests completely in containers |
+
+# Guides
+
+  * **OpenTracing**
+
+  * **Jaeger**
+    - https://www.jaegertracing.io/docs/client-libraries
+    - https://github.com/opentracing/opentracing-go
+    - https://github.com/jaegertracing/jaeger-client-go
+    - https://github.com/yurishkuro/opentracing-tutorial/tree/master/go

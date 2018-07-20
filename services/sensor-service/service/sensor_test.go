@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/go-kit/kit/log"
+	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -85,7 +86,8 @@ func TestNewSensorManager(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			db := NewPostgresDB(tc.postgresURL)
 			logger := log.NewNopLogger()
-			m := NewSensorManager(db, logger)
+			tracer := mocktracer.New()
+			m := NewSensorManager(db, logger, tracer)
 
 			assert.NotNil(t, m)
 		})

@@ -2,6 +2,7 @@
 const http = require('http')
 const EventEmitter = require('events')
 const promClient = require('prom-client')
+const opentracing = require('opentracing')
 const sinon = require('sinon')
 const should = require('should')
 
@@ -24,7 +25,7 @@ describe('Server', () => {
     let app, routers
     let mongo, _mongo
     let configProvider, _configProvider
-    let logger, metrics
+    let logger, metrics, tracer
     let server
     let config, conn
 
@@ -70,8 +71,9 @@ describe('Server', () => {
         router: {},
         register: new promClient.Registry()
       }
+      tracer = new opentracing.MockTracer()
 
-      server = new Server({ app, routers, mongo, configProvider, logger, metrics })
+      server = new Server({ app, routers, mongo, configProvider, logger, metrics, tracer })
 
       config = {
         servicePort: '10000',

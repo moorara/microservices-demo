@@ -7,6 +7,9 @@ const dbName = 'sites'
 const defaultServiceName = 'site-service'
 const defaultServicePort = '4010'
 const defaultMongoURL = 'mongodb://localhost:27017'
+const defaultJaegerAgentHost = 'localhost'
+const defaultJaegerAgentPort = '6831'
+const defaultJaegerReporterLogSpans = 'false'
 
 class ConfigProvider {
   constructor (options) {
@@ -34,10 +37,13 @@ class ConfigProvider {
   getConfig () {
     const config = {
       serviceName: this._getValue('SERVICE_NAME', defaultServiceName),
-      servicePort: this._getValue('SERVICE_PORT', defaultServicePort),
+      servicePort: parseInt(this._getValue('SERVICE_PORT', defaultServicePort)),
       mongoUrl: this._getValue('MONGO_URL', defaultMongoURL) + `/${dbName}`,
       mongoUser: this._getValue('MONGO_USER'),
-      mongoPass: this._getValue('MONGO_PASS')
+      mongoPass: this._getValue('MONGO_PASS'),
+      jaegerAgentHost: this._getValue('JAEGER_AGENT_HOST', defaultJaegerAgentHost),
+      jaegerAgentPort: parseInt(this._getValue('JAEGER_AGENT_PORT', defaultJaegerAgentPort)),
+      jaegerReporterLogSpans: this._getValue('JAEGER_REPORTER_LOG_SPANS', defaultJaegerReporterLogSpans) === 'true'
     }
 
     return Promise.resolve(config)

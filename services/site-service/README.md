@@ -64,3 +64,13 @@ curl \
 | `make down`               | Stops and removes local containers         |
 | `make test`               | Runs the unit tests in containers          |
 | `make test-component`     | Runs the component tests in containers     |
+
+# Guides
+
+  * **OpenTracing**
+
+  * **Jaeger**
+    - https://www.jaegertracing.io/docs/client-libraries
+    - https://github.com/opentracing/opentracing-javascript
+    - https://github.com/jaegertracing/jaeger-client-node
+    - https://github.com/yurishkuro/opentracing-tutorial/tree/master/nodejs

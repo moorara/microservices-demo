@@ -3,11 +3,13 @@ const express = require('express')
 
 const Logger = require('./util/logger')
 const Metrics = require('./util/metrics')
+const { createTracer } = require('./util/tracer')
 const ConfigProvider = require('./config')
 const Mongo = require('./models/mongo')
 const Middleware = require('./middleware')
 const LoggerMiddleware = require('./middleware/logger')
 const MetricsMiddleware = require('./middleware/metrics')
+const TracerMiddleware = require('./middleware/tracer')
 const HealthRouter = require('./routes/health')
 const SiteRouter = require('./routes/site')
 
@@ -23,6 +25,7 @@ class Server {
     this.mongo = options.mongo
     this.logger = options.logger || new Logger('Server')
     this.metrics = options.metrics || new Metrics()
+    this.tracer = options.tracer
     this.configProvider = options.configProvider || new ConfigProvider()
   }
 
@@ -32,6 +35,7 @@ class Server {
 
       // Dependencies
       this.mongo = this.mongo || new Mongo(config)
+      this.tracer = this.tracer || createTracer(config)
       this.routers.sites = this.routers.sites || new SiteRouter(config)
 
       // Unauthenticated routes
@@ -41,6 +45,7 @@ class Server {
       this.app.use(Middleware.normalize())
       this.app.use(LoggerMiddleware.create())
       this.app.use(MetricsMiddleware.create({ register: this.metrics.register }))
+      this.app.use(TracerMiddleware.http({ tracer: this.tracer }))
 
       // Authenticated routes
       this.app.use('/v1/sites', this.routers.sites.router)

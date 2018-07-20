@@ -7,6 +7,8 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/google/uuid"
+
+	opentracing "github.com/opentracing/opentracing-go"
 )
 
 type (
@@ -32,14 +34,16 @@ type (
 	postgresSensorManager struct {
 		db     DB
 		logger log.Logger
+		tracer opentracing.Tracer
 	}
 )
 
 // NewSensorManager creates a new sensor manager
-func NewSensorManager(db DB, logger log.Logger) SensorManager {
+func NewSensorManager(db DB, logger log.Logger, tracer opentracing.Tracer) SensorManager {
 	return &postgresSensorManager{
 		db:     db,
 		logger: logger,
+		tracer: tracer,
 	}
 }
 

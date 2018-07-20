@@ -117,12 +117,17 @@ exports[`AboutPage renders react component 1`] = `
           </dt>
           <dd>
             <strong>
+              Prometheus, Grafana
+            </strong>
+          </dd>
+          <dd>
+            <strong>
               Fluentd, ElasticSearch, Kibana
             </strong>
           </dd>
           <dd>
             <strong>
-              Prometheus, Grafana
+              OpenTracing, Jaeger
             </strong>
           </dd>
         </dl>
