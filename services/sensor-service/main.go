@@ -7,8 +7,9 @@ import (
 )
 
 func main() {
-	gotoConfig.Pick(&config.Config)
-	server := server.New(config.Config)
+	config := config.New()
+	gotoConfig.Pick(&config)
+	server := server.New(config)
 
 	err := server.Start()
 	if err != nil {

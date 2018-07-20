@@ -9,8 +9,8 @@ const (
 	defaultLogLevel    = "info"
 )
 
-// Spec represents configuration specifications
-type Spec struct {
+// Config defines the schema for configurations
+type Config struct {
 	ServiceName string
 	ServicePort string
 	PostgresURL string
@@ -18,14 +18,16 @@ type Spec struct {
 }
 
 // GetFullPostgresURL return the full Postgres URL including database name and options
-func (s *Spec) GetFullPostgresURL() string {
-	return s.PostgresURL + "/" + dbName + dbOpts
+func (c *Config) GetFullPostgresURL() string {
+	return c.PostgresURL + "/" + dbName + dbOpts
 }
 
-// Config is the configuration object
-var Config = Spec{
-	ServiceName: defaultServiceName,
-	ServicePort: defaultServicePort,
-	PostgresURL: defaultPostgresURL,
-	LogLevel:    defaultLogLevel,
+// New creates a new configuration object
+func New() Config {
+	return Config{
+		ServiceName: defaultServiceName,
+		ServicePort: defaultServicePort,
+		PostgresURL: defaultPostgresURL,
+		LogLevel:    defaultLogLevel,
+	}
 }
