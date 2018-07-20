@@ -6,11 +6,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestConfig(t *testing.T) {
-	assert.Equal(t, defaultServiceName, Config.ServiceName)
-	assert.Equal(t, defaultServicePort, Config.ServicePort)
-	assert.Equal(t, defaultPostgresURL, Config.PostgresURL)
-	assert.Equal(t, defaultLogLevel, Config.LogLevel)
+func TestNew(t *testing.T) {
+	config := New()
+
+	assert.Equal(t, defaultServiceName, config.ServiceName)
+	assert.Equal(t, defaultServicePort, config.ServicePort)
+	assert.Equal(t, defaultPostgresURL, config.PostgresURL)
+	assert.Equal(t, defaultLogLevel, config.LogLevel)
 }
 
 func TestGetFullPostgresURL(t *testing.T) {
@@ -23,7 +25,7 @@ func TestGetFullPostgresURL(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		config := Spec{
+		config := Config{
 			PostgresURL: tc.postgresURL,
 		}
 		assert.Equal(t, tc.expectedFullPostgresURL, config.GetFullPostgresURL())

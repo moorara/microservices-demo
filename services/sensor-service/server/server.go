@@ -22,14 +22,14 @@ type (
 
 	// HTTPServer represents a http server
 	HTTPServer struct {
-		config config.Spec
+		config config.Config
 		logger log.Logger
 		server Server
 	}
 )
 
 // New creates a new http server
-func New(config config.Spec) *HTTPServer {
+func New(config config.Config) *HTTPServer {
 	metrics := util.NewMetrics("sensor_service")
 	logger := util.NewLogger(config.LogLevel, config.ServiceName, "global")
 
