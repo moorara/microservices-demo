@@ -93,3 +93,9 @@
     - https://caddyserver.com/docs/redir
     - https://caddyserver.com/docs/rewrite
     - https://caddyserver.com/docs/proxy
+  
+  * **OpenTracing & Jaeger**
+    - https://github.com/opentracing/specification
+    - https://www.jaegertracing.io/docs/architecture
+    - https://www.jaegertracing.io/docs/deployment
+    - https://www.jaegertracing.io/docs/monitoring
