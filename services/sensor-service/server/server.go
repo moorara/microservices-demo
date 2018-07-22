@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/go-kit/kit/log"
@@ -22,9 +23,10 @@ type (
 
 	// HTTPServer represents a http server
 	HTTPServer struct {
-		config config.Config
-		logger log.Logger
-		server Server
+		config  config.Config
+		logger  log.Logger
+		closers []io.Closer
+		server  Server
 	}
 )
 
@@ -32,8 +34,7 @@ type (
 func New(config config.Config) *HTTPServer {
 	metrics := util.NewMetrics("sensor_service")
 	logger := util.NewLogger(config.LogLevel, config.ServiceName, "global")
-	tracer, tracerCloser := util.NewTracer(config, logger)
-	defer tracerCloser.Close()
+	tracer, tracerCloser := util.NewTracer(config, logger, metrics.Registry)
 
 	metricsMiddleware := middleware.NewMetricsMiddleware(metrics)
 	loggerMiddleware := middleware.NewLoggerMiddleware(logger)
@@ -58,8 +59,9 @@ func New(config config.Config) *HTTPServer {
 	router.Methods("DELETE").Path("/v1/sensors/{id}").HandlerFunc(deleteSensorHandler)
 
 	return &HTTPServer{
-		config: config,
-		logger: logger,
+		config:  config,
+		logger:  logger,
+		closers: []io.Closer{tracerCloser},
 		server: &http.Server{
 			Addr:    config.ServicePort,
 			Handler: router,
@@ -71,4 +73,16 @@ func New(config config.Config) *HTTPServer {
 func (s *HTTPServer) Start() error {
 	s.logger.Log("message", "Listening on port "+s.config.ServicePort+" ...")
 	return s.server.ListenAndServe()
+}
+
+// Close implements io.Closer to free up all resources used by server
+func (s *HTTPServer) Close() error {
+	for _, closer := range s.closers {
+		err := closer.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

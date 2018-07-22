@@ -79,7 +79,10 @@ describe('Server', () => {
         servicePort: '10000',
         mongoUrl: 'mongodb://mongo:27017',
         mongoUser: 'user',
-        mongoPass: 'pass'
+        mongoPass: 'pass',
+        jaegerAgentHost: 'jaeger-agent',
+        jaegerAgentPort: 6832,
+        jaegerLogSpans: true
       }
       conn = new EventEmitter()
     })

@@ -22,7 +22,7 @@ func NewTracerMiddleware(tracer opentracing.Tracer) Middleware {
 	}
 }
 
-func (tm *tracerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
+func (m *tracerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		method := r.Method
 		url := r.URL.Path
@@ -37,7 +37,7 @@ func (tm *tracerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 
 		statusCode := rw.StatusCode()
 
-		span := tm.tracer.StartSpan("http-request")
+		span := m.tracer.StartSpan("http-request")
 		span.SetTag("http.method", method)
 		span.SetTag("http.url", url)
 		span.SetTag("http.status_code", statusCode)

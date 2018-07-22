@@ -11,7 +11,7 @@ import (
 )
 
 func getMetricString(t *testing.T, metrics *Metrics, namespace, service string) (output string) {
-	metricFamilies, err := metrics.registry.Gather()
+	metricFamilies, err := metrics.Registry.Gather()
 	assert.NoError(t, err)
 
 	for _, mf := range metricFamilies {

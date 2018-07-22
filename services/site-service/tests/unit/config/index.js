@@ -27,8 +27,8 @@ describe('ConfigProvider', () => {
     delete process.env.JAEGER_AGENT_HOST_FILE
     delete process.env.JAEGER_AGENT_PORT
     delete process.env.JAEGER_AGENT_PORT_FILE
-    delete process.env.JAEGER_REPORTER_LOG_SPANS
-    delete process.env.JAEGER_REPORTER_LOG_SPANS_FILE
+    delete process.env.JAEGER_LOG_SPANS
+    delete process.env.JAEGER_LOG_SPANS_FILE
   })
 
   describe('getConfig', () => {
@@ -40,8 +40,8 @@ describe('ConfigProvider', () => {
         should.equal(c.mongoUser, null)
         should.equal(c.mongoPass, null)
         should.equal(c.jaegerAgentHost, 'localhost')
-        should.equal(c.jaegerAgentPort, '6831')
-        should.equal(c.jaegerReporterLogSpans, false)
+        should.equal(c.jaegerAgentPort, '6832')
+        should.equal(c.jaegerLogSpans, false)
         done()
       }).catch(done)
     })
@@ -53,8 +53,8 @@ describe('ConfigProvider', () => {
       process.env.MONGO_USER = 'user'
       process.env.MONGO_PASS = 'pass'
       process.env.JAEGER_AGENT_HOST = 'jaeger-agent'
-      process.env.JAEGER_AGENT_PORT = '6831'
-      process.env.JAEGER_REPORTER_LOG_SPANS = true
+      process.env.JAEGER_AGENT_PORT = '6832'
+      process.env.JAEGER_LOG_SPANS = true
 
       config.getConfig().then(c => {
         c.serviceName.should.equal('my-service')
@@ -63,8 +63,8 @@ describe('ConfigProvider', () => {
         c.mongoUser.should.equal('user')
         c.mongoPass.should.equal('pass')
         c.jaegerAgentHost.should.equal('jaeger-agent')
-        c.jaegerAgentPort.should.equal(6831)
-        c.jaegerReporterLogSpans.should.equal(true)
+        c.jaegerAgentPort.should.equal(6832)
+        c.jaegerLogSpans.should.equal(true)
         done()
       }).catch(done)
     })
@@ -88,7 +88,7 @@ describe('ConfigProvider', () => {
       process.env.MONGO_PASS_FILE = passFile.name
       process.env.JAEGER_AGENT_HOST_FILE = agentHostFile.name
       process.env.JAEGER_AGENT_PORT_FILE = agentPortFile.name
-      process.env.JAEGER_REPORTER_LOG_SPANS_FILE = logSpansFile.name
+      process.env.JAEGER_LOG_SPANS_FILE = logSpansFile.name
 
       fs.writeFileSync(nameFile.fd, 'new-service')
       fs.writeFileSync(portFile.fd, '20000')
@@ -96,7 +96,7 @@ describe('ConfigProvider', () => {
       fs.writeFileSync(userFile.fd, 'root')
       fs.writeFileSync(passFile.fd, 'toor')
       fs.writeFileSync(agentHostFile.fd, 'jaeger-agent')
-      fs.writeFileSync(agentPortFile.fd, '6831')
+      fs.writeFileSync(agentPortFile.fd, '6832')
       fs.writeFileSync(logSpansFile.fd, 'true')
 
       config.getConfig().then(c => {
@@ -106,8 +106,8 @@ describe('ConfigProvider', () => {
         c.mongoUser.should.equal('root')
         c.mongoPass.should.equal('toor')
         c.jaegerAgentHost.should.equal('jaeger-agent')
-        c.jaegerAgentPort.should.equal(6831)
-        c.jaegerReporterLogSpans.should.equal(true)
+        c.jaegerAgentPort.should.equal(6832)
+        c.jaegerLogSpans.should.equal(true)
         done()
       }).catch(done)
     })

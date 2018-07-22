@@ -10,6 +10,7 @@ func main() {
 	config := config.New()
 	gotoConfig.Pick(&config)
 	server := server.New(config)
+	defer server.Close()
 
 	err := server.Start()
 	if err != nil {

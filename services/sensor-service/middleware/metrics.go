@@ -44,7 +44,7 @@ func NewMetricsMiddleware(metrics *util.Metrics) Middleware {
 	}
 }
 
-func (mm *metricsMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
+func (m *metricsMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		method := r.Method
@@ -62,7 +62,7 @@ func (mm *metricsMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 		statusCode := strconv.Itoa(rw.StatusCode())
 		statusClass := rw.StatusClass()
 
-		mm.histogram.WithLabelValues(method, endpoint, statusCode, statusClass).Observe(duration)
-		mm.summary.WithLabelValues(method, endpoint, statusCode, statusClass).Observe(duration)
+		m.histogram.WithLabelValues(method, endpoint, statusCode, statusClass).Observe(duration)
+		m.summary.WithLabelValues(method, endpoint, statusCode, statusClass).Observe(duration)
 	}
 }
