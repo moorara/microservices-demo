@@ -34,7 +34,7 @@ type (
 func New(config config.Config) *HTTPServer {
 	metrics := util.NewMetrics("sensor_service")
 	logger := util.NewLogger(config.LogLevel, config.ServiceName, "global")
-	tracer, tracerCloser := util.NewTracer(config, logger)
+	tracer, tracerCloser := util.NewTracer(config, logger, metrics.Registry)
 
 	metricsMiddleware := middleware.NewMetricsMiddleware(metrics)
 	loggerMiddleware := middleware.NewLoggerMiddleware(logger)

@@ -11,7 +11,7 @@ import (
 // Metrics represents metrics utility
 type Metrics struct {
 	service  string
-	registry *prometheus.Registry
+	Registry *prometheus.Registry
 }
 
 // NewMetrics creates a Metrics instance
@@ -22,7 +22,7 @@ func NewMetrics(service string) *Metrics {
 
 	return &Metrics{
 		service:  service,
-		registry: registry,
+		Registry: registry,
 	}
 }
 
@@ -38,7 +38,7 @@ func (m *Metrics) NewCounter(prefixName bool, name, help string, labels []string
 	}
 
 	counter := prometheus.NewCounterVec(opts, labels)
-	m.registry.MustRegister(counter)
+	m.Registry.MustRegister(counter)
 	return counter
 }
 
@@ -54,7 +54,7 @@ func (m *Metrics) NewGauge(prefixName bool, name, help string, labels []string) 
 	}
 
 	gauge := prometheus.NewGaugeVec(opts, labels)
-	m.registry.MustRegister(gauge)
+	m.Registry.MustRegister(gauge)
 	return gauge
 }
 
@@ -71,7 +71,7 @@ func (m *Metrics) NewHistogram(prefixName bool, name, help string, buckets []flo
 	}
 
 	histogram := prometheus.NewHistogramVec(opts, labels)
-	m.registry.MustRegister(histogram)
+	m.Registry.MustRegister(histogram)
 	return histogram
 }
 
@@ -88,11 +88,11 @@ func (m *Metrics) NewSummary(prefixName bool, name, help string, quantiles map[f
 	}
 
 	summary := prometheus.NewSummaryVec(opts, labels)
-	m.registry.MustRegister(summary)
+	m.Registry.MustRegister(summary)
 	return summary
 }
 
 // GetHandler returns http handler for metrics endpoint
 func (m *Metrics) GetHandler() http.Handler {
-	return promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{})
+	return promhttp.HandlerFor(m.Registry, promhttp.HandlerOpts{})
 }

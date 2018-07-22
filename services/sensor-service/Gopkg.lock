@@ -181,7 +181,10 @@
 
 [[projects]]
   name = "github.com/uber/jaeger-lib"
-  packages = ["metrics"]
+  packages = [
+    "metrics",
+    "metrics/prometheus"
+  ]
   revision = "ed3a127ec5fef7ae9ea95b01b542c47fbd999ce5"
   version = "v1.5.0"
 
@@ -194,6 +197,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "823dbc668c18d42ccce30c354683c73aca27d4a509ab5dcd8d360ff1d7af90f5"
+  inputs-digest = "71d0db2e28abb3590dbe760f0ffb7504f5df37f5d187facaac5bc069d3b043e7"
   solver-name = "gps-cdcl"
   solver-version = 1
