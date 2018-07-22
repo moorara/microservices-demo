@@ -17,7 +17,7 @@ module.exports.createTracer = (config, options) => {
     reporter: {
       agentHost: config.jaegerAgentHost,
       agentPort: config.jaegerAgentPort,
-      logSpans: config.jaegerReporterLogSpans
+      logSpans: config.jaegerLogSpans
     }
   }
 

@@ -3,12 +3,23 @@ package server
 import (
 	"context"
 	"errors"
+	"io"
 	"testing"
 
 	"github.com/go-kit/kit/log"
 	"github.com/moorara/microservices-demo/services/sensor-service/config"
 	"github.com/stretchr/testify/assert"
 )
+
+type mockCloser struct {
+	CloseCalled bool
+	CloseError  error
+}
+
+func (c *mockCloser) Close() error {
+	c.CloseCalled = true
+	return c.CloseError
+}
 
 type mockServer struct {
 	ListenAndServeCalled bool
@@ -36,25 +47,23 @@ func TestNew(t *testing.T) {
 		{
 			"Server1",
 			config.Config{
-				LogLevel:               "info",
-				ServiceName:            "go-service",
-				ServicePort:            ":4020",
-				PostgresURL:            "postgres://localhost",
-				JaegerAgentHost:        "localhost",
-				JaegerAgentPort:        6831,
-				JaegerReporterLogSpans: false,
+				LogLevel:        "info",
+				ServiceName:     "go-service",
+				ServicePort:     ":4020",
+				PostgresURL:     "postgres://localhost",
+				JaegerAgentAddr: "localhost:6831",
+				JaegerLogSpans:  false,
 			},
 		},
 		{
 			"Server2",
 			config.Config{
-				LogLevel:               "debug",
-				ServiceName:            "sensor-service",
-				ServicePort:            ":4020",
-				PostgresURL:            "postgres://root:pass@localhost",
-				JaegerAgentHost:        "localhost",
-				JaegerAgentPort:        6831,
-				JaegerReporterLogSpans: true,
+				LogLevel:        "debug",
+				ServiceName:     "sensor-service",
+				ServicePort:     ":4020",
+				PostgresURL:     "postgres://root:pass@localhost",
+				JaegerAgentAddr: "localhost:6831",
+				JaegerLogSpans:  true,
 			},
 		},
 	}
@@ -89,11 +98,12 @@ func TestStart(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			s := &HTTPServer{
+			s := HTTPServer{
 				config: config.Config{
 					ServicePort: ":4020",
 				},
-				logger: tc.logger,
+				logger:  tc.logger,
+				closers: []io.Closer{},
 				server: &mockServer{
 					ListenAndServeError: tc.listenAndServeError,
 				},
@@ -101,6 +111,53 @@ func TestStart(t *testing.T) {
 
 			err := s.Start()
 			assert.Equal(t, tc.listenAndServeError, err)
+		})
+	}
+}
+
+func TestClose(t *testing.T) {
+	tests := []struct {
+		name        string
+		closers     []io.Closer
+		expectError bool
+	}{
+		{
+			"NoCloser",
+			[]io.Closer{},
+			false,
+		},
+		{
+			"Error",
+			[]io.Closer{
+				&mockCloser{},
+				&mockCloser{CloseError: errors.New("error")},
+				&mockCloser{},
+			},
+			true,
+		},
+		{
+			"NoError",
+			[]io.Closer{
+				&mockCloser{},
+				&mockCloser{},
+				&mockCloser{},
+			},
+			false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			s := HTTPServer{
+				closers: tc.closers,
+			}
+
+			err := s.Close()
+			if tc.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

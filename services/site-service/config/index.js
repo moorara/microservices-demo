@@ -8,8 +8,8 @@ const defaultServiceName = 'site-service'
 const defaultServicePort = '4010'
 const defaultMongoURL = 'mongodb://localhost:27017'
 const defaultJaegerAgentHost = 'localhost'
-const defaultJaegerAgentPort = '6831'
-const defaultJaegerReporterLogSpans = 'false'
+const defaultJaegerAgentPort = '6832'
+const defaultJaegerLogSpans = 'false'
 
 class ConfigProvider {
   constructor (options) {
@@ -43,7 +43,7 @@ class ConfigProvider {
       mongoPass: this._getValue('MONGO_PASS'),
       jaegerAgentHost: this._getValue('JAEGER_AGENT_HOST', defaultJaegerAgentHost),
       jaegerAgentPort: parseInt(this._getValue('JAEGER_AGENT_PORT', defaultJaegerAgentPort)),
-      jaegerReporterLogSpans: this._getValue('JAEGER_REPORTER_LOG_SPANS', defaultJaegerReporterLogSpans) === 'true'
+      jaegerLogSpans: this._getValue('JAEGER_LOG_SPANS', defaultJaegerLogSpans) === 'true'
     }
 
     return Promise.resolve(config)

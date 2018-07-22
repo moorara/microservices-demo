@@ -13,9 +13,8 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, defaultServicePort, config.ServicePort)
 	assert.Equal(t, defaultPostgresURL, config.PostgresURL)
 	assert.Equal(t, defaultLogLevel, config.LogLevel)
-	assert.Equal(t, defaultJaegerAgentHost, config.JaegerAgentHost)
-	assert.Equal(t, defaultJaegerAgentPort, config.JaegerAgentPort)
-	assert.Equal(t, defaultJaegerReporterLogSpans, config.JaegerReporterLogSpans)
+	assert.Equal(t, defaultJaegerAgentAddr, config.JaegerAgentAddr)
+	assert.Equal(t, defaultJaegerLogSpans, config.JaegerLogSpans)
 }
 
 func TestGetFullPostgresURL(t *testing.T) {
@@ -32,24 +31,5 @@ func TestGetFullPostgresURL(t *testing.T) {
 			PostgresURL: tc.postgresURL,
 		}
 		assert.Equal(t, tc.expectedFullPostgresURL, config.GetFullPostgresURL())
-	}
-}
-
-func TestGetJaegerAgentURL(t *testing.T) {
-	tests := []struct {
-		jaegerAgentHost        string
-		jaegerAgentPort        int
-		expectedJaegerAgentURL string
-	}{
-		{"localhost", 6831, "localhost:6831"},
-		{"jaeger-agent", 6831, "jaeger-agent:6831"},
-	}
-
-	for _, tc := range tests {
-		config := Config{
-			JaegerAgentHost: tc.jaegerAgentHost,
-			JaegerAgentPort: tc.jaegerAgentPort,
-		}
-		assert.Equal(t, tc.expectedJaegerAgentURL, config.GetJaegerAgentURL())
 	}
 }

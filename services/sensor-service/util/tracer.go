@@ -36,8 +36,8 @@ func NewTracer(config config.Config, logger log.Logger) (opentracing.Tracer, io.
 			Param: 1,
 		},
 		Reporter: &jaegerConfig.ReporterConfig{
-			LocalAgentHostPort: config.GetJaegerAgentURL(),
-			LogSpans:           config.JaegerReporterLogSpans,
+			LocalAgentHostPort: config.JaegerAgentAddr,
+			LogSpans:           config.JaegerLogSpans,
 		},
 	}
 

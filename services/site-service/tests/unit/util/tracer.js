@@ -37,7 +37,7 @@ describe('Tracer', () => {
       const config = {
         serviceName: 'node-service',
         jaegerAgentHost: 'jaeger-agent',
-        jaegerAgentPort: 6831
+        jaegerAgentPort: 6832
       }
       tracer = createTracer(config, options)
 
@@ -47,7 +47,7 @@ describe('Tracer', () => {
     it('should create a new tracer with logging spans enabled', done => {
       const config = {
         serviceName: 'node-service',
-        jaegerReporterLogSpans: true
+        jaegerLogSpans: true
       }
       tracer = createTracer(config, options)
 

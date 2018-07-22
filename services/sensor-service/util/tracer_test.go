@@ -17,20 +17,18 @@ func TestNewTracer(t *testing.T) {
 		{
 			"WithSpanLogging",
 			config.Config{
-				ServiceName:            "go-service",
-				JaegerAgentHost:        "localhost",
-				JaegerAgentPort:        6831,
-				JaegerReporterLogSpans: true,
+				ServiceName:     "go-service",
+				JaegerAgentAddr: "localhost:6831",
+				JaegerLogSpans:  true,
 			},
 			log.NewNopLogger(),
 		},
 		{
 			"WithoutSpanLogging",
 			config.Config{
-				ServiceName:            "go-service",
-				JaegerAgentHost:        "localhost",
-				JaegerAgentPort:        6831,
-				JaegerReporterLogSpans: false,
+				ServiceName:     "go-service",
+				JaegerAgentAddr: "localhost:6831",
+				JaegerLogSpans:  false,
 			},
 			log.NewNopLogger(),
 		},

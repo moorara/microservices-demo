@@ -23,7 +23,7 @@ func NewLoggerMiddleware(logger log.Logger) Middleware {
 	}
 }
 
-func (lm *loggerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
+func (m *loggerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		method := r.Method
@@ -55,11 +55,11 @@ func (lm *loggerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 
 		switch {
 		case statusCode >= 500:
-			level.Error(lm.logger).Log(result...)
+			level.Error(m.logger).Log(result...)
 		case statusCode >= 400:
-			level.Warn(lm.logger).Log(result...)
+			level.Warn(m.logger).Log(result...)
 		case statusCode >= 100:
-			level.Info(lm.logger).Log(result...)
+			level.Info(m.logger).Log(result...)
 		}
 	}
 }
