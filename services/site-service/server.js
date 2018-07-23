@@ -36,7 +36,7 @@ class Server {
       // Dependencies
       this.mongo = this.mongo || new Mongo(config)
       this.tracer = this.tracer || createTracer(config)
-      this.routers.sites = this.routers.sites || new SiteRouter(config)
+      this.routers.sites = this.routers.sites || new SiteRouter(config, { tracer: this.tracer })
 
       // Unauthenticated routes
       this.app.use('/health', HealthRouter)
@@ -45,7 +45,7 @@ class Server {
       this.app.use(Middleware.normalize())
       this.app.use(LoggerMiddleware.create())
       this.app.use(MetricsMiddleware.create({ register: this.metrics.register }))
-      this.app.use(TracerMiddleware.http({ tracer: this.tracer }))
+      this.app.use(TracerMiddleware.create({ tracer: this.tracer }))
 
       // Authenticated routes
       this.app.use('/v1/sites', this.routers.sites.router)

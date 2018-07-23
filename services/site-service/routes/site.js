@@ -34,7 +34,7 @@ class SiteRouter {
     let specs = req.body
 
     try {
-      site = await this.siteService.create(specs)
+      site = await this.siteService.create(specs, req.context)
       res.status(201).send(site)
     } catch (err) {
       this.logger.error('Failed to create new site.', err)
@@ -47,7 +47,7 @@ class SiteRouter {
     let query = req.query
 
     try {
-      sites = await this.siteService.all(query)
+      sites = await this.siteService.all(query, req.context)
       res.status(200).send(sites)
     } catch (err) {
       this.logger.error('Failed to get sites.', err)
@@ -60,7 +60,7 @@ class SiteRouter {
     let id = req.params.id
 
     try {
-      site = await this.siteService.get(id)
+      site = await this.siteService.get(id, req.context)
     } catch (err) {
       this.logger.error(`Failed to get site ${id}.`, err)
       return next(err)
@@ -78,7 +78,7 @@ class SiteRouter {
     let specs = req.body
 
     try {
-      let updated = await this.siteService.update(id, specs)
+      let updated = await this.siteService.update(id, specs, req.context)
       res.sendStatus(updated ? 204 : 404)
     } catch (err) {
       this.logger.error(`Failed to update site ${id}.`, err)
@@ -92,7 +92,7 @@ class SiteRouter {
     let specs = req.body
 
     try {
-      site = await this.siteService.modify(id, specs)
+      site = await this.siteService.modify(id, specs, req.context)
     } catch (err) {
       this.logger.error(`Failed to update site ${id}.`, err)
       return next(err)
@@ -110,7 +110,7 @@ class SiteRouter {
     let id = req.params.id
 
     try {
-      site = await this.siteService.delete(id)
+      site = await this.siteService.delete(id, req.context)
     } catch (err) {
       this.logger.error(`Failed to delete site ${id}.`, err)
       return next(err)

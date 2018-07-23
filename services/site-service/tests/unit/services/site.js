@@ -1,11 +1,12 @@
 /* eslint-env mocha */
 const sinon = require('sinon')
 const should = require('should')
+const opentracing = require('opentracing')
 
 const SiteService = require('../../../services/site')
 
 describe('SiteService', () => {
-  let config, logger
+  let config, logger, tracer
   let Model, _Model
   let modelInstance, _modelInstance
   let service, _service
@@ -20,6 +21,7 @@ describe('SiteService', () => {
       error () {},
       fatal () {}
     }
+    tracer = new opentracing.MockTracer()
 
     Model = function (data) {
       return modelInstance
@@ -40,6 +42,7 @@ describe('SiteService', () => {
 
     service = new SiteService(config, {
       logger,
+      tracer,
       SiteModel: Model
     })
     _service = sinon.mock(service)
@@ -60,7 +63,7 @@ describe('SiteService', () => {
   })
 
   describe('create', () => {
-    let specs
+    let specs, context
     let savedSite
 
     beforeEach(() => {
@@ -70,6 +73,10 @@ describe('SiteService', () => {
         tags: ['hydro', 'power'],
         priority: 3
       }
+      context = {
+        span: tracer.startSpan('mock-span')
+      }
+
       savedSite = Object.assign({}, specs, {
         id: '1111-aaaa',
         createdAt: new Date(),
@@ -80,7 +87,7 @@ describe('SiteService', () => {
 
     it('should reject with error when model query fails', done => {
       _modelInstance.expects('save').rejects(new Error('error'))
-      service.create(specs).catch(err => {
+      service.create(specs, context).catch(err => {
         _modelInstance.verify()
         should.exist(err)
         err.message.should.equal('error')
@@ -89,7 +96,7 @@ describe('SiteService', () => {
     })
     it('should resolve with new site when model query succeeds', done => {
       _modelInstance.expects('save').resolves(savedSite)
-      service.create(specs).then(t => {
+      service.create(specs, context).then(t => {
         _modelInstance.verify()
         t.should.eql(savedSite)
         done()
@@ -98,11 +105,12 @@ describe('SiteService', () => {
   })
 
   describe('all', () => {
-    let query
+    let query, context
     let s1, s2, s3
 
     beforeEach(() => {
       query = {}
+      context = { span: tracer.startSpan('mock-span') }
 
       s1 = { id: '1111-aaaa' }
       s1.toJSON = () => s1
@@ -119,7 +127,7 @@ describe('SiteService', () => {
       _Model.expects('limit').returns(Model)
       _Model.expects('skip').returns(Model)
       _Model.expects('exec').rejects(new Error('error'))
-      service.all().catch(err => {
+      service.all(query, context).catch(err => {
         _Model.verify()
         should.exist(err)
         err.message.should.equal('error')
@@ -131,7 +139,7 @@ describe('SiteService', () => {
       _Model.expects('limit').returns(Model)
       _Model.expects('skip').returns(Model)
       _Model.expects('exec').resolves([ s1, s2, s3 ])
-      service.all().then(sites => {
+      service.all(query, context).then(sites => {
         _Model.verify()
         sites.should.eql([ s1, s2, s3 ])
         done()
@@ -144,7 +152,7 @@ describe('SiteService', () => {
       _Model.expects('limit').withArgs(+query.limit).returns(Model)
       _Model.expects('skip').withArgs(+query.skip).returns(Model)
       _Model.expects('exec').resolves([ s1, s2, s3 ])
-      service.all(query).then(sites => {
+      service.all(query, context).then(sites => {
         _Model.verify()
         sites.should.eql([ s1, s2, s3 ])
         done()
@@ -153,17 +161,20 @@ describe('SiteService', () => {
   })
 
   describe('get', () => {
-    let id, site
+    let id, context
+    let site
 
     beforeEach(() => {
       id = '1111-aaaa'
+      context = { span: tracer.startSpan('mock-span') }
+
       site = { id }
       site.toJSON = () => site
     })
 
     it('should reject with error when model query fails', done => {
       _Model.expects('findById').withArgs(id).rejects(new Error('error'))
-      service.get(id).catch(err => {
+      service.get(id, context).catch(err => {
         _Model.verify()
         should.exist(err)
         err.message.should.equal('error')
@@ -172,7 +183,7 @@ describe('SiteService', () => {
     })
     it('should resolve with empty result when model query returns no result', done => {
       _Model.expects('findById').withArgs(id).resolves()
-      service.get(id).then(s => {
+      service.get(id, context).then(s => {
         _Model.verify()
         should.not.exist(s)
         done()
@@ -180,7 +191,7 @@ describe('SiteService', () => {
     })
     it('should resolve with site when model query succeeds', done => {
       _Model.expects('findById').withArgs(id).resolves(site)
-      service.get(id).then(s => {
+      service.get(id, context).then(s => {
         _Model.verify()
         s.id.should.equal(id)
         done()
@@ -189,18 +200,21 @@ describe('SiteService', () => {
   })
 
   describe('update', () => {
-    let id, query, specs, options
+    let id, specs, context
+    let query, options
 
     beforeEach(() => {
       id = '1111-aaaa'
-      query = { _id: id }
       specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA', priority: 2 }
+      context = { span: tracer.startSpan('mock-span') }
+
+      query = { _id: id }
       options = { upsert: false, runValidators: true, overwrite: true }
     })
 
     it('should reject with error when model query fails', done => {
       _Model.expects('update').withArgs(query, specs, options).rejects(new Error('error'))
-      service.update(id, specs).catch(err => {
+      service.update(id, specs, context).catch(err => {
         _Model.verify()
         should.exist(err)
         err.message.should.equal('error')
@@ -209,7 +223,7 @@ describe('SiteService', () => {
     })
     it('should resolve with false when model query returns no response', done => {
       _Model.expects('update').withArgs(query, specs, options).resolves({ ok: 1, n: 0, nModified: 0 })
-      service.update(id, specs).then(r => {
+      service.update(id, specs, context).then(r => {
         _Model.verify()
         r.should.be.false()
         done()
@@ -217,7 +231,7 @@ describe('SiteService', () => {
     })
     it('should resolve with true when model query returns successful response', done => {
       _Model.expects('update').withArgs(query, specs, options).resolves({ ok: 1, n: 1, nModified: 1 })
-      service.update(id, specs).then(r => {
+      service.update(id, specs, context).then(r => {
         _Model.verify()
         r.should.be.true()
         done()
@@ -226,12 +240,14 @@ describe('SiteService', () => {
   })
 
   describe('modify', () => {
-    let id, specs, options
-    let site
+    let id, specs, context
+    let options, site
 
     beforeEach(() => {
       id = '1111-aaaa'
       specs = { name: 'Plant Site', location: 'Ottawa, ON, CANADA' }
+      context = { span: tracer.startSpan('mock-span') }
+
       options = { new: true, upsert: false, runValidators: true }
       site = Object.assign({ id }, specs)
       site.toJSON = () => site
@@ -239,7 +255,7 @@ describe('SiteService', () => {
 
     it('should reject with error when model query fails', done => {
       _Model.expects('findByIdAndUpdate').withArgs(id, specs, options).rejects(new Error('error'))
-      service.modify(id, specs).catch(err => {
+      service.modify(id, specs, context).catch(err => {
         _Model.verify()
         should.exist(err)
         err.message.should.equal('error')
@@ -248,7 +264,7 @@ describe('SiteService', () => {
     })
     it('should resolve with empty result when model query returns no result', done => {
       _Model.expects('findByIdAndUpdate').withArgs(id, specs, options).resolves()
-      service.modify(id, specs).then(s => {
+      service.modify(id, specs, context).then(s => {
         _Model.verify()
         should.not.exist(s)
         done()
@@ -256,7 +272,7 @@ describe('SiteService', () => {
     })
     it('should resolve with modified site when model query succeeds', done => {
       _Model.expects('findByIdAndUpdate').withArgs(id, specs, options).resolves(site)
-      service.modify(id, specs).then(s => {
+      service.modify(id, specs, context).then(s => {
         _Model.verify()
         s.id.should.equal(id)
         done()
@@ -265,17 +281,20 @@ describe('SiteService', () => {
   })
 
   describe('delete', () => {
-    let id, site
+    let id, context
+    let site
 
     beforeEach(() => {
       id = '1111-aaaa'
+      context = { span: tracer.startSpan('mock-span') }
+
       site = { id }
       site.toJSON = () => site
     })
 
     it('should reject with error when model query fails', done => {
       _Model.expects('findByIdAndRemove').withArgs(id).rejects(new Error('error'))
-      service.delete(id).catch(err => {
+      service.delete(id, context).catch(err => {
         _Model.verify()
         should.exist(err)
         err.message.should.equal('error')
@@ -284,7 +303,7 @@ describe('SiteService', () => {
     })
     it('should resolve with empty result when model query returns no result', done => {
       _Model.expects('findByIdAndRemove').withArgs(id).resolves()
-      service.delete(id).then(s => {
+      service.delete(id, context).then(s => {
         _Model.verify()
         should.not.exist(s)
         done()
@@ -292,7 +311,7 @@ describe('SiteService', () => {
     })
     it('should resolve with deleted site when model query succeeds', done => {
       _Model.expects('findByIdAndRemove').withArgs(id).resolves(site)
-      service.delete(id).then(s => {
+      service.delete(id, context).then(s => {
         _Model.verify()
         s.id.should.equal(id)
         done()
