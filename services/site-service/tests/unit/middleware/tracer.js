@@ -8,26 +8,33 @@ const { normalize } = require('../../../middleware')
 const TracerMiddleware = require('../../../middleware/tracer')
 
 describe('TracerMiddleware', () => {
-  let middleware
-  let app, request
+  describe('create', () => {
+    let tracer, middleware
+    let app, request
+    let spanFromCtx
 
-  describe('http', () => {
-    it('should create a tracer middleware', done => {
-      const tracer = new opentracing.MockTracer()
-      middleware = TracerMiddleware.http({ tracer })
+    beforeEach(() => {
+      tracer = new opentracing.MockTracer()
+      middleware = TracerMiddleware.create({ tracer })
 
       app = express()
       app.use(normalize())
       app.use(middleware)
-      app.use('/resources/:id', (req, res) => res.sendStatus(200))
+      app.use('/resources/:id', (req, res) => {
+        spanFromCtx = req.context.span
+        res.sendStatus(200)
+      })
+    })
 
+    it('should create a span and add it to request context', done => {
       request = supertest(app)
       request.get('/resources/1234')
         .expect(200)
         .then(res => {
-          tracer._spans.should.have.length(1)
+          tracer._spans[0].should.eql(spanFromCtx)
+          tracer._spans[0]._operationName.should.equal('http-request')
           tracer._spans[0]._tags['http.method'].should.equal('GET')
-          tracer._spans[0]._tags['http.url'].should.equal('/resources/:id')
+          tracer._spans[0]._tags['http.url'].should.equal('/resources/1234')
           tracer._spans[0]._tags['http.status_code'].should.equal(200)
           done()
         })

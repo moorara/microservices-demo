@@ -2,13 +2,10 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/moorara/microservices-demo/services/sensor-service/util"
+	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
-
-	opentracing "github.com/opentracing/opentracing-go"
 )
 
 type tracerMiddleware struct {
@@ -24,20 +21,18 @@ func NewTracerMiddleware(tracer opentracing.Tracer) Middleware {
 
 func (m *tracerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		method := r.Method
-		url := r.URL.Path
-
-		// This only works with mux router
-		for p, v := range mux.Vars(r) {
-			url = strings.Replace(url, v, ":"+p, 1)
-		}
+		span := m.tracer.StartSpan("http-request")
+		ctx := opentracing.ContextWithSpan(r.Context(), span)
 
 		rw := util.NewResponseWriter(w)
-		next(rw, r)
+		req := r.WithContext(ctx)
+		next(rw, req)
 
+		method := r.Method
+		url := r.URL.Path
 		statusCode := rw.StatusCode()
 
-		span := m.tracer.StartSpan("http-request")
+		// https://github.com/opentracing/specification/blob/master/semantic_conventions.md
 		span.SetTag("http.method", method)
 		span.SetTag("http.url", url)
 		span.SetTag("http.status_code", statusCode)
@@ -47,6 +42,7 @@ func (m *tracerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 			log.String("url", url),
 			log.Int("statusCode", statusCode),
 		)
+
 		span.Finish()
 	}
 }
