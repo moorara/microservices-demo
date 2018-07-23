@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/go-kit/kit/log"
+	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
@@ -67,6 +68,13 @@ func (mr *mockResult) RowsAffected() (int64, error) {
 	return mr.RowsAffectedResult, mr.RowsAffectedError
 }
 
+func CreateContextWithSpan() context.Context {
+	tracer := mocktracer.New()
+	span := tracer.StartSpan("mock-span")
+	ctx := opentracing.ContextWithSpan(context.Background(), span)
+	return ctx
+}
+
 func TestNewSensorManager(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -109,14 +117,14 @@ func TestSensorManagerCreate(t *testing.T) {
 		{
 			"DatabaseError",
 			errors.New("error"),
-			context.Background(),
+			CreateContextWithSpan(),
 			"", "", "", 0.0, 0.0,
 			true,
 		},
 		{
 			"CreateSensor",
 			nil,
-			context.Background(),
+			CreateContextWithSpan(),
 			"1111-aaaa", "temperature", "celsius", -30.0, 30.0,
 			false,
 		},
@@ -132,6 +140,7 @@ func TestSensorManagerCreate(t *testing.T) {
 			m := &postgresSensorManager{
 				db:     db,
 				logger: log.NewNopLogger(),
+				tracer: mocktracer.New(),
 			}
 
 			sensor, err := m.Create(tc.context, tc.sensorSiteID, tc.sensorName, tc.sensorUnit, tc.sensorMinSafe, tc.sensorMaxSafe)
@@ -166,7 +175,7 @@ func TestSensorManagerUpdate(t *testing.T) {
 			"DatabaseError",
 			&mockResult{},
 			errors.New("error"),
-			context.Background(),
+			CreateContextWithSpan(),
 			Sensor{"", "", "", "", 0.0, 0.0},
 			true,
 			0,
@@ -178,7 +187,7 @@ func TestSensorManagerUpdate(t *testing.T) {
 				RowsAffectedError:  errors.New("error"),
 			},
 			nil,
-			context.Background(),
+			CreateContextWithSpan(),
 			Sensor{"", "", "", "", 0.0, 0.0},
 			true,
 			0,
@@ -190,7 +199,7 @@ func TestSensorManagerUpdate(t *testing.T) {
 				RowsAffectedError:  nil,
 			},
 			nil,
-			context.Background(),
+			CreateContextWithSpan(),
 			Sensor{"2222-bbbb", "1111-aaaa", "temperature", "fahrenheit", -22.0, 86.0},
 			false,
 			1,
@@ -207,6 +216,7 @@ func TestSensorManagerUpdate(t *testing.T) {
 			m := &postgresSensorManager{
 				db:     db,
 				logger: log.NewNopLogger(),
+				tracer: mocktracer.New(),
 			}
 
 			n, err := m.Update(tc.context, tc.sensor)
@@ -233,14 +243,14 @@ func TestSensorManagerDelete(t *testing.T) {
 		{
 			"DatabaseError",
 			errors.New("error"),
-			context.Background(),
+			CreateContextWithSpan(),
 			"",
 			true,
 		},
 		{
 			"DeleteSensor",
 			nil,
-			context.Background(),
+			CreateContextWithSpan(),
 			"2222-bbbb",
 			false,
 		},
@@ -256,6 +266,7 @@ func TestSensorManagerDelete(t *testing.T) {
 			m := &postgresSensorManager{
 				db:     db,
 				logger: log.NewNopLogger(),
+				tracer: mocktracer.New(),
 			}
 
 			err := m.Delete(tc.context, tc.sensorID)

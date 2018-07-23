@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,15 +18,16 @@ func TestWrapWithTracer(t *testing.T) {
 		statusCode  int
 		expectedURL string
 	}{
-		{"101", "GET", "http://service/resource", 101, "/resource"},
-		{"200", "GET", "http://service/resource", 200, "/resource"},
-		{"302", "GET", "http://service/resource", 302, "/resource"},
-		{"404", "GET", "http://service/resource", 404, "/resource"},
-		{"500", "GET", "http://service/resource", 500, "/resource"},
+		{"101", "GET", "http://service/resource/1111", 101, "/resource/1111"},
+		{"200", "GET", "http://service/resource/2222", 200, "/resource/2222"},
+		{"302", "GET", "http://service/resource/3333", 302, "/resource/3333"},
+		{"404", "GET", "http://service/resource/4444", 404, "/resource/4444"},
+		{"500", "GET", "http://service/resource/5555", 500, "/resource/5555"},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			var spanFromCtx opentracing.Span
 			tracer := mocktracer.New()
 			tracerMiddleware := NewTracerMiddleware(tracer)
 
@@ -33,14 +35,14 @@ func TestWrapWithTracer(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			handler := tracerMiddleware.Wrap(func(w http.ResponseWriter, r *http.Request) {
+				spanFromCtx = opentracing.SpanFromContext(r.Context())
 				w.WriteHeader(tc.statusCode)
 			})
 			handler(w, r)
 
-			res := w.Result()
 			spans := tracer.FinishedSpans()
 
-			assert.Equal(t, tc.statusCode, res.StatusCode)
+			assert.Equal(t, spanFromCtx, spans[0])
 			assert.Equal(t, "http-request", spans[0].OperationName)
 			assert.Equal(t, tc.method, spans[0].Tag("http.method"))
 			assert.Equal(t, tc.expectedURL, spans[0].Tag("http.url"))

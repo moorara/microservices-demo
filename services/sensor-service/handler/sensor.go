@@ -1,15 +1,13 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
 	"github.com/moorara/microservices-demo/services/sensor-service/service"
-
-	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go"
 )
 
 type (
@@ -25,7 +23,6 @@ type (
 	postgresSensorHandler struct {
 		manager service.SensorManager
 		logger  log.Logger
-		tracer  opentracing.Tracer
 	}
 )
 
@@ -34,7 +31,6 @@ func NewSensorHandler(db service.DB, logger log.Logger, tracer opentracing.Trace
 	return &postgresSensorHandler{
 		manager: service.NewSensorManager(db, logger, tracer),
 		logger:  logger,
-		tracer:  tracer,
 	}
 }
 
@@ -56,7 +52,7 @@ func (h *postgresSensorHandler) PostSensor(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	sensor, err := h.manager.Create(context.Background(), s.SiteID, s.Name, s.Unit, s.MinSafe, s.MaxSafe)
+	sensor, err := h.manager.Create(r.Context(), s.SiteID, s.Name, s.Unit, s.MinSafe, s.MaxSafe)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -80,7 +76,7 @@ func (h *postgresSensorHandler) GetSensors(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	sensors, err := h.manager.All(context.Background(), siteID)
+	sensors, err := h.manager.All(r.Context(), siteID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -104,7 +100,7 @@ func (h *postgresSensorHandler) GetSensor(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	sensor, err := h.manager.Get(context.Background(), sensorID)
+	sensor, err := h.manager.Get(r.Context(), sensorID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -142,7 +138,7 @@ func (h *postgresSensorHandler) PutSensor(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	n, err := h.manager.Update(context.Background(), s)
+	n, err := h.manager.Update(r.Context(), s)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -165,7 +161,7 @@ func (h *postgresSensorHandler) DeleteSensor(w http.ResponseWriter, r *http.Requ
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	err := h.manager.Delete(context.Background(), id)
+	err := h.manager.Delete(r.Context(), id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
