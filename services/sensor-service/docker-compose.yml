@@ -25,6 +25,7 @@ services:
       - POSTGRES_URL=postgres://root:pass@postgres
   sensor-service-test:
     image: sensor-service-test
+    hostname: sensor-service-test
     container_name: sensor-service-test
     depends_on:
       - sensor-service

@@ -60,50 +60,56 @@
 | [Jaeger UI](http://localhost:16686)     |                                                                             |
 | [Træfik](http://localhost:1900)         |                                                                             |
 
-## Guides
+## Documentation
 
-### Resources
+### Docker
 
-  * **Docker**
-    - https://docs.docker.com/engine/reference/builder
-    - https://docs.docker.com/compose/compose-file
+  - https://docs.docker.com/engine/reference/builder
+  - https://docs.docker.com/compose/compose-file
 
-  * **Fluentd**
-    - https://docs.fluentd.org/v1.0/articles/life-of-a-fluentd-event
-    - https://docs.fluentd.org/v1.0/articles/config-file
-    - https://docs.fluentd.org/v1.0/articles/logging
+### Fluentd
 
-  * **ElasticSearch**
-    - https://www.elastic.co/guide/en/elasticsearch/reference/current/important-settings.html
+  - https://docs.fluentd.org/v1.0/articles/life-of-a-fluentd-event
+  - https://docs.fluentd.org/v1.0/articles/config-file
+  - https://docs.fluentd.org/v1.0/articles/logging
 
-  * **Kibana**
-    - https://www.elastic.co/guide/en/kibana/current/settings.html
+### ElasticSearch
 
-  * **Prometheus**
-    - https://prometheus.io/docs/concepts
-    - https://prometheus.io/docs/prometheus/latest/configuration/configuration
-    - https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules
-    - https://prometheus.io/docs/prometheus/latest/configuration/recording_rules
+  - https://www.elastic.co/guide/en/elasticsearch/reference/current/important-settings.html
 
-  * **Traefik**
-    - https://docs.traefik.io/basics
-    - https://docs.traefik.io/user-guide/examples
-    - https://docs.traefik.io/configuration/commons
-    - https://docs.traefik.io/configuration/api
-    - https://docs.traefik.io/configuration/metrics
-    - https://docs.traefik.io/configuration/entrypoints
-    - https://docs.traefik.io/configuration/backends/rest
-    - https://docs.traefik.io/configuration/backends/docker
+### Kibana
 
-  * **Caddy**
-    - https://caddyserver.com/docs/http-caddyfile
-    - https://caddyserver.com/docs/tls
-    - https://caddyserver.com/docs/redir
-    - https://caddyserver.com/docs/rewrite
-    - https://caddyserver.com/docs/proxy
+  - https://www.elastic.co/guide/en/kibana/current/settings.html
+
+### Prometheus
+
+  - https://prometheus.io/docs/concepts
+  - https://prometheus.io/docs/prometheus/latest/configuration/configuration
+  - https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules
+  - https://prometheus.io/docs/prometheus/latest/configuration/recording_rules
+
+### Traefik
+
+  - https://docs.traefik.io/basics
+  - https://docs.traefik.io/user-guide/examples
+  - https://docs.traefik.io/configuration/commons
+  - https://docs.traefik.io/configuration/api
+  - https://docs.traefik.io/configuration/metrics
+  - https://docs.traefik.io/configuration/entrypoints
+  - https://docs.traefik.io/configuration/backends/rest
+  - https://docs.traefik.io/configuration/backends/docker
+
+### Caddy
+
+  - https://caddyserver.com/docs/http-caddyfile
+  - https://caddyserver.com/docs/tls
+  - https://caddyserver.com/docs/redir
+  - https://caddyserver.com/docs/rewrite
+  - https://caddyserver.com/docs/proxy
   
-  * **OpenTracing & Jaeger**
-    - https://github.com/opentracing/specification
-    - https://www.jaegertracing.io/docs/architecture
-    - https://www.jaegertracing.io/docs/deployment
-    - https://www.jaegertracing.io/docs/monitoring
+### OpenTracing & Jaeger
+
+  - https://github.com/opentracing/specification
+  - https://www.jaegertracing.io/docs/architecture
+  - https://www.jaegertracing.io/docs/deployment
+  - https://www.jaegertracing.io/docs/monitoring
