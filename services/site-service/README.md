@@ -65,12 +65,22 @@ curl \
 | `make test`               | Runs the unit tests in containers          |
 | `make test-component`     | Runs the component tests in containers     |
 
-# Guides
+## Documentation
 
-  * **OpenTracing**
+  - https://lodash.com
+  - https://expressjs.com
+  - http://mongoosejs.com
+  - https://github.com/winstonjs/winston
+  - https://github.com/bithavoc/express-winston
+  - https://github.com/siimon/prom-client
+  - https://shouldjs.github.io
+  - https://mochajs.org
+  - http://sinonjs.org
+  - https://standardjs.com
 
-  * **Jaeger**
-    - https://www.jaegertracing.io/docs/client-libraries
-    - https://github.com/opentracing/opentracing-javascript
-    - https://github.com/jaegertracing/jaeger-client-node
-    - https://github.com/yurishkuro/opentracing-tutorial/tree/master/nodejs
+### OpenTracing & Jaeger
+
+  - https://github.com/opentracing/opentracing-javascript
+    - https://opentracing-javascript.surge.sh
+  - https://github.com/jaegertracing/jaeger-client-node
+  - https://github.com/yurishkuro/opentracing-tutorial/tree/master/nodejs

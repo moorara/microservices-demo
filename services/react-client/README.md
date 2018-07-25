@@ -21,7 +21,15 @@
 | `make up`                | Runs the service locally in containers                        |
 | `make down`              | Stops and removes local containers                            |
 
-## Guides
+## Documentation
+
+  - https://webpack.js.org
+  - https://babeljs.io
+  - https://eslint.org
+  - https://reactjs.org
+  - https://redux.js.org
+  - https://jestjs.io
+  - http://airbnb.io/enzyme
 
 ### Snapshot Testing
 

@@ -21,6 +21,7 @@ services:
       - MONGO_URL=mongodb://mongo:27017
   site-service-test:
     image: site-service-test
+    hostname: site-service-test
     container_name: site-service-test
     depends_on:
       - site-service

@@ -58,12 +58,19 @@ curl \
 | `make test-component`        | Runs the component tests                          |
 | `make test-component-docker` | Runs the component tests completely in containers |
 
-# Guides
+## Documentation
 
-  * **OpenTracing**
+  - https://gokit.io
+  - http://www.gorillatoolkit.org/pkg/mux
+  - https://godoc.org/github.com/prometheus/client_golang/prometheus
+  - https://godoc.org/github.com/stretchr/testify
 
-  * **Jaeger**
-    - https://www.jaegertracing.io/docs/client-libraries
-    - https://github.com/opentracing/opentracing-go
-    - https://github.com/jaegertracing/jaeger-client-go
-    - https://github.com/yurishkuro/opentracing-tutorial/tree/master/go
+### OpenTracing & Jaeger
+
+  - https://github.com/opentracing/opentracing-go
+    - https://godoc.org/github.com/opentracing/opentracing-go
+    - https://godoc.org/github.com/opentracing/opentracing-go/mocktracer
+  - https://github.com/jaegertracing/jaeger-client-go
+    - https://godoc.org/github.com/uber/jaeger-client-go
+    - https://godoc.org/github.com/uber/jaeger-client-go/config
+  - https://github.com/yurishkuro/opentracing-tutorial/tree/master/go
