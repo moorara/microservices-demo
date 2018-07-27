@@ -37,6 +37,7 @@
   - https://grpc.io/docs/tutorials
   - https://github.com/grpc/grpc-go
     - https://godoc.org/google.golang.org/grpc
+      - https://godoc.org/google.golang.org/grpc#Server.ServeHTTP
     - https://godoc.org/google.golang.org/grpc/metadata
 
 ### ArangoDB

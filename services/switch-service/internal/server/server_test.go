@@ -1,10 +1,16 @@
 package server
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net"
+	"net/http"
+	"net/http/httptest"
+	"syscall"
 	"testing"
+	"time"
 
 	"github.com/moorara/microservices-demo/services/switch-service/cmd/config"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
@@ -21,6 +27,25 @@ func (m *mockCloser) Close() error {
 	return m.CloseOutError
 }
 
+type mockHTTPServer struct {
+	ListenAndServeCalled   bool
+	ListenAndServeOutError error
+	ShutdownCalled         bool
+	ShutdownInContext      context.Context
+	ShutdownOutError       error
+}
+
+func (m *mockHTTPServer) ListenAndServe() error {
+	m.ListenAndServeCalled = true
+	return m.ListenAndServeOutError
+}
+
+func (m *mockHTTPServer) Shutdown(ctx context.Context) error {
+	m.ShutdownCalled = true
+	m.ShutdownInContext = ctx
+	return m.ShutdownOutError
+}
+
 type mockGRPCServer struct {
 	ServeCalled        bool
 	ServeInListener    net.Listener
@@ -29,6 +54,10 @@ type mockGRPCServer struct {
 }
 
 func (m *mockGRPCServer) Serve(listener net.Listener) error {
+	if listener != nil {
+		listener.Close()
+	}
+
 	m.ServeCalled = true
 	m.ServeInListener = listener
 	return m.ServeOutError
@@ -46,18 +75,20 @@ func TestNew(t *testing.T) {
 		{
 			"MTLSDisabled",
 			config.Config{
-				ServiceName: "go-service",
-				ServicePort: ":9999",
+				ServiceName:     "go-service",
+				ServiceGRPCPort: ":9998",
+				ServiceHTTPPort: ":9999",
 			},
 		},
 		{
 			"MTLSEnabled",
 			config.Config{
-				ServiceName:    "go-service",
-				ServicePort:    ":9999",
-				CAChainFile:    "../test/ca.chain.cert",
-				ServerCertFile: "../test/server.cert",
-				ServerKeyFile:  "../test/server.key",
+				ServiceName:     "go-service",
+				ServiceGRPCPort: ":9998",
+				ServiceHTTPPort: ":9999",
+				CAChainFile:     "../test/ca.chain.cert",
+				ServerCertFile:  "../test/server.cert",
+				ServerKeyFile:   "../test/server.key",
 			},
 		},
 	}
@@ -67,7 +98,7 @@ func TestNew(t *testing.T) {
 			server, err := New(tc.config)
 
 			assert.NoError(t, err)
-			assert.Equal(t, tc.config.ServicePort, server.port)
+			assert.Equal(t, tc.config.ServiceGRPCPort, server.grpcPort)
 			assert.NotNil(t, server.logger)
 			assert.NotNil(t, server.grpcServer)
 			assert.NotEmpty(t, server.closers)
@@ -75,16 +106,78 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func TestLiveHandler(t *testing.T) {
+	r := httptest.NewRequest("GET", "/live", nil)
+	w := httptest.NewRecorder()
+
+	server := &Server{}
+	server.LiveHandler(w, r)
+
+	assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+}
+
+func TestReadyHandler(t *testing.T) {
+	tests := []struct {
+		name               string
+		ready              bool
+		expectedStatusCode int
+	}{
+		{"Ready", true, http.StatusOK},
+		{"NotReady", false, http.StatusAccepted},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			r := httptest.NewRequest("GET", "/ready", nil)
+			w := httptest.NewRecorder()
+
+			server := &Server{ready: tc.ready}
+			server.ReadyHandler(w, r)
+
+			assert.Equal(t, tc.expectedStatusCode, w.Result().StatusCode)
+		})
+	}
+}
+
 func TestStart(t *testing.T) {
 	tests := []struct {
-		name       string
-		grpcServer *mockGRPCServer
+		name          string
+		signal        syscall.Signal
+		httpServer    *mockHTTPServer
+		grpcServer    *mockGRPCServer
+		expectedError error
 	}{
 		{
-			"GRPCServerError",
-			&mockGRPCServer{
-				ServeOutError: errors.New("error"),
+			"InterruptSignal",
+			syscall.SIGINT,
+			&mockHTTPServer{},
+			&mockGRPCServer{},
+			errors.New("interrupt"),
+		},
+		{
+			"TerminationSignal",
+			syscall.SIGTERM,
+			&mockHTTPServer{},
+			&mockGRPCServer{},
+			errors.New("terminated"),
+		},
+		{
+			"HTTPServerError",
+			0,
+			&mockHTTPServer{
+				ListenAndServeOutError: errors.New("http error"),
 			},
+			&mockGRPCServer{},
+			errors.New("http error"),
+		},
+		{
+			"GRPCServerError",
+			0,
+			&mockHTTPServer{},
+			&mockGRPCServer{
+				ServeOutError: errors.New("grpc error"),
+			},
+			errors.New("grpc error"),
 		},
 	}
 
@@ -93,48 +186,67 @@ func TestStart(t *testing.T) {
 			logger := log.NewVoidLogger()
 			server := &Server{
 				logger:     logger,
+				httpServer: tc.httpServer,
 				grpcServer: tc.grpcServer,
 			}
 
-			err := server.Start()
-			defer tc.grpcServer.ServeInListener.Close()
+			if tc.signal > 0 {
+				sig := tc.signal // to prevent data race
+				go func() {
+					time.Sleep(100 * time.Millisecond)
+					syscall.Kill(syscall.Getpid(), sig)
+				}()
+			}
 
-			assert.True(t, tc.grpcServer.ServeCalled)
-			assert.Equal(t, tc.grpcServer.ServeOutError, err)
+			err := server.Start()
+
+			fmt.Println(tc.signal)
+
+			assert.Equal(t, tc.expectedError, err)
 		})
 	}
 }
 
 func TestShutdown(t *testing.T) {
 	tests := []struct {
-		name        string
-		grpcServer  *mockGRPCServer
-		closers     []io.Closer
-		expectError bool
+		name       string
+		httpServer *mockHTTPServer
+		grpcServer *mockGRPCServer
+		closers    []io.Closer
 	}{
 		{
-			"NoCloser",
+			"HTTPServerError",
+			&mockHTTPServer{
+				ShutdownOutError: errors.New("http error"),
+			},
 			&mockGRPCServer{},
 			[]io.Closer{},
-			false,
-		},
-		{
-			"NoError",
-			&mockGRPCServer{},
-			[]io.Closer{
-				&mockCloser{},
-				&mockCloser{},
-			},
-			false,
 		},
 		{
 			"CloserError",
+			&mockHTTPServer{},
 			&mockGRPCServer{},
 			[]io.Closer{
 				&mockCloser{},
-				&mockCloser{CloseOutError: errors.New("error")},
+				&mockCloser{
+					CloseOutError: errors.New("error"),
+				},
 			},
-			true,
+		},
+		{
+			"NoCloser",
+			&mockHTTPServer{},
+			&mockGRPCServer{},
+			[]io.Closer{},
+		},
+		{
+			"NoError",
+			&mockHTTPServer{},
+			&mockGRPCServer{},
+			[]io.Closer{
+				&mockCloser{},
+				&mockCloser{},
+			},
 		},
 	}
 
@@ -143,18 +255,15 @@ func TestShutdown(t *testing.T) {
 			logger := log.NewVoidLogger()
 			server := &Server{
 				logger:     logger,
+				httpServer: tc.httpServer,
 				grpcServer: tc.grpcServer,
 				closers:    tc.closers,
 			}
 
-			err := server.Shutdown()
+			server.Shutdown()
 
+			assert.True(t, tc.httpServer.ShutdownCalled)
 			assert.True(t, tc.grpcServer.GracefulStopCalled)
-			if tc.expectError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
 		})
 	}
 }

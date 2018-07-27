@@ -2,7 +2,8 @@ package config
 
 const (
 	defaultServiceName     = "switch-service"
-	defaultServicePort     = ":4030"
+	defaultServiceGRPCPort = ":4030"
+	defaultServiceHTTPPort = ":4031"
 	defaultLogLevel        = "info"
 	defaultJaegerAgentAddr = "localhost:6831"
 	defaultJaegerLogSpans  = false
@@ -11,7 +12,8 @@ const (
 // Config defines the schema for configurations
 type Config struct {
 	ServiceName     string
-	ServicePort     string
+	ServiceGRPCPort string
+	ServiceHTTPPort string
 	LogLevel        string
 	JaegerAgentAddr string
 	JaegerLogSpans  bool
@@ -24,7 +26,8 @@ type Config struct {
 func New() Config {
 	return Config{
 		ServiceName:     defaultServiceName,
-		ServicePort:     defaultServicePort,
+		ServiceGRPCPort: defaultServiceGRPCPort,
+		ServiceHTTPPort: defaultServiceHTTPPort,
 		LogLevel:        defaultLogLevel,
 		JaegerAgentAddr: defaultJaegerAgentAddr,
 		JaegerLogSpans:  defaultJaegerLogSpans,

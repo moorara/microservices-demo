@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -8,10 +9,12 @@ import (
 	"io"
 	"io/ioutil"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/gorilla/mux"
 	"github.com/moorara/microservices-demo/services/switch-service/cmd/config"
 	"github.com/moorara/microservices-demo/services/switch-service/cmd/version"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
@@ -24,6 +27,12 @@ import (
 )
 
 type (
+	// HTTPServer is the interface for http.Server
+	HTTPServer interface {
+		ListenAndServe() error
+		Shutdown(context.Context) error
+	}
+
 	// GRPCServer is the interface for grpc.Server
 	GRPCServer interface {
 		Serve(net.Listener) error
@@ -32,10 +41,13 @@ type (
 
 	// Server is the server for services
 	Server struct {
-		port       string
-		logger     *log.Logger
+		ready      bool
+		httpPort   string
+		httpServer HTTPServer
+		grpcPort   string
 		grpcServer GRPCServer
 		closers    []io.Closer
+		logger     *log.Logger
 	}
 )
 
@@ -83,18 +95,45 @@ func New(config config.Config) (*Server, error) {
 	proto.RegisterSwitchServiceServer(grpcServer, switchService)
 
 	server := &Server{
-		port:       config.ServicePort,
-		logger:     logger,
+		httpPort:   config.ServiceHTTPPort,
+		httpServer: nil,
+		grpcPort:   config.ServiceGRPCPort,
 		grpcServer: grpcServer,
 		closers:    []io.Closer{tracerCloser},
+		logger:     logger,
+	}
+
+	httpRouter := mux.NewRouter()
+	httpRouter.NotFoundHandler = http.NotFoundHandler()
+	httpRouter.Methods("GET").Path("/live").HandlerFunc(server.LiveHandler)
+	httpRouter.Methods("GET").Path("/ready").HandlerFunc(server.ReadyHandler)
+	httpRouter.Methods("GET").Path("/metrics").Handler(metrics.Handler())
+
+	server.httpServer = &http.Server{
+		Addr:    config.ServiceHTTPPort,
+		Handler: httpRouter,
 	}
 
 	return server, nil
 }
 
+// LiveHandler implements liveness prob
+func (s *Server) LiveHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+// ReadyHandler implements readiness prob
+func (s *Server) ReadyHandler(w http.ResponseWriter, r *http.Request) {
+	if s.ready {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusAccepted)
+	}
+}
+
 // Start starts listening
 func (s *Server) Start() error {
-	listener, err := net.Listen("tcp", s.port)
+	listener, err := net.Listen("tcp", s.grpcPort)
 	if err != nil {
 		return err
 	}
@@ -107,8 +146,18 @@ func (s *Server) Start() error {
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 		sig := <-sigs
 
-		s.Shutdown()
-		errs <- fmt.Errorf("%s", sig)
+		errs <- errors.New(sig.String())
+	}()
+
+	// Listen for http requests
+	go func() {
+		s.logger.Info("message", fmt.Sprintf("http server listening on port %s ...", s.httpPort))
+
+		err := s.httpServer.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			s.logger.Error("message", fmt.Sprintf("http server errored: %s", err.Error()))
+			errs <- err
+		}
 	}()
 
 	// Listen for gRPC requests
@@ -118,33 +167,36 @@ func (s *Server) Start() error {
 			"revision", version.Revision,
 			"branch", version.Branch,
 			"buildTime", version.BuildTime,
-			"message", fmt.Sprintf("gRPC server listening on port %s ...", s.port),
+			"message", fmt.Sprintf("gRPC server listening on port %s ...", s.grpcPort),
 		)
 
+		// Determine if service is ready!
+		s.ready = true
 		err := s.grpcServer.Serve(listener)
+		s.ready = false
+
 		if err != nil {
 			s.logger.Error("message", fmt.Sprintf("gRPC server errored: %s", err.Error()))
 			errs <- err
 		}
 	}()
 
-	return <-errs
+	err = <-errs
+	s.Shutdown()
+
+	return err
 }
 
 // Shutdown gracefully shutdowns the server
-func (s *Server) Shutdown() error {
-	// https://godoc.org/google.golang.org/grpc#Server.GracefulStop
-	s.grpcServer.GracefulStop()
+func (s *Server) Shutdown() {
+	ctx := context.Background()
+
+	s.httpServer.Shutdown(ctx)  // https://godoc.org/net/http#Server.Shutdown
+	s.grpcServer.GracefulStop() // https://godoc.org/google.golang.org/grpc#Server.GracefulStop
 
 	for _, closer := range s.closers {
-		if err := closer.Close(); err != nil {
-			return err
-		}
+		closer.Close()
 	}
 
-	s.logger.Error(
-		"message", "server was gracefully shutdown",
-	)
-
-	return nil
+	s.logger.Info("message", "server was gracefully shutdown.")
 }

@@ -17,6 +17,7 @@ services:
       - arango
     ports:
       - "4030:4030"
+      - "4031:4031"
     environment:
       - LOG_LEVEL=debug
   switch-service-test:
