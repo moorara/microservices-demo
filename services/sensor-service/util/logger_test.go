@@ -13,18 +13,10 @@ func TestNewLogger(t *testing.T) {
 		serviceName string
 		loggerName  string
 	}{
-		{
-			"Debug", "debug", "job-service", "go-kit",
-		},
-		{
-			"Info", "info", "auth-service", "go-kit",
-		},
-		{
-			"Warn", "warn", "gateway-service", "go-kit",
-		},
-		{
-			"Error", "error", "storage-service", "go-kit",
-		},
+		{"Debug", "debug", "job-service", "go-kit"},
+		{"Info", "info", "auth-service", "go-kit"},
+		{"Warn", "warn", "gateway-service", "go-kit"},
+		{"Error", "error", "storage-service", "go-kit"},
 	}
 
 	for _, tc := range tests {

@@ -26,17 +26,18 @@ func Test(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			handler := func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
+				w.WriteHeader(tc.statusCode)
 			}
 
 			wrapperHandler := func(w http.ResponseWriter, r *http.Request) {
 				rw := NewResponseWriter(w)
 				handler(rw, r)
-				assert.Equal(t, 200, rw.StatusCode())
-				assert.Equal(t, "2xx", rw.StatusClass())
+
+				assert.Equal(t, tc.statusCode, rw.StatusCode())
+				assert.Equal(t, tc.statusClass, rw.StatusClass())
 			}
 
-			r := httptest.NewRequest("GET", "http://service/resource", nil)
+			r := httptest.NewRequest("GET", "/", nil)
 			w := httptest.NewRecorder()
 			wrapperHandler(w, r)
 		})
