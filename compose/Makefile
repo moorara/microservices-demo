@@ -5,9 +5,10 @@ images:
 	@ cd ../images && make all
 
 services:
+	@ cd ../services/react-client && make docker
 	@ cd ../services/site-service && make docker
 	@ cd ../services/sensor-service && make docker
-	@ cd ../services/react-client && make docker
+	@ cd ../services/switch-service && make docker
 
 
 up: images services

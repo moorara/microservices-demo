@@ -349,3 +349,24 @@ services:
       traefik.backend: "sensor-service"
       traefik.frontend.rule: "Host:traefik,localhost; PathPrefix:/api/v1/sensors; ReplacePathRegex: ^/api/(.*) /$$1"
     <<: *logdriver
+  switch-service:
+    image: moorara/switch-service:latest
+    hostname: switch-service
+    container_name: switch-service
+    depends_on:
+      - arango
+      - fluentd
+      - jaeger
+    ports:
+      - "4030:4030"
+      - "4031:4031"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=switch-service
+      - SERVICE_TAGS=monitor
+      - JAEGER_AGENT_ADDR=jaeger:6831
+    networks:
+      - local
+    labels:
+      <<: *labels
+    <<: *logdriver
