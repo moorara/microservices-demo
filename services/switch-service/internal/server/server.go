@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -15,13 +14,11 @@ import (
 	"syscall"
 
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/services/switch-service/cmd/config"
-	"github.com/moorara/microservices-demo/services/switch-service/cmd/version"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/service"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/metrics"
-	"github.com/moorara/microservices-demo/services/switch-service/pkg/trace"
+	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -41,32 +38,27 @@ type (
 
 	// Server is the server for services
 	Server struct {
-		ready      bool
+		logger     *log.Logger
 		httpPort   string
 		httpServer HTTPServer
 		grpcPort   string
 		grpcServer GRPCServer
-		closers    []io.Closer
-		logger     *log.Logger
+		ready      bool
 	}
 )
 
 // New creates a new server
-func New(config config.Config) (*Server, error) {
-	logger := log.NewLogger(config.ServiceName, "singleton", config.LogLevel)
-	metrics := metrics.NewMetrics(config.ServiceName)
-
-	sampler := trace.NewConstSampler()
-	reporter := trace.NewReporter(config.JaegerLogSpans, config.JaegerAgentAddr)
-	tracer, tracerCloser := trace.NewTracer(config.ServiceName, sampler, reporter, logger.Logger, metrics.Registry)
-
-	switchService := service.NewSwitchService(logger, metrics, tracer)
+func New(
+	httpPort, grpcPort string,
+	caChainFile, serverCertFile, serverKeyFile string,
+	logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer,
+) (*Server, error) {
 
 	options := []grpc.ServerOption{}
 
 	// Configure MTLS
-	if config.CAChainFile != "" && config.ServerCertFile != "" && config.ServerKeyFile != "" {
-		ca, err := ioutil.ReadFile(config.CAChainFile)
+	if caChainFile != "" && serverCertFile != "" && serverKeyFile != "" {
+		ca, err := ioutil.ReadFile(caChainFile)
 		if err != nil {
 			return nil, err
 		}
@@ -76,7 +68,7 @@ func New(config config.Config) (*Server, error) {
 			return nil, errors.New("Failed to append certificate authority")
 		}
 
-		cert, err := tls.LoadX509KeyPair(config.ServerCertFile, config.ServerKeyFile)
+		cert, err := tls.LoadX509KeyPair(serverCertFile, serverKeyFile)
 		if err != nil {
 			return nil, err
 		}
@@ -92,15 +84,15 @@ func New(config config.Config) (*Server, error) {
 	}
 
 	grpcServer := grpc.NewServer(options...)
+	switchService := service.NewSwitchService(logger, metrics, tracer)
 	proto.RegisterSwitchServiceServer(grpcServer, switchService)
 
 	server := &Server{
-		httpPort:   config.ServiceHTTPPort,
-		httpServer: nil,
-		grpcPort:   config.ServiceGRPCPort,
-		grpcServer: grpcServer,
-		closers:    []io.Closer{tracerCloser},
 		logger:     logger,
+		httpPort:   httpPort,
+		httpServer: nil,
+		grpcPort:   grpcPort,
+		grpcServer: grpcServer,
 	}
 
 	httpRouter := mux.NewRouter()
@@ -110,7 +102,7 @@ func New(config config.Config) (*Server, error) {
 	httpRouter.Methods("GET").Path("/metrics").Handler(metrics.Handler())
 
 	server.httpServer = &http.Server{
-		Addr:    config.ServiceHTTPPort,
+		Addr:    httpPort,
 		Handler: httpRouter,
 	}
 
@@ -162,13 +154,7 @@ func (s *Server) Start() error {
 
 	// Listen for gRPC requests
 	go func() {
-		s.logger.Info(
-			"version", version.Version,
-			"revision", version.Revision,
-			"branch", version.Branch,
-			"buildTime", version.BuildTime,
-			"message", fmt.Sprintf("gRPC server listening on port %s ...", s.grpcPort),
-		)
+		s.logger.Info("message", fmt.Sprintf("gRPC server listening on port %s ...", s.grpcPort))
 
 		// Determine if service is ready!
 		s.ready = true
@@ -193,10 +179,6 @@ func (s *Server) Shutdown() {
 
 	s.httpServer.Shutdown(ctx)  // https://godoc.org/net/http#Server.Shutdown
 	s.grpcServer.GracefulStop() // https://godoc.org/google.golang.org/grpc#Server.GracefulStop
-
-	for _, closer := range s.closers {
-		closer.Close()
-	}
 
 	s.logger.Info("message", "server was gracefully shutdown.")
 }

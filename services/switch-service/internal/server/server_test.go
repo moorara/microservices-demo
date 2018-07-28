@@ -3,8 +3,6 @@ package server
 import (
 	"context"
 	"errors"
-	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -12,20 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/moorara/microservices-demo/services/switch-service/cmd/config"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
+	"github.com/moorara/microservices-demo/services/switch-service/pkg/metrics"
+	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
-
-type mockCloser struct {
-	CloseCalled   bool
-	CloseOutError error
-}
-
-func (m *mockCloser) Close() error {
-	m.CloseCalled = true
-	return m.CloseOutError
-}
 
 type mockHTTPServer struct {
 	ListenAndServeCalled   bool
@@ -69,39 +58,45 @@ func (m *mockGRPCServer) GracefulStop() {
 
 func TestNew(t *testing.T) {
 	tests := []struct {
-		name   string
-		config config.Config
+		name           string
+		httpPort       string
+		grpcPort       string
+		caChainFile    string
+		serverCertFile string
+		serverKeyFile  string
 	}{
 		{
-			"MTLSDisabled",
-			config.Config{
-				ServiceName:     "go-service",
-				ServiceGRPCPort: ":9998",
-				ServiceHTTPPort: ":9999",
-			},
+			name:     "MTLSDisabled",
+			httpPort: ":9998",
+			grpcPort: ":9999",
 		},
 		{
-			"MTLSEnabled",
-			config.Config{
-				ServiceName:     "go-service",
-				ServiceGRPCPort: ":9998",
-				ServiceHTTPPort: ":9999",
-				CAChainFile:     "../test/ca.chain.cert",
-				ServerCertFile:  "../test/server.cert",
-				ServerKeyFile:   "../test/server.key",
-			},
+			name:           "MTLSEnabled",
+			httpPort:       ":9998",
+			grpcPort:       ":9999",
+			caChainFile:    "../test/ca.chain.cert",
+			serverCertFile: "../test/server.cert",
+			serverKeyFile:  "../test/server.key",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			server, err := New(tc.config)
+			logger := log.NewVoidLogger()
+			metrics := metrics.NewVoidMetrics()
+			tracer := mocktracer.New()
+			server, err := New(
+				tc.httpPort, tc.grpcPort,
+				tc.caChainFile, tc.serverCertFile, tc.serverKeyFile,
+				logger, metrics, tracer,
+			)
 
 			assert.NoError(t, err)
-			assert.Equal(t, tc.config.ServiceGRPCPort, server.grpcPort)
 			assert.NotNil(t, server.logger)
+			assert.Equal(t, tc.httpPort, server.httpPort)
+			assert.NotNil(t, server.httpServer)
+			assert.Equal(t, tc.grpcPort, server.grpcPort)
 			assert.NotNil(t, server.grpcServer)
-			assert.NotEmpty(t, server.closers)
 		})
 	}
 }
@@ -200,8 +195,6 @@ func TestStart(t *testing.T) {
 
 			err := server.Start()
 
-			fmt.Println(tc.signal)
-
 			assert.Equal(t, tc.expectedError, err)
 		})
 	}
@@ -212,7 +205,6 @@ func TestShutdown(t *testing.T) {
 		name       string
 		httpServer *mockHTTPServer
 		grpcServer *mockGRPCServer
-		closers    []io.Closer
 	}{
 		{
 			"HTTPServerError",
@@ -220,33 +212,11 @@ func TestShutdown(t *testing.T) {
 				ShutdownOutError: errors.New("http error"),
 			},
 			&mockGRPCServer{},
-			[]io.Closer{},
-		},
-		{
-			"CloserError",
-			&mockHTTPServer{},
-			&mockGRPCServer{},
-			[]io.Closer{
-				&mockCloser{},
-				&mockCloser{
-					CloseOutError: errors.New("error"),
-				},
-			},
-		},
-		{
-			"NoCloser",
-			&mockHTTPServer{},
-			&mockGRPCServer{},
-			[]io.Closer{},
 		},
 		{
 			"NoError",
 			&mockHTTPServer{},
 			&mockGRPCServer{},
-			[]io.Closer{
-				&mockCloser{},
-				&mockCloser{},
-			},
 		},
 	}
 
@@ -257,7 +227,6 @@ func TestShutdown(t *testing.T) {
 				logger:     logger,
 				httpServer: tc.httpServer,
 				grpcServer: tc.grpcServer,
-				closers:    tc.closers,
 			}
 
 			server.Shutdown()
