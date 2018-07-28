@@ -1,0 +1,68 @@
+docker_tag ?= latest
+docker_image ?= moorara/switch-service
+docker_test_image ?= switch-service-test
+
+path := $(shell pwd)
+docker_dir := /tmp/workspace
+coverage_dir := $(path)/coverage
+
+
+clean:
+	@ rm -rf $(coverage_dir)
+
+dep:
+	@ dep ensure -update
+
+proto:
+	@ ./scripts/proto-gen.sh
+
+run:
+	@ go run cmd/main.go
+
+build:
+	@ ./scripts/build.sh ./cmd/main.go ./switch-service
+
+docker:
+	@ cp -r ../../.git .git
+	@ docker build -t $(docker_image):$(docker_tag) .
+	@ rm -rf .git
+
+docker-test:
+	@ docker build \
+		--file Dockerfile.test \
+		--tag $(docker_test_image) .
+
+save-images:
+	@ mkdir -p $(docker_dir)
+	@ docker image save -o $(docker_dir)/docker.tar $(docker_image):$(docker_tag)
+	@ docker image save -o $(docker_dir)/docker-test.tar $(docker_test_image)
+
+up:
+	@ VERSION=$(docker_tag) \
+	  docker-compose up -d switch-service
+
+down:
+	@ VERSION=$(docker_tag) \
+	  docker-compose down
+
+test:
+	@ go test -v -race ./...
+
+coverage:
+	@ ./scripts/test-unit-cover.sh
+
+test-component: # docker up
+	@ COMPONENT_TEST=true go test -v ./test
+
+test-component-docker: # docker docker-test
+	@ VERSION=$(docker_tag) \
+	  docker-compose run switch-service-test make test-component && \
+		docker container logs switch-service | jq . > component-tests.log && \
+		docker-compose down
+
+
+.PHONY: clean dep
+.PHONY: proto run build
+.PHONY: docker docker-test save-images
+.PHONY: up down
+.PHONY: test coverage test-component test-component-docker
