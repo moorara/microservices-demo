@@ -16,7 +16,7 @@ This demo application covers the following topics:
   * [react-client](./services/react-client)
   * [site-service](./services/site-service)
   * [sensor-service](./services/sensor-service)
-  * [switch-client](./services/react-client)
+  * [switch-service](./services/react-client)
 
 ## Up & Running
 
