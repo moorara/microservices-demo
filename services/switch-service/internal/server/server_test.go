@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-	"github.com/moorara/microservices-demo/services/switch-service/pkg/metrics"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
@@ -83,7 +83,7 @@ func TestNew(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
-			metrics := metrics.NewVoidMetrics()
+			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			server, err := New(
 				tc.httpPort, tc.grpcPort,

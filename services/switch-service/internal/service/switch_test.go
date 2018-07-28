@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-	"github.com/moorara/microservices-demo/services/switch-service/pkg/metrics"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
@@ -36,7 +36,7 @@ func TestNewSwitchService(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
-			metrics := metrics.NewVoidMetrics()
+			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := NewSwitchService(logger, metrics, tracer)
 
@@ -64,7 +64,7 @@ func TestInstallSwitch(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
-			metrics := metrics.NewVoidMetrics()
+			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
 				logger:  logger,
@@ -96,7 +96,7 @@ func TestRemoveSwitch(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
-			metrics := metrics.NewVoidMetrics()
+			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
 				logger:  logger,
@@ -128,7 +128,7 @@ func TestGetSwitch(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
-			metrics := metrics.NewVoidMetrics()
+			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
 				logger:  logger,
@@ -167,7 +167,7 @@ func TestGetSwitches(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
-			metrics := metrics.NewVoidMetrics()
+			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
 				logger:  logger,
@@ -200,7 +200,7 @@ func TestSetSwitch(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
-			metrics := metrics.NewVoidMetrics()
+			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
 				logger:  logger,

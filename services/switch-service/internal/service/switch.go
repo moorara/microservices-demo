@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-	"github.com/moorara/microservices-demo/services/switch-service/pkg/metrics"
 	"github.com/opentracing/opentracing-go"
 )
 

@@ -14,10 +14,10 @@ import (
 	"syscall"
 
 	"github.com/gorilla/mux"
+	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/service"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-	"github.com/moorara/microservices-demo/services/switch-service/pkg/metrics"
 	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

@@ -6,9 +6,9 @@ import (
 	gotoConfig "github.com/moorara/goto/config"
 	"github.com/moorara/microservices-demo/services/switch-service/cmd/config"
 	"github.com/moorara/microservices-demo/services/switch-service/cmd/version"
+	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/server"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-	"github.com/moorara/microservices-demo/services/switch-service/pkg/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/trace"
 )
 
@@ -17,7 +17,7 @@ func main() {
 	gotoConfig.Pick(&config)
 
 	logger := log.NewLogger(config.ServiceName, "singleton", config.LogLevel)
-	metrics := metrics.NewMetrics(config.ServiceName)
+	metrics := metrics.New(config.ServiceName)
 
 	sampler := trace.NewConstSampler()
 	reporter := trace.NewReporter(config.JaegerLogSpans, config.JaegerAgentAddr)
