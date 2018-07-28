@@ -6,20 +6,22 @@ This demo application covers the following topics:
 
   * front-end client
   * back-end services
-  * metrics, logging, and tracing
+  * REST, gRPC, and GraphQL APIs
+  * logging, metrics, and tracing
   * api gateway and web gateway
   * containerization and orchestration
 
 ## Services
 
-  * [site-service](https://github.com/moorara/microservices-demo/tree/master/services/site-service)
-  * [sensor-service](https://github.com/moorara/microservices-demo/tree/master/services/sensor-service)
-  * [react-client](https://github.com/moorara/microservices-demo/tree/master/services/react-client)
+  * [react-client](./services/react-client)
+  * [site-service](./services/site-service)
+  * [sensor-service](./services/sensor-service)
+  * [switch-service](./services/switch-service)
 
 ## Up & Running
 
-  * [docker-compose](https://github.com/moorara/microservices-demo/tree/master/compose)
-  * [docker swarm](https://github.com/moorara/microservices-demo/tree/master/swarm)
+  * [docker-compose](./compose)
+  * [docker swarm](./swarm)
 
 
 [circleci-url]: https://circleci.com/gh/moorara/microservices-demo/tree/master
