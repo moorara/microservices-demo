@@ -43,7 +43,7 @@
 
 [[constraint]]
   name = "github.com/moorara/goto"
-  version = "0.1.2"
+  version = "0.1.3"
 
 [[constraint]]
   name = "github.com/opentracing/opentracing-go"
