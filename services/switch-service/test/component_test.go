@@ -3,8 +3,10 @@ package test
 import (
 	"context"
 	"io"
+	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/moorara/microservices-demo/services/switch-service/internal/client"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
@@ -16,12 +18,18 @@ func componentTest() bool {
 	return value == "true" || value == "TRUE"
 }
 
-func serviceAddr() string {
-	serviceAddr := os.Getenv("SERVICE_ADDR")
-	if serviceAddr == "" {
-		serviceAddr = "localhost:4030"
+func serviceConfig() (string, string) {
+	grpcAddr := os.Getenv("SERVICE_GRPC_ADDR")
+	if grpcAddr == "" {
+		grpcAddr = "localhost:4030"
 	}
-	return serviceAddr
+
+	httpAddr := os.Getenv("SERVICE_HTTP_ADDR")
+	if httpAddr == "" {
+		httpAddr = "http://localhost:4031"
+	}
+
+	return grpcAddr, httpAddr
 }
 
 func TestLive(t *testing.T) {
@@ -29,6 +37,18 @@ func TestLive(t *testing.T) {
 		t.SkipNow()
 	}
 
+	_, httpAddr := serviceConfig()
+
+	for i := 0; i < 30; i++ {
+		resp, err := http.Get(httpAddr + "/live")
+		if err == nil && resp.StatusCode == http.StatusOK {
+			resp.Body.Close()
+			return
+		}
+		time.Sleep(time.Second)
+	}
+
+	assert.Fail(t, "timeout")
 }
 
 func TestReady(t *testing.T) {
@@ -36,6 +56,18 @@ func TestReady(t *testing.T) {
 		t.SkipNow()
 	}
 
+	_, httpAddr := serviceConfig()
+
+	for i := 0; i < 30; i++ {
+		resp, err := http.Get(httpAddr + "/ready")
+		if err == nil && resp.StatusCode == http.StatusOK {
+			resp.Body.Close()
+			return
+		}
+		time.Sleep(time.Second)
+	}
+
+	assert.Fail(t, "timeout")
 }
 
 func TestContract(t *testing.T) {
@@ -43,8 +75,8 @@ func TestContract(t *testing.T) {
 		t.SkipNow()
 	}
 
-	serviceAddr := serviceAddr()
-	client, conn, err := client.New(serviceAddr)
+	grpcAddr, _ := serviceConfig()
+	client, conn, err := client.New(grpcAddr)
 	assert.NoError(t, err)
 	defer conn.Close()
 

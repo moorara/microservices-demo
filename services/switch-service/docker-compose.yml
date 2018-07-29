@@ -20,11 +20,27 @@ services:
       - "4031:4031"
     environment:
       - LOG_LEVEL=debug
-  switch-service-test:
+      - ARANGO_ENDPOINTS=http://arango:8529
+      - ARANGO_PASSWORD=pass
+
+  integration-test:
     image: switch-service-test
-    hostname: switch-service-test
-    container_name: switch-service-test
+    hostname: integration-test
+    container_name: integration-test
+    depends_on:
+      - arango
+    environment:
+      - ARANGO_ADDR=http://arango:8529
+      - ARANGO_PASSWORD=pass
+    command: make test-integration
+
+  component-test:
+    image: switch-service-test
+    hostname: component-test
+    container_name: component-test
     depends_on:
       - switch-service
     environment:
-      - SERVICE_ADDR=switch-service:4030
+      - SERVICE_GRPC_ADDR=switch-service:4030
+      - SERVICE_HTTP_ADDR=http://switch-service:4031
+    command: make test-component

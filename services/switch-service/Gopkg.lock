@@ -3,6 +3,27 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:1e5cf0cedd1c775de16979d7fb11713588ca8bd5e554796c7591599f7c5fde81"
+  name = "github.com/arangodb/go-driver"
+  packages = [
+    ".",
+    "cluster",
+    "http",
+    "util",
+  ]
+  pruneopts = "UT"
+  revision = "2b539b8ac3117b3dbc3d258301352007e833f14b"
+
+[[projects]]
+  branch = "master"
+  digest = "1:c9744a92a0c23a98b8c791b266e7d4a587a48f0dcde41c0204f50f5c1dc3a4c8"
+  name = "github.com/arangodb/go-velocypack"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c899a2a2271f97f297fd70afd031e5ffb9497f83"
+
+[[projects]]
+  branch = "master"
   digest = "1:d6afaeed1502aa28e80a4ed0981d570ad91b2579193404256ce672ed0a609e0d"
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
@@ -316,6 +337,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/arangodb/go-driver",
+    "github.com/arangodb/go-driver/http",
     "github.com/go-kit/kit/log",
     "github.com/go-kit/kit/log/level",
     "github.com/golang/protobuf/proto",

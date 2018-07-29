@@ -4,22 +4,24 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-	"github.com/moorara/microservices-demo/services/switch-service/pkg/metrics"
 	"github.com/opentracing/opentracing-go"
 )
 
 // SwitchService implements proto.SwitchServiceServer
 type SwitchService struct {
+	arango  ArangoService
 	logger  *log.Logger
 	metrics *metrics.Metrics
 	tracer  opentracing.Tracer
 }
 
 // NewSwitchService creates a new switch service
-func NewSwitchService(logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) proto.SwitchServiceServer {
+func NewSwitchService(arango ArangoService, logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) proto.SwitchServiceServer {
 	return &SwitchService{
+		arango:  arango,
 		logger:  logger,
 		metrics: metrics,
 		tracer:  tracer,

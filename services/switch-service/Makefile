@@ -51,12 +51,20 @@ test:
 coverage:
 	@ ./scripts/test-unit-cover.sh
 
+test-integration: # docker up
+	@ INTEGRATION_TEST=true go test -v ./test/integration_test.go
+
 test-component: # docker up
-	@ COMPONENT_TEST=true go test -v ./test
+	@ COMPONENT_TEST=true go test -v ./test/component_test.go
+
+test-integration-docker: # docker docker-test
+	@ VERSION=$(docker_tag) \
+	  docker-compose run integration-test && \
+		docker-compose down
 
 test-component-docker: # docker docker-test
 	@ VERSION=$(docker_tag) \
-	  docker-compose run switch-service-test make test-component && \
+	  docker-compose run component-test && \
 		docker container logs switch-service | jq . > component-tests.log && \
 		docker-compose down
 
@@ -65,4 +73,4 @@ test-component-docker: # docker docker-test
 .PHONY: proto run build
 .PHONY: docker docker-test save-images
 .PHONY: up down
-.PHONY: test coverage test-component test-component-docker
+.PHONY: test coverage test-integration test-component test-integration-docker test-component-docker

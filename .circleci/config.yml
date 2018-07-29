@@ -189,6 +189,24 @@ jobs:
           path: services/switch-service/coverage
           prefix: coverage
 
+  switch-service-integration-tests:
+    <<: *go-job-init
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Load Docker Images
+          command: |
+            docker image load -i /tmp/workspace/docker.tar
+            docker image load -i /tmp/workspace/docker-test.tar
+      - run:
+          name: Integration Testing
+          working_directory: services/switch-service
+          command: make test-integration-docker
+
   switch-service-component-tests:
     <<: *go-job-init
     steps:
@@ -285,6 +303,9 @@ workflows:
     jobs:
       - switch-service-build-images
       - switch-service-unit-tests
+      - switch-service-integration-tests:
+          requires:
+            - switch-service-build-images
       - switch-service-component-tests:
           requires:
             - switch-service-build-images
