@@ -28,9 +28,13 @@ func (m *mockGetSwitchesServer) Send(sw *proto.Switch) error {
 
 func TestNewSwitchService(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
+		arango ArangoService
 	}{
-		{"Default"},
+		{
+			"Default",
+			&MockArangoService{},
+		},
 	}
 
 	for _, tc := range tests {
@@ -38,7 +42,7 @@ func TestNewSwitchService(t *testing.T) {
 			logger := log.NewVoidLogger()
 			metrics := metrics.Mock()
 			tracer := mocktracer.New()
-			service := NewSwitchService(logger, metrics, tracer)
+			service := NewSwitchService(tc.arango, logger, metrics, tracer)
 
 			assert.NotNil(t, service)
 		})
@@ -47,11 +51,13 @@ func TestNewSwitchService(t *testing.T) {
 
 func TestInstallSwitch(t *testing.T) {
 	tests := []struct {
-		name string
-		req  *proto.InstallSwitchRequest
+		name   string
+		arango ArangoService
+		req    *proto.InstallSwitchRequest
 	}{
 		{
 			"Simple",
+			&MockArangoService{},
 			&proto.InstallSwitchRequest{
 				SiteId: "1111-1111",
 				Name:   "Light",
@@ -67,6 +73,7 @@ func TestInstallSwitch(t *testing.T) {
 			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
+				arango:  tc.arango,
 				logger:  logger,
 				metrics: metrics,
 				tracer:  tracer,
@@ -82,11 +89,13 @@ func TestInstallSwitch(t *testing.T) {
 
 func TestRemoveSwitch(t *testing.T) {
 	tests := []struct {
-		name string
-		req  *proto.RemoveSwitchRequest
+		name   string
+		arango ArangoService
+		req    *proto.RemoveSwitchRequest
 	}{
 		{
 			"Simple",
+			&MockArangoService{},
 			&proto.RemoveSwitchRequest{
 				Id: "aaaa-aaaa",
 			},
@@ -99,6 +108,7 @@ func TestRemoveSwitch(t *testing.T) {
 			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
+				arango:  tc.arango,
 				logger:  logger,
 				metrics: metrics,
 				tracer:  tracer,
@@ -114,11 +124,13 @@ func TestRemoveSwitch(t *testing.T) {
 
 func TestGetSwitch(t *testing.T) {
 	tests := []struct {
-		name string
-		req  *proto.GetSwitchRequest
+		name   string
+		arango ArangoService
+		req    *proto.GetSwitchRequest
 	}{
 		{
 			"Simple",
+			&MockArangoService{},
 			&proto.GetSwitchRequest{
 				Id: "aaaa-aaaa",
 			},
@@ -131,6 +143,7 @@ func TestGetSwitch(t *testing.T) {
 			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
+				arango:  tc.arango,
 				logger:  logger,
 				metrics: metrics,
 				tracer:  tracer,
@@ -147,18 +160,20 @@ func TestGetSwitch(t *testing.T) {
 func TestGetSwitches(t *testing.T) {
 	tests := []struct {
 		name                  string
+		arango                ArangoService
 		req                   *proto.GetSwitchesRequest
 		stream                *mockGetSwitchesServer
 		expectedSendCallCount int
 	}{
 		{
 			"Simple",
+			&MockArangoService{},
 			&proto.GetSwitchesRequest{
 				SiteId: "1111-1111",
 			},
 			&mockGetSwitchesServer{
 				SendOutError: nil,
-				ServerStream: &mockServerStream{},
+				ServerStream: &MockServerStream{},
 			},
 			1,
 		},
@@ -170,6 +185,7 @@ func TestGetSwitches(t *testing.T) {
 			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
+				arango:  tc.arango,
 				logger:  logger,
 				metrics: metrics,
 				tracer:  tracer,
@@ -185,11 +201,13 @@ func TestGetSwitches(t *testing.T) {
 
 func TestSetSwitch(t *testing.T) {
 	tests := []struct {
-		name string
-		req  *proto.SetSwitchRequest
+		name   string
+		arango ArangoService
+		req    *proto.SetSwitchRequest
 	}{
 		{
 			"Simple",
+			&MockArangoService{},
 			&proto.SetSwitchRequest{
 				Id:    "aaaa-aaaa",
 				State: "ON",
@@ -203,6 +221,7 @@ func TestSetSwitch(t *testing.T) {
 			metrics := metrics.Mock()
 			tracer := mocktracer.New()
 			service := &SwitchService{
+				arango:  tc.arango,
 				logger:  logger,
 				metrics: metrics,
 				tracer:  tracer,

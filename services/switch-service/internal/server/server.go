@@ -16,9 +16,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
-	"github.com/moorara/microservices-demo/services/switch-service/internal/service"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -51,7 +49,7 @@ type (
 func New(
 	httpPort, grpcPort string,
 	caChainFile, serverCertFile, serverKeyFile string,
-	logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer,
+	switchService proto.SwitchServiceServer, logger *log.Logger, metrics *metrics.Metrics,
 ) (*Server, error) {
 
 	options := []grpc.ServerOption{}
@@ -84,7 +82,6 @@ func New(
 	}
 
 	grpcServer := grpc.NewServer(options...)
-	switchService := service.NewSwitchService(logger, metrics, tracer)
 	proto.RegisterSwitchServiceServer(grpcServer, switchService)
 
 	server := &Server{

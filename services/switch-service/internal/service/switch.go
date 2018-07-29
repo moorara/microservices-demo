@@ -12,14 +12,16 @@ import (
 
 // SwitchService implements proto.SwitchServiceServer
 type SwitchService struct {
+	arango  ArangoService
 	logger  *log.Logger
 	metrics *metrics.Metrics
 	tracer  opentracing.Tracer
 }
 
 // NewSwitchService creates a new switch service
-func NewSwitchService(logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) proto.SwitchServiceServer {
+func NewSwitchService(arango ArangoService, logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) proto.SwitchServiceServer {
 	return &SwitchService{
+		arango:  arango,
 		logger:  logger,
 		metrics: metrics,
 		tracer:  tracer,

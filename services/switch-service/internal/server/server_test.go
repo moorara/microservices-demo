@@ -11,8 +11,9 @@ import (
 	"time"
 
 	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
+	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
+	"github.com/moorara/microservices-demo/services/switch-service/internal/service"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -64,11 +65,13 @@ func TestNew(t *testing.T) {
 		caChainFile    string
 		serverCertFile string
 		serverKeyFile  string
+		switchService  proto.SwitchServiceServer
 	}{
 		{
-			name:     "MTLSDisabled",
-			httpPort: ":9998",
-			grpcPort: ":9999",
+			name:          "MTLSDisabled",
+			httpPort:      ":9998",
+			grpcPort:      ":9999",
+			switchService: &service.MockSwitchService{},
 		},
 		{
 			name:           "MTLSEnabled",
@@ -77,6 +80,7 @@ func TestNew(t *testing.T) {
 			caChainFile:    "../test/ca.chain.cert",
 			serverCertFile: "../test/server.cert",
 			serverKeyFile:  "../test/server.key",
+			switchService:  &service.MockSwitchService{},
 		},
 	}
 
@@ -84,11 +88,10 @@ func TestNew(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
 			metrics := metrics.Mock()
-			tracer := mocktracer.New()
 			server, err := New(
 				tc.httpPort, tc.grpcPort,
 				tc.caChainFile, tc.serverCertFile, tc.serverKeyFile,
-				logger, metrics, tracer,
+				tc.switchService, logger, metrics,
 			)
 
 			assert.NoError(t, err)
