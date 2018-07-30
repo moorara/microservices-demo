@@ -80,11 +80,7 @@ func (s *httpService) Login(user, password string) error {
 		fmt.Sprintf(`{"username":"%s", "password":"%s"}`, user, password),
 	)
 
-	req, err := http.NewRequest(method, url, body)
-	if err != nil {
-		return err
-	}
-
+	req, _ := http.NewRequest(method, url, body)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 
