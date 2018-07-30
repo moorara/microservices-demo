@@ -33,7 +33,7 @@ func TestNewSwitchService(t *testing.T) {
 	}{
 		{
 			"Default",
-			&MockArangoService{},
+			&mockArangoService{},
 		},
 	}
 
@@ -57,7 +57,7 @@ func TestInstallSwitch(t *testing.T) {
 	}{
 		{
 			"Simple",
-			&MockArangoService{},
+			&mockArangoService{},
 			&proto.InstallSwitchRequest{
 				SiteId: "1111-1111",
 				Name:   "Light",
@@ -95,7 +95,7 @@ func TestRemoveSwitch(t *testing.T) {
 	}{
 		{
 			"Simple",
-			&MockArangoService{},
+			&mockArangoService{},
 			&proto.RemoveSwitchRequest{
 				Id: "aaaa-aaaa",
 			},
@@ -130,7 +130,7 @@ func TestGetSwitch(t *testing.T) {
 	}{
 		{
 			"Simple",
-			&MockArangoService{},
+			&mockArangoService{},
 			&proto.GetSwitchRequest{
 				Id: "aaaa-aaaa",
 			},
@@ -167,13 +167,13 @@ func TestGetSwitches(t *testing.T) {
 	}{
 		{
 			"Simple",
-			&MockArangoService{},
+			&mockArangoService{},
 			&proto.GetSwitchesRequest{
 				SiteId: "1111-1111",
 			},
 			&mockGetSwitchesServer{
 				SendOutError: nil,
-				ServerStream: &MockServerStream{},
+				ServerStream: &mockServerStream{},
 			},
 			1,
 		},
@@ -207,7 +207,7 @@ func TestSetSwitch(t *testing.T) {
 	}{
 		{
 			"Simple",
-			&MockArangoService{},
+			&mockArangoService{},
 			&proto.SetSwitchRequest{
 				Id:    "aaaa-aaaa",
 				State: "ON",

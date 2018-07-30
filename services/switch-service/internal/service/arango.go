@@ -16,6 +16,7 @@ const (
 type (
 	// ArangoService selects the functions used from arango driver
 	ArangoService interface {
+		Connect(ctx context.Context, endpoints []string, user, password, database, collection string) error
 		Query(ctx context.Context, query string, vars map[string]interface{}) (arango.Cursor, error)
 		CreateDocument(ctx context.Context, doc interface{}) (arango.DocumentMeta, error)
 		ReadDocument(ctx context.Context, key string, doc interface{}) (arango.DocumentMeta, error)
@@ -32,65 +33,64 @@ type (
 )
 
 // NewArangoService creates a arango service
-func NewArangoService(ctx context.Context, endpoints []string, user, password, databaseName, collectionName string) (ArangoService, error) {
+func NewArangoService() ArangoService {
+	return &arangoService{}
+}
+
+func (s *arangoService) Connect(ctx context.Context, endpoints []string, user, password, database, collection string) error {
 	// Wait until Arango is ready to serve requests
 	arangoHTTPService := arangoUtil.NewHTTPService(endpoints[0], 0)
 	err := <-arangoHTTPService.NotifyReady(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	connConfig := arangoHttp.ConnectionConfig{
 		Endpoints: endpoints,
 	}
 
-	connection, err := arangoHttp.NewConnection(connConfig)
+	s.Connection, err = arangoHttp.NewConnection(connConfig)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	clientConfig := arango.ClientConfig{
-		Connection:     connection,
+		Connection:     s.Connection,
 		Authentication: arango.BasicAuthentication(user, password),
 	}
 
-	client, err := arango.NewClient(clientConfig)
+	s.Client, err = arango.NewClient(clientConfig)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	database, err := client.Database(ctx, databaseName)
+	s.Database, err = s.Client.Database(ctx, database)
 	if err != nil {
 		if err.Error() != errDatabaseNotFound {
-			return nil, err
+			return err
 		}
 
 		// Create database if not exist
 		opts := &arango.CreateDatabaseOptions{}
-		database, err = client.CreateDatabase(ctx, databaseName, opts)
+		s.Database, err = s.Client.CreateDatabase(ctx, database, opts)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	collection, err := database.Collection(ctx, collectionName)
+	s.Collection, err = s.Database.Collection(ctx, collection)
 	if err != nil {
 		if err.Error() != errCollectionNotFound {
-			return nil, err
+			return err
 		}
 
 		// Create collection if not exist
 		opts := &arango.CreateCollectionOptions{}
-		collection, err = database.CreateCollection(ctx, collectionName, opts)
+		s.Collection, err = s.Database.CreateCollection(ctx, collection, opts)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return &arangoService{
-		Connection: connection,
-		Client:     client,
-		Database:   database,
-		Collection: collection,
-	}, nil
+	return nil
 }

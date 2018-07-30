@@ -34,7 +34,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	arangoService, err := service.NewArangoService(
+	arangoService := service.NewArangoService()
+	err := arangoService.Connect(
 		ctx,
 		config.ArangoEndpoints, config.ArangoUser, config.ArangoPassword,
 		config.ArangoDatabase, config.ArangoCollection,

@@ -136,7 +136,10 @@ func TestArangoService(t *testing.T) {
 			t.Run("CreateArangoService", func(t *testing.T) {
 				ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 				defer cancel()
-				arangoService, err = service.NewArangoService(ctx, []string{address}, user, password, tc.databaseName, tc.collectionName)
+
+				arangoService = service.NewArangoService()
+				err = arangoService.Connect(ctx, []string{address}, user, password, tc.databaseName, tc.collectionName)
+
 				assert.NoError(t, err)
 				assert.NotNil(t, arangoService)
 			})

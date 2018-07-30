@@ -12,7 +12,6 @@ import (
 
 	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
-	"github.com/moorara/microservices-demo/services/switch-service/internal/service"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
 	"github.com/stretchr/testify/assert"
 )
@@ -71,7 +70,7 @@ func TestNew(t *testing.T) {
 			name:          "MTLSDisabled",
 			httpPort:      ":9998",
 			grpcPort:      ":9999",
-			switchService: &service.MockSwitchService{},
+			switchService: &mockSwitchService{},
 		},
 		{
 			name:           "MTLSEnabled",
@@ -80,7 +79,7 @@ func TestNew(t *testing.T) {
 			caChainFile:    "../test/ca.chain.cert",
 			serverCertFile: "../test/server.cert",
 			serverKeyFile:  "../test/server.key",
-			switchService:  &service.MockSwitchService{},
+			switchService:  &mockSwitchService{},
 		},
 	}
 
