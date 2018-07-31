@@ -42,9 +42,9 @@ func TestNewMTLS(t *testing.T) {
 			name:           "MTLSEnabled",
 			serverAddr:     "localhost:9999",
 			serverName:     "server",
-			caChainFile:    "../test/ca.chain.cert",
-			clientCertFile: "../test/client.cert",
-			clientKeyFile:  "../test/client.key",
+			caChainFile:    "../certs/ca.chain.cert",
+			clientCertFile: "../certs/client.cert",
+			clientKeyFile:  "../certs/client.key",
 		},
 	}
 

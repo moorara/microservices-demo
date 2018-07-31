@@ -2,9 +2,87 @@ package server
 
 import (
 	"context"
+	"net"
+	"net/http"
 
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
 )
+
+type mockHTTPServer struct {
+	ListenAndServeCallCount int
+	ListenAndServeOutError  error
+
+	ServeCallCount  int
+	ServeInListener net.Listener
+	ServeOutError   error
+
+	CloseCallCount int
+	CloseOutError  error
+
+	ShutdownCallCount int
+	ShutdownInContext context.Context
+	ShutdownOutError  error
+}
+
+func (m *mockHTTPServer) ListenAndServe() error {
+	m.ListenAndServeCallCount++
+	return m.ListenAndServeOutError
+}
+
+func (m *mockHTTPServer) Serve(listener net.Listener) error {
+	m.ServeCallCount++
+	m.ServeInListener = listener
+	return m.ServeOutError
+}
+
+func (m *mockHTTPServer) Close() error {
+	m.CloseCallCount++
+	return m.CloseOutError
+}
+
+func (m *mockHTTPServer) Shutdown(ctx context.Context) error {
+	m.ShutdownCallCount++
+	m.ShutdownInContext = ctx
+	return m.ShutdownOutError
+}
+
+type mockGRPCServer struct {
+	ServeCallCount  int
+	ServeInListener net.Listener
+	ServeOutError   error
+
+	ServeHTTPCallCount int
+	ServeHTTPInResp    http.ResponseWriter
+	ServeHTTPInReq     *http.Request
+
+	StopCallCount int
+
+	GracefulStopCallCount int
+}
+
+func (m *mockGRPCServer) Serve(listener net.Listener) error {
+	if listener != nil {
+		listener.Close()
+	}
+
+	m.ServeCallCount++
+	m.ServeInListener = listener
+	return m.ServeOutError
+}
+
+func (m *mockGRPCServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+	m.ServeHTTPCallCount++
+	m.ServeHTTPInResp = resp
+	m.ServeHTTPInReq = req
+}
+
+func (m *mockGRPCServer) Stop() {
+	m.StopCallCount++
+}
+
+func (m *mockGRPCServer) GracefulStop() {
+	m.GracefulStopCallCount++
+}
 
 // mockSwitchService is a mock implementation of proto.SwitchServiceServer
 type mockSwitchService struct {

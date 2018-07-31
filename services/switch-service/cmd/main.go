@@ -7,9 +7,9 @@ import (
 
 	gotoConfig "github.com/moorara/goto/config"
 	"github.com/moorara/microservices-demo/services/switch-service/cmd/config"
+	"github.com/moorara/microservices-demo/services/switch-service/cmd/server"
 	"github.com/moorara/microservices-demo/services/switch-service/cmd/version"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
-	"github.com/moorara/microservices-demo/services/switch-service/internal/server"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/service"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/trace"
