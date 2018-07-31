@@ -9,39 +9,43 @@ import (
 	"testing"
 	"time"
 
+	"github.com/moorara/microservices-demo/services/switch-service/cmd/config"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
-	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
+	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {
 	tests := []struct {
-		name          string
-		httpPort      string
-		grpcPort      string
-		caFile        string
-		certFile      string
-		keyFile       string
-		switchService proto.SwitchServiceServer
-		expectError   bool
+		name        string
+		config      config.Config
+		expectError bool
 	}{
 		{
-			name:          "InvalidTLS",
-			httpPort:      ":12345",
-			grpcPort:      ":12346",
-			caFile:        "ca.chain.cert",
-			certFile:      "server.cert",
-			keyFile:       "server.key",
-			switchService: &mockSwitchService{},
-			expectError:   true,
+			"InvalidTLS",
+			config.Config{
+				ServiceHTTPPort: ":12345",
+				ServiceGRPCPort: ":12346",
+				ArangoEndpoints: []string{"localhost:12347"},
+				ArangoUser:      "root",
+				ArangoPassword:  "pass",
+				CAChainFile:     "ca.chain.cert",
+				ServerCertFile:  "server.cert",
+				ServerKeyFile:   "server.key",
+			},
+			true,
 		},
 		{
-			name:          "Simple",
-			httpPort:      ":12345",
-			grpcPort:      ":12346",
-			switchService: &mockSwitchService{},
-			expectError:   false,
+			"Simple",
+			config.Config{
+				ServiceHTTPPort: ":12345",
+				ServiceGRPCPort: ":12346",
+				ArangoEndpoints: []string{"localhost:12347"},
+				ArangoUser:      "root",
+				ArangoPassword:  "pass",
+			},
+			false,
 		},
 	}
 
@@ -49,11 +53,8 @@ func TestNew(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
 			metrics := metrics.Mock()
-			server, err := New(
-				tc.httpPort, tc.grpcPort,
-				tc.caFile, tc.certFile, tc.keyFile,
-				tc.switchService, logger, metrics,
-			)
+			tracer := mocktracer.New()
+			server, err := New(tc.config, logger, metrics, tracer)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -71,41 +72,55 @@ func TestLiveHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	server := &server{}
-	server.liveHandler(w, r)
 
+	server.liveHandler(w, r)
 	assert.Equal(t, http.StatusOK, w.Result().StatusCode)
 }
 
 func TestReadyHandler(t *testing.T) {
-	r := httptest.NewRequest("GET", "/ready", nil)
-	w := httptest.NewRecorder()
+	tests := []struct {
+		name               string
+		ready              bool
+		expectedStatusCode int
+	}{
+		{"Ready", true, http.StatusOK},
+		{"NotReady", false, http.StatusAccepted},
+	}
 
-	server := &server{}
-	server.readyHandler(w, r)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			r := httptest.NewRequest("GET", "/ready", nil)
+			w := httptest.NewRecorder()
 
-	assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+			server := &server{
+				ready: tc.ready,
+			}
+
+			server.readyHandler(w, r)
+			assert.Equal(t, tc.expectedStatusCode, w.Result().StatusCode)
+		})
+	}
 }
 
 func TestStart(t *testing.T) {
 	tests := []struct {
 		name              string
-		grpcPort          string
+		config            config.Config
+		arangoService     *mockArangoService
 		httpServer        *mockHTTPServer
 		grpcServer        *mockGRPCServer
 		signal            syscall.Signal
 		expectedErrorType error
 	}{
 		{
-			"ReservedPort",
-			":80",
-			&mockHTTPServer{},
-			&mockGRPCServer{},
-			syscall.SIGINT,
-			&net.OpError{},
-		},
-		{
 			"InterruptSignal",
-			"", // Random port
+			config.Config{
+				ServiceGRPCPort:  "",
+				ServerTimeout:    int64(100 * time.Millisecond),
+				ArangoDatabase:   "database",
+				ArangoCollection: "collection",
+			},
+			&mockArangoService{},
 			&mockHTTPServer{},
 			&mockGRPCServer{},
 			syscall.SIGINT,
@@ -113,15 +128,59 @@ func TestStart(t *testing.T) {
 		},
 		{
 			"TerminationSignal",
-			"", // Random port
+			config.Config{
+				ServiceGRPCPort:  "",
+				ServerTimeout:    int64(100 * time.Millisecond),
+				ArangoDatabase:   "database",
+				ArangoCollection: "collection",
+			},
+			&mockArangoService{
+				ConnectOutError: errors.New("database error"),
+			},
 			&mockHTTPServer{},
 			&mockGRPCServer{},
 			syscall.SIGTERM,
 			errors.New("terminated"),
 		},
 		{
+			"ArangoServiceConnectError",
+			config.Config{
+				ServiceGRPCPort:  "",
+				ServerTimeout:    int64(100 * time.Millisecond),
+				ArangoDatabase:   "database",
+				ArangoCollection: "collection",
+			},
+			&mockArangoService{
+				ConnectOutError: errors.New("database error"),
+			},
+			&mockHTTPServer{},
+			&mockGRPCServer{},
+			0,
+			errors.New("database error"),
+		},
+		{
+			"GRPCPortAccessDenied",
+			config.Config{
+				ServiceGRPCPort:  ":80",
+				ServerTimeout:    int64(100 * time.Millisecond),
+				ArangoDatabase:   "database",
+				ArangoCollection: "collection",
+			},
+			&mockArangoService{},
+			&mockHTTPServer{},
+			&mockGRPCServer{},
+			0,
+			&net.OpError{},
+		},
+		{
 			"HTTPServerError",
-			"", // Random port
+			config.Config{
+				ServiceGRPCPort:  "",
+				ServerTimeout:    int64(100 * time.Millisecond),
+				ArangoDatabase:   "database",
+				ArangoCollection: "collection",
+			},
+			&mockArangoService{},
 			&mockHTTPServer{
 				ListenAndServeOutError: errors.New("http error"),
 			},
@@ -131,7 +190,13 @@ func TestStart(t *testing.T) {
 		},
 		{
 			"GRPCServerError",
-			"", // Random port
+			config.Config{
+				ServiceGRPCPort:  "",
+				ServerTimeout:    int64(100 * time.Millisecond),
+				ArangoDatabase:   "database",
+				ArangoCollection: "collection",
+			},
+			&mockArangoService{},
 			&mockHTTPServer{},
 			&mockGRPCServer{
 				ServeOutError: errors.New("grpc error"),
@@ -145,16 +210,17 @@ func TestStart(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewVoidLogger()
 			server := &server{
-				logger:     logger,
-				grpcPort:   tc.grpcPort,
-				httpServer: tc.httpServer,
-				grpcServer: tc.grpcServer,
+				config:        tc.config,
+				logger:        logger,
+				arangoService: tc.arangoService,
+				httpServer:    tc.httpServer,
+				grpcServer:    tc.grpcServer,
 			}
 
 			if tc.signal > 0 {
 				sig := tc.signal // to prevent data race
 				go func() {
-					time.Sleep(100 * time.Millisecond)
+					time.Sleep(50 * time.Millisecond)
 					syscall.Kill(syscall.Getpid(), sig)
 				}()
 			}
@@ -197,8 +263,8 @@ func TestStop(t *testing.T) {
 
 			server.Stop()
 
-			assert.Equal(t, 1, tc.httpServer.ShutdownCallCount)
-			assert.Equal(t, 1, tc.grpcServer.GracefulStopCallCount)
+			assert.True(t, tc.httpServer.ShutdownCalled)
+			assert.True(t, tc.grpcServer.GracefulStopCalled)
 		})
 	}
 }

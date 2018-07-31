@@ -2,12 +2,13 @@ package transport
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewHTTPServer(t *testing.T) {
+func TestHTTPServer(t *testing.T) {
 	tests := []struct {
 		name                      string
 		addr                      string
@@ -20,7 +21,7 @@ func TestNewHTTPServer(t *testing.T) {
 	}{
 		{
 			"LiveNotReady",
-			"127.0.0.1:12345",
+			"http://localhost:9999",
 			func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			},
@@ -36,7 +37,7 @@ func TestNewHTTPServer(t *testing.T) {
 		},
 		{
 			"LiveAndReady",
-			"127.0.0.1:12345",
+			"http://localhost:9999",
 			func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			},
@@ -57,33 +58,29 @@ func TestNewHTTPServer(t *testing.T) {
 			httpServer := NewHTTPServer(tc.addr, tc.liveHandler, tc.readyHandler, tc.metricsHandler)
 			assert.NotNil(t, httpServer)
 
-			// Start http server in a goroutine
-			errs := make(chan error)
-			go func() {
-				errs <- httpServer.ListenAndServe()
-			}()
+			server, ok := httpServer.(*http.Server)
+			assert.True(t, ok)
+
+			ts := httptest.NewServer(server.Handler)
+			defer ts.Close()
 
 			t.Run("Liveness", func(t *testing.T) {
-				resp, err := http.Get("http://" + tc.addr + "/live")
+				resp, err := http.Get(ts.URL + "/live")
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedLiveStatusCode, resp.StatusCode)
 			})
 
 			t.Run("Readiness", func(t *testing.T) {
-				resp, err := http.Get("http://" + tc.addr + "/ready")
+				resp, err := http.Get(ts.URL + "/ready")
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedReadyStatusCode, resp.StatusCode)
 			})
 
 			t.Run("Metrics", func(t *testing.T) {
-				resp, err := http.Get("http://" + tc.addr + "/metrics")
+				resp, err := http.Get(ts.URL + "/metrics")
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedMetricsStatusCode, resp.StatusCode)
 			})
-
-			httpServer.Close()
-			err := <-errs
-			assert.Equal(t, http.ErrServerClosed, err)
 		})
 	}
 }

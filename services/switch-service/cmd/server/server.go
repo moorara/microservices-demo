@@ -11,14 +11,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/moorara/microservices-demo/services/switch-service/cmd/config"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
-	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
+	"github.com/moorara/microservices-demo/services/switch-service/internal/service"
 	"github.com/moorara/microservices-demo/services/switch-service/internal/transport"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
-)
-
-const (
-	stopTimeout = 30 * time.Second
+	"github.com/opentracing/opentracing-go"
 )
 
 type (
@@ -29,24 +27,32 @@ type (
 	}
 
 	server struct {
-		grpcPort   string
-		logger     *log.Logger
-		httpServer transport.HTTPServer
-		grpcServer transport.GRPCServer
+		ready         bool
+		config        config.Config
+		logger        *log.Logger
+		arangoService service.ArangoService
+		httpServer    transport.HTTPServer
+		grpcServer    transport.GRPCServer
 	}
 )
 
 // New creates a new server
-func New(httpPort, grpcPort, caFile, certFile, keyFile string,
-	switchService proto.SwitchServiceServer, logger *log.Logger, metrics *metrics.Metrics) (Server, error) {
+func New(config config.Config, logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) (Server, error) {
 	var err error
 	s := &server{
-		grpcPort: grpcPort,
-		logger:   logger,
+		config: config,
+		logger: logger,
 	}
 
-	s.httpServer = transport.NewHTTPServer(httpPort, s.liveHandler, s.readyHandler, metrics.Handler().ServeHTTP)
-	s.grpcServer, err = transport.NewGRPCServer(caFile, certFile, keyFile, switchService)
+	s.arangoService, err = service.NewArangoService(config.ArangoEndpoints, config.ArangoUser, config.ArangoPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	s.httpServer = transport.NewHTTPServer(config.ServiceHTTPPort, s.liveHandler, s.readyHandler, metrics.Handler().ServeHTTP)
+
+	switchService := service.NewSwitchService(s.arangoService, logger, metrics, tracer)
+	s.grpcServer, err = transport.NewGRPCServer(config.CAChainFile, config.ServerCertFile, config.ServerKeyFile, switchService)
 	if err != nil {
 		return nil, err
 	}
@@ -61,17 +67,21 @@ func (s *server) liveHandler(w http.ResponseWriter, r *http.Request) {
 
 // readyHandler implements readiness prob
 func (s *server) readyHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	if s.ready {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusAccepted)
+	}
 }
 
 func (s *server) Start() error {
 	errs := make(chan error)
-	done := make(chan struct{}, 1)
+	sigDone := make(chan struct{}, 1)
+	connDone := make(chan struct{}, 1)
 
-	listener, err := net.Listen("tcp", s.grpcPort)
-	if err != nil {
-		return err
-	}
+	timeout := time.Duration(s.config.ServerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
 
 	// Handle OS signals
 	go func() {
@@ -79,9 +89,31 @@ func (s *server) Start() error {
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 		select {
-		case <-done:
+		case <-sigDone:
 		case sig := <-sigs:
 			errs <- errors.New(sig.String())
+		}
+	}()
+
+	// Connect to database
+	go func() {
+		for {
+			err := s.arangoService.Connect(ctx, s.config.ArangoDatabase, s.config.ArangoCollection)
+			if err == nil {
+				s.logger.Info("message", "Connected to database.")
+				s.ready = true
+				return
+			}
+
+			select {
+			case <-time.After(time.Second):
+			case <-connDone:
+				return
+			case <-ctx.Done():
+				s.logger.Error("message", "Failed to connect to database.")
+				errs <- err
+				return
+			}
 		}
 	}()
 
@@ -91,31 +123,40 @@ func (s *server) Start() error {
 
 		err := s.httpServer.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			s.logger.Error("message", fmt.Sprintf("http server errored: %s", err.Error()))
+			s.logger.Error("message", fmt.Sprintf("http server errored: %s", err))
 			errs <- err
 		}
 	}()
 
 	// Listen for gRPC requests
 	go func() {
+		listener, err := net.Listen("tcp", s.config.ServiceGRPCPort)
+		if err != nil {
+			s.logger.Error("message", "Failed to listen on grpc port.")
+			errs <- err
+			return
+		}
+
 		s.logger.Info("message", "gRPC server listening ...")
 
-		err := s.grpcServer.Serve(listener)
+		err = s.grpcServer.Serve(listener)
 		if err != nil {
-			s.logger.Error("message", fmt.Sprintf("gRPC server errored: %s", err.Error()))
+			s.logger.Error("message", fmt.Sprintf("gRPC server errored: %s", err))
 			errs <- err
 		}
 	}()
 
-	err = <-errs
-	done <- struct{}{}
+	err := <-errs
+	sigDone <- struct{}{}
+	connDone <- struct{}{}
 	s.Stop()
 
 	return err
 }
 
 func (s *server) Stop() {
-	ctx, cancel := context.WithTimeout(context.Background(), stopTimeout)
+	timeout := time.Duration(s.config.ServerTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	s.httpServer.Shutdown(ctx)

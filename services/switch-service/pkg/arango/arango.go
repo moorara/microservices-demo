@@ -9,10 +9,6 @@ import (
 	"time"
 )
 
-const (
-	waitTime = time.Second
-)
-
 type (
 	// JSON is an alias for map
 	JSON map[string]interface{}
@@ -20,7 +16,7 @@ type (
 	// HTTPService is for making REST calls to Aragno
 	HTTPService interface {
 		NotifyReady(ctx context.Context) chan error
-		Login(user, password string) error
+		Login(ctx context.Context, user, password string) error
 		Call(ctx context.Context, method, endpoint, body string) (JSON, int, error)
 	}
 
@@ -32,10 +28,9 @@ type (
 )
 
 // NewHTTPService creates a new arrango http
-func NewHTTPService(address string, timeout time.Duration) HTTPService {
+func NewHTTPService(address string) HTTPService {
 	client := &http.Client{
 		Transport: &http.Transport{},
-		Timeout:   timeout,
 	}
 
 	return &httpService{
@@ -62,7 +57,7 @@ func (s *httpService) NotifyReady(ctx context.Context) chan error {
 			}
 
 			select {
-			case <-time.After(waitTime):
+			case <-time.After(time.Second):
 			case <-ctx.Done():
 				ch <- ctx.Err()
 				return
@@ -73,14 +68,15 @@ func (s *httpService) NotifyReady(ctx context.Context) chan error {
 	return ch
 }
 
-func (s *httpService) Login(user, password string) error {
+func (s *httpService) Login(ctx context.Context, user, password string) error {
 	method := "POST"
 	url := s.address + "/_open/auth"
-	body := strings.NewReader(
+	bodyReader := strings.NewReader(
 		fmt.Sprintf(`{"username":"%s", "password":"%s"}`, user, password),
 	)
 
-	req, _ := http.NewRequest(method, url, body)
+	req, _ := http.NewRequest(method, url, bodyReader)
+	req = req.WithContext(ctx)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 

@@ -8,7 +8,7 @@ coverage_dir := $(path)/coverage
 
 
 clean:
-	@ rm -rf $(coverage_dir)
+	@ rm -rf *.log $(coverage_dir)
 
 dep:
 	@ dep ensure -update

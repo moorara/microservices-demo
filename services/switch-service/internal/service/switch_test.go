@@ -9,22 +9,7 @@ import (
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc"
 )
-
-// mockGetSwitchesServer mocks proto.SwitchService_GetSwitchesServer
-type mockGetSwitchesServer struct {
-	grpc.ServerStream
-	SendCallCount int
-	SendInSwitch  *proto.Switch
-	SendOutError  error
-}
-
-func (m *mockGetSwitchesServer) Send(sw *proto.Switch) error {
-	m.SendCallCount++
-	m.SendInSwitch = sw
-	return m.SendOutError
-}
 
 func TestNewSwitchService(t *testing.T) {
 	tests := []struct {
@@ -159,11 +144,10 @@ func TestGetSwitch(t *testing.T) {
 
 func TestGetSwitches(t *testing.T) {
 	tests := []struct {
-		name                  string
-		arango                ArangoService
-		req                   *proto.GetSwitchesRequest
-		stream                *mockGetSwitchesServer
-		expectedSendCallCount int
+		name   string
+		arango ArangoService
+		req    *proto.GetSwitchesRequest
+		stream *mockGetSwitchesServer
 	}{
 		{
 			"Simple",
@@ -175,7 +159,6 @@ func TestGetSwitches(t *testing.T) {
 				SendOutError: nil,
 				ServerStream: &mockServerStream{},
 			},
-			1,
 		},
 	}
 
@@ -194,7 +177,7 @@ func TestGetSwitches(t *testing.T) {
 			err := service.GetSwitches(tc.req, tc.stream)
 
 			assert.NoError(t, err)
-			assert.Equal(t, tc.expectedSendCallCount, tc.stream.SendCallCount)
+			assert.True(t, tc.stream.SendCalled)
 		})
 	}
 }

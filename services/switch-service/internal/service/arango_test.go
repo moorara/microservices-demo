@@ -15,32 +15,21 @@ type mockResp struct {
 	Body       string
 }
 
-func TestConnect(t *testing.T) {
+func TestArangoService(t *testing.T) {
 	tests := []struct {
 		name                 string
-		contextTimeout       time.Duration
 		user, password       string
 		database, collection string
-		router               map[string]mockResp
+		contextTimeout       time.Duration
+		mocks                map[string]mockResp
 		expectError          bool
 	}{
 		{
-			"Unavailable",
-			50 * time.Millisecond,
-			"user", "pass",
-			"animals", "mammals",
-			map[string]mockResp{
-				"/_admin/server/availability": mockResp{http.StatusServiceUnavailable, ``},
-			},
-			true,
-		},
-		{
 			"Unauthorized",
-			50 * time.Millisecond,
 			"user", "pass",
 			"animals", "mammals",
+			50 * time.Millisecond,
 			map[string]mockResp{
-				"/_admin/server/availability":          mockResp{http.StatusOK, `{"code":200, "error":false}`},
 				"/_db/animals/_api/database/current":   mockResp{http.StatusUnauthorized, `{"code":401, "error":true, "errorMessage":"not authorized"}`},
 				"/_db/animals/_api/collection/mammals": mockResp{http.StatusUnauthorized, `{"code":401, "error":true, "errorMessage":"not authorized"}`},
 			},
@@ -48,11 +37,10 @@ func TestConnect(t *testing.T) {
 		},
 		{
 			"Unauthorized",
-			50 * time.Millisecond,
 			"user", "pass",
 			"animals", "mammals",
+			50 * time.Millisecond,
 			map[string]mockResp{
-				"/_admin/server/availability":          mockResp{http.StatusOK, `{"code":200, "error":false}`},
 				"/_db/animals/_api/database/current":   mockResp{http.StatusOK, `{"code":200, "error":false}`},
 				"/_db/animals/_api/collection/mammals": mockResp{http.StatusUnauthorized, `{"code":401, "error":true, "errorMessage":"not authorized"}`},
 			},
@@ -60,11 +48,10 @@ func TestConnect(t *testing.T) {
 		},
 		{
 			"DatabaseAndCollectionExist",
-			50 * time.Millisecond,
 			"user", "pass",
 			"animals", "mammals",
+			50 * time.Millisecond,
 			map[string]mockResp{
-				"/_admin/server/availability":          mockResp{http.StatusOK, `{"code":200, "error":false}`},
 				"/_db/animals/_api/database/current":   mockResp{http.StatusOK, `{"code":200, "error":false}`},
 				"/_db/animals/_api/collection/mammals": mockResp{http.StatusOK, `{"code":200, "error":false}`},
 			},
@@ -72,11 +59,10 @@ func TestConnect(t *testing.T) {
 		},
 		{
 			"CreateDatabaseError",
-			50 * time.Millisecond,
 			"user", "pass",
 			"animals", "mammals",
+			50 * time.Millisecond,
 			map[string]mockResp{
-				"/_admin/server/availability":        mockResp{http.StatusOK, `{"code":200, "error":false}`},
 				"/_db/animals/_api/database/current": mockResp{http.StatusNotFound, `{"code":404, "error":true, "errorMessage":"database not found"}`},
 				"/_db/_system/_api/database":         mockResp{http.StatusBadRequest, `{"code":400, "error":false}`},
 			},
@@ -84,11 +70,10 @@ func TestConnect(t *testing.T) {
 		},
 		{
 			"CreateCollectionError",
-			50 * time.Millisecond,
 			"user", "pass",
 			"animals", "mammals",
+			50 * time.Millisecond,
 			map[string]mockResp{
-				"/_admin/server/availability":          mockResp{http.StatusOK, `{"code":200, "error":false}`},
 				"/_db/animals/_api/database/current":   mockResp{http.StatusNotFound, `{"code":404, "error":true, "errorMessage":"database not found"}`},
 				"/_db/_system/_api/database":           mockResp{http.StatusCreated, `{"code":201, "error":false}`},
 				"/_db/animals/_api/collection/mammals": mockResp{http.StatusNotFound, `{"code":404, "error":true, "errorMessage":"collection not found"}`},
@@ -98,11 +83,10 @@ func TestConnect(t *testing.T) {
 		},
 		{
 			"CreateDatabaseAndCollection",
-			50 * time.Millisecond,
 			"user", "pass",
 			"animals", "mammals",
+			50 * time.Millisecond,
 			map[string]mockResp{
-				"/_admin/server/availability":          mockResp{http.StatusOK, `{"code":200, "error":false}`},
 				"/_db/animals/_api/database/current":   mockResp{http.StatusNotFound, `{"code":404, "error":true, "errorMessage":"database not found"}`},
 				"/_db/_system/_api/database":           mockResp{http.StatusCreated, `{"code":201, "error":false}`},
 				"/_db/animals/_api/collection/mammals": mockResp{http.StatusNotFound, `{"code":404, "error":true, "errorMessage":"collection not found"}`},
@@ -114,20 +98,22 @@ func TestConnect(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			// Mock a back-end
+			// Mock arango back-end
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				path := r.URL.Path
 				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(tc.router[path].StatusCode)
-				w.Write([]byte(tc.router[path].Body))
+				w.WriteHeader(tc.mocks[path].StatusCode)
+				w.Write([]byte(tc.mocks[path].Body))
 			}))
 			defer ts.Close()
 
 			ctx, cancel := context.WithTimeout(context.Background(), tc.contextTimeout)
 			defer cancel()
 
-			service := NewArangoService()
-			err := service.Connect(ctx, []string{ts.URL}, tc.user, tc.password, tc.database, tc.collection)
+			service, err := NewArangoService([]string{ts.URL}, tc.user, tc.password)
+			assert.NoError(t, err)
+
+			err = service.Connect(ctx, tc.database, tc.collection)
 
 			if tc.expectError {
 				assert.Error(t, err)

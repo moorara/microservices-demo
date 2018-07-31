@@ -14,15 +14,14 @@ func TestNewHTTPService(t *testing.T) {
 	tests := []struct {
 		name    string
 		address string
-		timeout time.Duration
 	}{
-		{"WithoutTimeout", "http://localhost:9999", 0},
-		{"WithTimeout", "http://localhost:9999", 2 * time.Second},
+		{"WithoutTimeout", "http://localhost:9999"},
+		{"WithTimeout", "http://localhost:9999"},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			service := NewHTTPService(tc.address, tc.timeout)
+			service := NewHTTPService(tc.address)
 
 			assert.NotNil(t, service)
 		})
@@ -71,7 +70,6 @@ func TestNotifyReady(t *testing.T) {
 					w.WriteHeader(tc.serverStatusCode)
 				}))
 				defer ts.Close()
-
 				service.address = ts.URL
 			}
 
@@ -145,11 +143,11 @@ func TestLogin(t *testing.T) {
 					w.Write([]byte(tc.serverResponse))
 				}))
 				defer ts.Close()
-
 				service.address = ts.URL
 			}
 
-			err := service.Login(tc.user, tc.password)
+			ctx := context.Background()
+			err := service.Login(ctx, tc.user, tc.password)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -215,11 +213,11 @@ func TestCall(t *testing.T) {
 					w.Write([]byte(tc.serverResponse))
 				}))
 				defer ts.Close()
-
 				service.address = ts.URL
 			}
 
-			_, statusCode, err := service.Call(context.Background(), tc.method, tc.endpoint, tc.body)
+			ctx := context.Background()
+			_, statusCode, err := service.Call(ctx, tc.method, tc.endpoint, tc.body)
 
 			if tc.expectError {
 				assert.Error(t, err)

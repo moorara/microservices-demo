@@ -34,7 +34,11 @@
     - https://godoc.org/github.com/golang/protobuf/protoc-gen-go
   - https://grpc.io
   - https://grpc.io/docs/guides
+    - https://grpc.io/docs/guides/concepts
   - https://grpc.io/docs/tutorials
+    - https://grpc.io/docs/tutorials/basic/go
+  - https://grpc.io/docs/reference
+    - https://grpc.io/docs/reference/go/generated-code
   - https://github.com/grpc/grpc-go
     - https://godoc.org/google.golang.org/grpc
       - https://godoc.org/google.golang.org/grpc#Server.ServeHTTP
