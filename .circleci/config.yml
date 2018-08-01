@@ -58,8 +58,8 @@ jobs:
           working_directory: services/site-service
           command: yarn run test
       - store_artifacts:
-          path: services/site-service/coverage
-          prefix: coverage
+          path: services/site-service/coverage/
+          prefix: coverage/
 
   site-service-component-tests:
     <<: *node-job-init
@@ -119,8 +119,8 @@ jobs:
           working_directory: services/sensor-service
           command: make coverage
       - store_artifacts:
-          path: services/sensor-service/reports
-          prefix: reports
+          path: services/sensor-service/reports/
+          prefix: reports/
 
   sensor-service-component-tests:
     <<: *go-job-init
@@ -145,6 +145,8 @@ jobs:
             docker exec postgres psql -c "CREATE DATABASE sensors"
             docker exec postgres psql -d sensors -c "CREATE TABLE sensors (id varchar(256) PRIMARY KEY, site_id varchar(256) NOT NULL, name varchar(256) NOT NULL, unit varchar(256) NOT NULL, min_safe double precision NOT NULL, max_safe double precision NOT NULL)"
             docker-compose run sensor-service-test make test-component
+            docker container logs sensor-service | grep '^{' | jq . > component-tests.log
+            docker-compose down
       - store_artifacts:
           path: services/sensor-service/component-tests.log
           destination: component-tests.log
@@ -186,8 +188,8 @@ jobs:
           working_directory: services/switch-service
           command: make coverage
       - store_artifacts:
-          path: services/switch-service/coverage
-          prefix: coverage
+          path: services/switch-service/coverage/
+          prefix: coverage/
 
   switch-service-integration-tests:
     <<: *go-job-init
