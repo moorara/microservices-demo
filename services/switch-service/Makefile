@@ -8,7 +8,7 @@ coverage_dir := $(path)/coverage
 
 
 clean:
-	@ rm -rf $(coverage_dir)
+	@ rm -rf *.log $(coverage_dir)
 
 dep:
 	@ dep ensure -update
@@ -65,7 +65,7 @@ test-integration-docker: # docker docker-test
 test-component-docker: # docker docker-test
 	@ VERSION=$(docker_tag) \
 	  docker-compose run component-test && \
-		docker container logs switch-service | jq . > component-tests.log && \
+		docker container logs switch-service | grep '^{' | jq . > component-tests.log && \
 		docker-compose down
 
 

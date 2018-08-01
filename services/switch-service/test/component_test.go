@@ -41,9 +41,11 @@ func TestLive(t *testing.T) {
 
 	for i := 0; i < 30; i++ {
 		resp, err := http.Get(httpAddr + "/live")
-		if err == nil && resp.StatusCode == http.StatusOK {
+		if err == nil {
 			resp.Body.Close()
-			return
+			if resp.StatusCode == http.StatusOK {
+				return
+			}
 		}
 		time.Sleep(time.Second)
 	}
@@ -60,9 +62,11 @@ func TestReady(t *testing.T) {
 
 	for i := 0; i < 30; i++ {
 		resp, err := http.Get(httpAddr + "/ready")
-		if err == nil && resp.StatusCode == http.StatusOK {
+		if err == nil {
 			resp.Body.Close()
-			return
+			if resp.StatusCode == http.StatusOK {
+				return
+			}
 		}
 		time.Sleep(time.Second)
 	}
@@ -88,7 +92,7 @@ func TestContract(t *testing.T) {
 		installSwitchResponses []proto.Switch
 
 		getSwitchesRequests  []proto.GetSwitchesRequest
-		getSwitchesResponses [][]proto.Switch
+		getSwitchesResponses map[string][]proto.Switch
 
 		setSwitchRequests  []proto.SetSwitchRequest
 		setSwitchResponses []proto.SetSwitchResponse
@@ -109,29 +113,29 @@ func TestContract(t *testing.T) {
 				proto.InstallSwitchRequest{SiteId: "2222", Name: "Temperature", State: "Medium", States: []string{"High", "Medium", "Low"}},
 			},
 			[]proto.Switch{
-				proto.Switch{Id: "TBD", SiteId: "1111", Name: "Light", State: "OFF", States: []string{"OFF", "ON"}},
-				proto.Switch{Id: "TBD", SiteId: "2222", Name: "Pressure", State: "Low", States: []string{"High", "Low"}},
-				proto.Switch{Id: "TBD", SiteId: "2222", Name: "Temperature", State: "Medium", States: []string{"High", "Medium", "Low"}},
+				proto.Switch{Id: "", SiteId: "1111", Name: "Light", State: "OFF", States: []string{"OFF", "ON"}},
+				proto.Switch{Id: "", SiteId: "2222", Name: "Pressure", State: "Low", States: []string{"High", "Low"}},
+				proto.Switch{Id: "", SiteId: "2222", Name: "Temperature", State: "Medium", States: []string{"High", "Medium", "Low"}},
 			},
 
 			[]proto.GetSwitchesRequest{
 				proto.GetSwitchesRequest{SiteId: "1111"},
 				proto.GetSwitchesRequest{SiteId: "2222"},
 			},
-			[][]proto.Switch{
-				[]proto.Switch{
-					proto.Switch{Id: "TBD", SiteId: "1111", Name: "Light", State: "OFF", States: []string{"OFF", "ON"}},
+			map[string][]proto.Switch{
+				"1111": []proto.Switch{
+					proto.Switch{Id: "", SiteId: "1111", Name: "Light", State: "OFF", States: []string{"OFF", "ON"}},
 				},
-				[]proto.Switch{
-					proto.Switch{Id: "TBD", SiteId: "2222", Name: "Pressure", State: "Low", States: []string{"High", "Low"}},
-					proto.Switch{Id: "TBD", SiteId: "3333", Name: "Temperature", State: "Medium", States: []string{"High", "Medium", "Low"}},
+				"2222": []proto.Switch{
+					proto.Switch{Id: "", SiteId: "2222", Name: "Pressure", State: "Low", States: []string{"High", "Low"}},
+					proto.Switch{Id: "", SiteId: "2222", Name: "Temperature", State: "Medium", States: []string{"High", "Medium", "Low"}},
 				},
 			},
 
 			[]proto.SetSwitchRequest{
-				proto.SetSwitchRequest{Id: "TBD", State: "ON"},
-				proto.SetSwitchRequest{Id: "TBD", State: "High"},
-				proto.SetSwitchRequest{Id: "TBD", State: "Low"},
+				proto.SetSwitchRequest{Id: "", State: "ON"},
+				proto.SetSwitchRequest{Id: "", State: "High"},
+				proto.SetSwitchRequest{Id: "", State: "Low"},
 			},
 			[]proto.SetSwitchResponse{
 				proto.SetSwitchResponse{},
@@ -140,20 +144,20 @@ func TestContract(t *testing.T) {
 			},
 
 			[]proto.GetSwitchRequest{
-				proto.GetSwitchRequest{Id: "TBD"},
-				proto.GetSwitchRequest{Id: "TBD"},
-				proto.GetSwitchRequest{Id: "TBD"},
+				proto.GetSwitchRequest{Id: ""},
+				proto.GetSwitchRequest{Id: ""},
+				proto.GetSwitchRequest{Id: ""},
 			},
 			[]proto.Switch{
-				proto.Switch{Id: "TBD", SiteId: "1111", Name: "Light", State: "ON", States: []string{"OFF", "ON"}},
-				proto.Switch{Id: "TBD", SiteId: "2222", Name: "Pressure", State: "High", States: []string{"High", "Low"}},
-				proto.Switch{Id: "TBD", SiteId: "2222", Name: "Temperature", State: "Low", States: []string{"High", "Medium", "Low"}},
+				proto.Switch{Id: "", SiteId: "1111", Name: "Light", State: "ON", States: []string{"OFF", "ON"}},
+				proto.Switch{Id: "", SiteId: "2222", Name: "Pressure", State: "High", States: []string{"High", "Low"}},
+				proto.Switch{Id: "", SiteId: "2222", Name: "Temperature", State: "Low", States: []string{"High", "Medium", "Low"}},
 			},
 
 			[]proto.RemoveSwitchRequest{
-				proto.RemoveSwitchRequest{Id: "TBD"},
-				proto.RemoveSwitchRequest{Id: "TBD"},
-				proto.RemoveSwitchRequest{Id: "TBD"},
+				proto.RemoveSwitchRequest{Id: ""},
+				proto.RemoveSwitchRequest{Id: ""},
+				proto.RemoveSwitchRequest{Id: ""},
 			},
 			[]proto.RemoveSwitchResponse{
 				proto.RemoveSwitchResponse{},
@@ -170,35 +174,37 @@ func TestContract(t *testing.T) {
 			// CREATE SWITCHES
 			t.Run("InstallSwitch", func(t *testing.T) {
 				for i, req := range tc.installSwitchRequests {
-					res, err := client.InstallSwitch(ctx, &req)
-					tc.switchID[i] = res.GetId()
-
+					sw, err := client.InstallSwitch(ctx, &req)
 					assert.NoError(t, err)
-					assert.NotEmpty(t, res.GetId())
-					assert.Equal(t, tc.installSwitchResponses[i].SiteId, res.GetSiteId())
-					assert.Equal(t, tc.installSwitchResponses[i].Name, res.GetName())
-					assert.Equal(t, tc.installSwitchResponses[i].State, res.GetState())
-					assert.Equal(t, tc.installSwitchResponses[i].States, res.GetStates())
+
+					assert.NotEmpty(t, sw.GetId())
+					tc.switchID[i] = sw.GetId()
+					tc.installSwitchResponses[i].Id = sw.GetId()
+
+					assert.Equal(t, tc.installSwitchResponses[i].Id, sw.GetId())
+					assert.Equal(t, tc.installSwitchResponses[i].SiteId, sw.GetSiteId())
+					assert.Equal(t, tc.installSwitchResponses[i].Name, sw.GetName())
+					assert.Equal(t, tc.installSwitchResponses[i].State, sw.GetState())
+					assert.Equal(t, tc.installSwitchResponses[i].States, sw.GetStates())
 				}
 			})
 
 			// GET SWITCHES
 			t.Run("GetSwitches", func(t *testing.T) {
 				for _, req := range tc.getSwitchesRequests {
+					switches := []*proto.Switch{}
 					stream, err := client.GetSwitches(ctx, &req)
 
 					assert.NoError(t, err)
 					assert.NotNil(t, stream)
 
 					for {
-						res, err := stream.Recv()
+						sw, err := stream.Recv()
 						if err == io.EOF { // No more response
 							break
 						}
-
 						assert.NoError(t, err)
-						assert.NotNil(t, res)
-						/* assert.Contains(t, tc.getSwitchesResponses[i], res) */
+						switches = append(switches, sw)
 					}
 				}
 			})
@@ -207,26 +213,26 @@ func TestContract(t *testing.T) {
 			t.Run("SetSwitch", func(t *testing.T) {
 				for i, id := range tc.switchID {
 					tc.setSwitchRequests[i].Id = id
-					res, err := client.SetSwitch(ctx, &tc.setSwitchRequests[i])
+					resp, err := client.SetSwitch(ctx, &tc.setSwitchRequests[i])
 
 					assert.NoError(t, err)
-					assert.NotNil(t, res)
+					assert.NotNil(t, resp)
 				}
 			})
 
-			// GET SWITCHES
+			// GET SWITCH
 			t.Run("GetSwitch", func(t *testing.T) {
 				for i, id := range tc.switchID {
 					tc.getSwitchRequests[i].Id = id
 					tc.getSwitchResponses[i].Id = id
-					res, err := client.GetSwitch(ctx, &tc.getSwitchRequests[i])
+					sw, err := client.GetSwitch(ctx, &tc.getSwitchRequests[i])
 
 					assert.NoError(t, err)
-					assert.Equal(t, tc.getSwitchResponses[i].Id, res.GetId())
-					/* assert.Equal(t, tc.getSwitchResponses[i].SiteId, res.GetSiteId())
-					assert.Equal(t, tc.getSwitchResponses[i].Name, res.GetName())
-					assert.Equal(t, tc.getSwitchResponses[i].State, res.GetState())
-					assert.Equal(t, tc.getSwitchResponses[i].States, res.GetStates()) */
+					assert.Equal(t, tc.getSwitchResponses[i].Id, sw.GetId())
+					assert.Equal(t, tc.getSwitchResponses[i].SiteId, sw.GetSiteId())
+					assert.Equal(t, tc.getSwitchResponses[i].Name, sw.GetName())
+					assert.Equal(t, tc.getSwitchResponses[i].State, sw.GetState())
+					assert.Equal(t, tc.getSwitchResponses[i].States, sw.GetStates())
 				}
 			})
 
@@ -234,10 +240,10 @@ func TestContract(t *testing.T) {
 			t.Run("RemoveSwitch", func(t *testing.T) {
 				for i, id := range tc.switchID {
 					tc.removeSwitchRequests[i].Id = id
-					res, err := client.RemoveSwitch(ctx, &tc.removeSwitchRequests[i])
+					resp, err := client.RemoveSwitch(ctx, &tc.removeSwitchRequests[i])
 
 					assert.NoError(t, err)
-					assert.NotNil(t, res)
+					assert.NotNil(t, resp)
 				}
 			})
 		})

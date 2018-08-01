@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/moorara/microservices-demo/services/switch-service/internal/metrics"
@@ -9,22 +10,9 @@ import (
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc"
+
+	arango "github.com/arangodb/go-driver"
 )
-
-// mockGetSwitchesServer mocks proto.SwitchService_GetSwitchesServer
-type mockGetSwitchesServer struct {
-	grpc.ServerStream
-	SendCallCount int
-	SendInSwitch  *proto.Switch
-	SendOutError  error
-}
-
-func (m *mockGetSwitchesServer) Send(sw *proto.Switch) error {
-	m.SendCallCount++
-	m.SendInSwitch = sw
-	return m.SendOutError
-}
 
 func TestNewSwitchService(t *testing.T) {
 	tests := []struct {
@@ -33,7 +21,7 @@ func TestNewSwitchService(t *testing.T) {
 	}{
 		{
 			"Default",
-			&MockArangoService{},
+			&mockArangoService{},
 		},
 	}
 
@@ -51,14 +39,45 @@ func TestNewSwitchService(t *testing.T) {
 
 func TestInstallSwitch(t *testing.T) {
 	tests := []struct {
-		name   string
-		arango ArangoService
-		req    *proto.InstallSwitchRequest
+		name           string
+		arango         ArangoService
+		ctx            context.Context
+		req            *proto.InstallSwitchRequest
+		expectedError  error
+		expectedSwitch *proto.Switch
 	}{
 		{
-			"Simple",
-			&MockArangoService{},
+			"Fail",
+			&mockArangoService{
+				CreateDocumentOutError: errors.New("database error"),
+			},
+			context.Background(),
 			&proto.InstallSwitchRequest{
+				SiteId: "1111-1111",
+				Name:   "Light",
+				State:  "OFF",
+				States: []string{"ON", "OFF"},
+			},
+			errors.New("database error"),
+			nil,
+		},
+		{
+			"Success",
+			&mockArangoService{
+				CreateDocumentOutMeta: arango.DocumentMeta{
+					Key: "aaaa-aaaa",
+				},
+			},
+			context.Background(),
+			&proto.InstallSwitchRequest{
+				SiteId: "1111-1111",
+				Name:   "Light",
+				State:  "OFF",
+				States: []string{"ON", "OFF"},
+			},
+			nil,
+			&proto.Switch{
+				Id:     "aaaa-aaaa",
 				SiteId: "1111-1111",
 				Name:   "Light",
 				State:  "OFF",
@@ -79,26 +98,46 @@ func TestInstallSwitch(t *testing.T) {
 				tracer:  tracer,
 			}
 
-			response, err := service.InstallSwitch(context.Background(), tc.req)
+			sw, err := service.InstallSwitch(tc.ctx, tc.req)
 
-			assert.NoError(t, err)
-			assert.NotNil(t, response)
+			assert.Equal(t, tc.expectedError, err)
+			assert.Equal(t, tc.expectedSwitch, sw)
 		})
 	}
 }
 
 func TestRemoveSwitch(t *testing.T) {
 	tests := []struct {
-		name   string
-		arango ArangoService
-		req    *proto.RemoveSwitchRequest
+		name             string
+		arango           ArangoService
+		ctx              context.Context
+		req              *proto.RemoveSwitchRequest
+		expectedError    error
+		expectedResponse *proto.RemoveSwitchResponse
 	}{
 		{
-			"Simple",
-			&MockArangoService{},
+			"Fail",
+			&mockArangoService{
+				RemoveDocumentOutError: errors.New("database error"),
+			},
+			context.Background(),
 			&proto.RemoveSwitchRequest{
 				Id: "aaaa-aaaa",
 			},
+			errors.New("database error"),
+			nil,
+		},
+		{
+			"Success",
+			&mockArangoService{
+				RemoveDocumentOutMeta: arango.DocumentMeta{},
+			},
+			context.Background(),
+			&proto.RemoveSwitchRequest{
+				Id: "aaaa-aaaa",
+			},
+			nil,
+			&proto.RemoveSwitchResponse{},
 		},
 	}
 
@@ -114,26 +153,48 @@ func TestRemoveSwitch(t *testing.T) {
 				tracer:  tracer,
 			}
 
-			response, err := service.RemoveSwitch(context.Background(), tc.req)
+			resp, err := service.RemoveSwitch(tc.ctx, tc.req)
 
-			assert.NoError(t, err)
-			assert.NotNil(t, response)
+			assert.Equal(t, tc.expectedError, err)
+			assert.Equal(t, tc.expectedResponse, resp)
 		})
 	}
 }
 
 func TestGetSwitch(t *testing.T) {
 	tests := []struct {
-		name   string
-		arango ArangoService
-		req    *proto.GetSwitchRequest
+		name           string
+		arango         ArangoService
+		ctx            context.Context
+		req            *proto.GetSwitchRequest
+		expectedError  error
+		expectedSwitch *proto.Switch
 	}{
 		{
-			"Simple",
-			&MockArangoService{},
+			"Fail",
+			&mockArangoService{
+				ReadDocumentOutError: errors.New("database error"),
+			},
+			context.Background(),
 			&proto.GetSwitchRequest{
 				Id: "aaaa-aaaa",
 			},
+			errors.New("database error"),
+			nil,
+		},
+		{
+			"Success",
+			&mockArangoService{
+				ReadDocumentOutMeta: arango.DocumentMeta{
+					Key: "aaaa-aaaa",
+				},
+			},
+			context.Background(),
+			&proto.GetSwitchRequest{
+				Id: "aaaa-aaaa",
+			},
+			nil,
+			&proto.Switch{},
 		},
 	}
 
@@ -149,33 +210,99 @@ func TestGetSwitch(t *testing.T) {
 				tracer:  tracer,
 			}
 
-			response, err := service.GetSwitch(context.Background(), tc.req)
+			sw, err := service.GetSwitch(tc.ctx, tc.req)
 
-			assert.NoError(t, err)
-			assert.NotNil(t, response)
+			assert.Equal(t, tc.expectedError, err)
+			assert.Equal(t, tc.expectedSwitch, sw)
 		})
 	}
 }
 
 func TestGetSwitches(t *testing.T) {
 	tests := []struct {
-		name                  string
-		arango                ArangoService
-		req                   *proto.GetSwitchesRequest
-		stream                *mockGetSwitchesServer
-		expectedSendCallCount int
+		name          string
+		arango        ArangoService
+		req           *proto.GetSwitchesRequest
+		stream        *mockGetSwitchesServer
+		expectedError error
 	}{
 		{
-			"Simple",
-			&MockArangoService{},
+			"QueryError",
+			&mockArangoService{
+				QueryOutError: errors.New("database error"),
+			},
 			&proto.GetSwitchesRequest{
 				SiteId: "1111-1111",
 			},
 			&mockGetSwitchesServer{
-				SendOutError: nil,
-				ServerStream: &MockServerStream{},
+				ServerStream: &mockServerStream{
+					ContextOutContext: context.Background(),
+				},
 			},
-			1,
+			errors.New("database error"),
+		},
+		{
+			"ReadDocumentError",
+			&mockArangoService{
+				QueryOutCursor: &mockArangoCursor{
+					Closer:               &mockCloser{},
+					HasMoreOutResults:    []bool{true},
+					ReadDocumentOutError: errors.New("cursor error"),
+				},
+			},
+			&proto.GetSwitchesRequest{
+				SiteId: "1111-1111",
+			},
+			&mockGetSwitchesServer{
+				ServerStream: &mockServerStream{
+					ContextOutContext: context.Background(),
+				},
+			},
+			errors.New("cursor error"),
+		},
+		{
+			"SendError",
+			&mockArangoService{
+				QueryOutCursor: &mockArangoCursor{
+					Closer:            &mockCloser{},
+					HasMoreOutResults: []bool{true},
+					ReadDocumentOutMeta: arango.DocumentMeta{
+						Key: "aaaa-aaaa",
+					},
+				},
+			},
+			&proto.GetSwitchesRequest{
+				SiteId: "1111-1111",
+			},
+			&mockGetSwitchesServer{
+				ServerStream: &mockServerStream{
+					ContextOutContext: context.Background(),
+				},
+				SendOutError: errors.New("stream error"),
+			},
+			errors.New("stream error"),
+		},
+		{
+			"Success",
+			&mockArangoService{
+				QueryOutCursor: &mockArangoCursor{
+					Closer:            &mockCloser{},
+					HasMoreOutResults: []bool{true, false},
+					ReadDocumentOutMeta: arango.DocumentMeta{
+						Key: "aaaa-aaaa",
+					},
+				},
+			},
+			&proto.GetSwitchesRequest{
+				SiteId: "1111-1111",
+			},
+			&mockGetSwitchesServer{
+				ServerStream: &mockServerStream{
+					ContextOutContext: context.Background(),
+				},
+				SendOutError: nil,
+			},
+			nil,
 		},
 	}
 
@@ -193,25 +320,45 @@ func TestGetSwitches(t *testing.T) {
 
 			err := service.GetSwitches(tc.req, tc.stream)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tc.expectedSendCallCount, tc.stream.SendCallCount)
+			assert.Equal(t, tc.expectedError, err)
 		})
 	}
 }
 
 func TestSetSwitch(t *testing.T) {
 	tests := []struct {
-		name   string
-		arango ArangoService
-		req    *proto.SetSwitchRequest
+		name             string
+		arango           ArangoService
+		ctx              context.Context
+		req              *proto.SetSwitchRequest
+		expectedError    error
+		expectedResponse *proto.SetSwitchResponse
 	}{
 		{
-			"Simple",
-			&MockArangoService{},
+			"Fail",
+			&mockArangoService{
+				UpdateDocumentOutError: errors.New("database error"),
+			},
+			context.Background(),
 			&proto.SetSwitchRequest{
 				Id:    "aaaa-aaaa",
 				State: "ON",
 			},
+			errors.New("database error"),
+			nil,
+		},
+		{
+			"Success",
+			&mockArangoService{
+				UpdateDocumentOutMeta: arango.DocumentMeta{},
+			},
+			context.Background(),
+			&proto.SetSwitchRequest{
+				Id:    "aaaa-aaaa",
+				State: "ON",
+			},
+			nil,
+			&proto.SetSwitchResponse{},
 		},
 	}
 
@@ -227,10 +374,10 @@ func TestSetSwitch(t *testing.T) {
 				tracer:  tracer,
 			}
 
-			response, err := service.SetSwitch(context.Background(), tc.req)
+			resp, err := service.SetSwitch(tc.ctx, tc.req)
 
-			assert.NoError(t, err)
-			assert.NotNil(t, response)
+			assert.Equal(t, tc.expectedError, err)
+			assert.Equal(t, tc.expectedResponse, resp)
 		})
 	}
 }
