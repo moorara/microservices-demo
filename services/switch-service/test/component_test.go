@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"os"
 	"testing"
@@ -91,7 +92,7 @@ func TestContract(t *testing.T) {
 		installSwitchResponses []proto.Switch
 
 		getSwitchesRequests  []proto.GetSwitchesRequest
-		getSwitchesResponses [][]proto.Switch
+		getSwitchesResponses map[string][]proto.Switch
 
 		setSwitchRequests  []proto.SetSwitchRequest
 		setSwitchResponses []proto.SetSwitchResponse
@@ -121,13 +122,13 @@ func TestContract(t *testing.T) {
 				proto.GetSwitchesRequest{SiteId: "1111"},
 				proto.GetSwitchesRequest{SiteId: "2222"},
 			},
-			[][]proto.Switch{
-				[]proto.Switch{
+			map[string][]proto.Switch{
+				"1111": []proto.Switch{
 					proto.Switch{Id: "", SiteId: "1111", Name: "Light", State: "OFF", States: []string{"OFF", "ON"}},
 				},
-				[]proto.Switch{
+				"2222": []proto.Switch{
 					proto.Switch{Id: "", SiteId: "2222", Name: "Pressure", State: "Low", States: []string{"High", "Low"}},
-					proto.Switch{Id: "", SiteId: "3333", Name: "Temperature", State: "Medium", States: []string{"High", "Medium", "Low"}},
+					proto.Switch{Id: "", SiteId: "2222", Name: "Temperature", State: "Medium", States: []string{"High", "Medium", "Low"}},
 				},
 			},
 
@@ -189,8 +190,9 @@ func TestContract(t *testing.T) {
 			})
 
 			// GET SWITCHES
-			/* t.Run("GetSwitches", func(t *testing.T) {
+			t.Run("GetSwitches", func(t *testing.T) {
 				for _, req := range tc.getSwitchesRequests {
+					switches := []*proto.Switch{}
 					stream, err := client.GetSwitches(ctx, &req)
 
 					assert.NoError(t, err)
@@ -201,12 +203,11 @@ func TestContract(t *testing.T) {
 						if err == io.EOF { // No more response
 							break
 						}
-
 						assert.NoError(t, err)
-						assert.Contains(t, tc.getSwitchesResponses[i], sw)
+						switches = append(switches, sw)
 					}
 				}
-			}) */
+			})
 
 			// UPDATE SWITCHES
 			t.Run("SetSwitch", func(t *testing.T) {
@@ -220,7 +221,7 @@ func TestContract(t *testing.T) {
 			})
 
 			// GET SWITCH
-			/* t.Run("GetSwitch", func(t *testing.T) {
+			t.Run("GetSwitch", func(t *testing.T) {
 				for i, id := range tc.switchID {
 					tc.getSwitchRequests[i].Id = id
 					tc.getSwitchResponses[i].Id = id
@@ -233,7 +234,7 @@ func TestContract(t *testing.T) {
 					assert.Equal(t, tc.getSwitchResponses[i].State, sw.GetState())
 					assert.Equal(t, tc.getSwitchResponses[i].States, sw.GetStates())
 				}
-			}) */
+			})
 
 			// DELETE SWITCHES
 			t.Run("RemoveSwitch", func(t *testing.T) {

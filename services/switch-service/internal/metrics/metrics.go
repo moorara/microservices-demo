@@ -95,6 +95,10 @@ func New(service string) *Metrics {
 		[]string{"op", "success"},
 	)
 
+	registry.MustRegister(ReqCounter)
+	registry.MustRegister(OpLatencySumm)
+	registry.MustRegister(OpLatencyHist)
+
 	return &Metrics{
 		Registry:      registry,
 		ReqCounter:    ReqCounter,
