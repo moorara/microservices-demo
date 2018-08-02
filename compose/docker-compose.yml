@@ -7,18 +7,6 @@ networks:
       driver: default
       config:
         - subnet: 172.20.0.0/24
-  traefik:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.20.1.0/24
-  caddy:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.20.2.0/24
 
 volumes:
   redis_data:
@@ -67,7 +55,7 @@ services:
     volumes:
       - "mongo_data:/data/db"
   arango:
-    image: arangodb:3.3.12
+    image: arangodb:3.3.13
     hostname: arango
     container_name: arango
     restart: always
@@ -145,7 +133,7 @@ services:
 
   # METRICS
   prometheus:
-    image: prom/prometheus:v2.3.1
+    image: prom/prometheus:v2.3.2
     hostname: prometheus
     container_name: prometheus
     restart: always
@@ -154,14 +142,13 @@ services:
       - "9091:9091"
     networks:
       - local
-      - traefik
     volumes:
       - "prometheus_data:/prometheus"
       - "./metrics/prometheus.yml:/prometheus.yml"
       - "./metrics/alerts.yml:/alerts.yml"
     command: "--config.file=/prometheus.yml"
   grafana:
-    image: grafana/grafana:5.2.1
+    image: grafana/grafana:5.2.2
     hostname: grafana
     container_name: grafana
     restart: always
@@ -177,7 +164,7 @@ services:
     volumes:
       - "grafana_data:/var/lib/grafana"
   alertmanager:
-    image: prom/alertmanager:v0.15.0
+    image: prom/alertmanager:v0.15.1
     hostname: alertmanager
     container_name: alertmanager
     restart: always
@@ -245,8 +232,7 @@ services:
       - "1443:443"
       - "1900:8080"
     networks:
-      - traefik
-      - caddy
+      - local
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./certs:/etc/ssl/certs:ro"
@@ -266,7 +252,7 @@ services:
       - "443:443"
       - "9900:9900"
     networks:
-      - caddy
+      - local
     volumes:
       - "./certs:/etc/ssl/certs:ro"
       - "./gateway/Caddyfile:/www/Caddyfile"
@@ -290,7 +276,6 @@ services:
       - SERVICE_TAGS=monitor
     networks:
       - local
-      - caddy
     labels:
       <<: *labels
     <<: *logdriver
@@ -313,7 +298,6 @@ services:
       - JAEGER_AGENT_PORT=6832
     networks:
       - local
-      - traefik
     labels:
       <<: *labels
       traefik.enable: "true"
@@ -340,7 +324,6 @@ services:
       - JAEGER_AGENT_ADDR=jaeger:6831
     networks:
       - local
-      - traefik
     labels:
       <<: *labels
       traefik.enable: "true"
@@ -364,6 +347,8 @@ services:
       - LOG_LEVEL=debug
       - SERVICE_NAME=switch-service
       - SERVICE_TAGS=monitor
+      - ARANGO_ENDPOINTS=http://arango:8529
+      - ARANGO_PASSWORD=pass
       - JAEGER_AGENT_ADDR=jaeger:6831
     networks:
       - local
