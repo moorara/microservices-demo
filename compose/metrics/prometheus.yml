@@ -24,7 +24,7 @@ scrape_configs:
 
   - job_name: 'caddy'
     static_configs:
-      - targets: ['caddy:9180']
+      - targets: ['caddy:9900']
   - job_name: 'traefik'
     static_configs:
       - targets: ['traefik:8080']
@@ -34,3 +34,6 @@ scrape_configs:
   - job_name: 'sensor-service'
     static_configs:
       - targets: ['sensor-service:4020']
+  - job_name: 'switch-service'
+    static_configs:
+      - targets: ['switch-service:4031']
