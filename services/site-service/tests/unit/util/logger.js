@@ -113,6 +113,7 @@ describe('Logger', () => {
     describe('trace', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'trace'
+        Logger.addContext({ environment: 'test' })
         logger = new Logger()
       })
 
@@ -138,6 +139,7 @@ describe('Logger', () => {
     describe('debug', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'debug'
+        Logger.addContext({ environment: 'test' })
         logger = new Logger()
       })
 
@@ -162,7 +164,8 @@ describe('Logger', () => {
 
     describe('info', () => {
       beforeEach(() => {
-        process.env.LOG_LEVEL = 'debug'
+        process.env.LOG_LEVEL = 'info'
+        Logger.addContext({ environment: 'test' })
         logger = new Logger()
       })
 
@@ -188,6 +191,7 @@ describe('Logger', () => {
     describe('warn', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'warn'
+        Logger.addContext({ environment: 'test' })
         logger = new Logger()
       })
 
@@ -213,6 +217,7 @@ describe('Logger', () => {
     describe('error', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'error'
+        Logger.addContext({ environment: 'test' })
         logger = new Logger()
       })
 
@@ -238,6 +243,7 @@ describe('Logger', () => {
     describe('fatal', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'fatal'
+        Logger.addContext({ environment: 'test' })
         logger = new Logger()
       })
 
