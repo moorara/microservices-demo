@@ -7,20 +7,20 @@ class Logger {
   static addContext (context) {
     Object.assign(this.context, context)
   }
-  
+
   // ref: https://github.com/winstonjs/winston/tree/2.x
-  static getWinstonLogger() {
+  static getWinstonLogger () {
     if (this.winston) {
       return this.winston
     }
 
     const level = process.env.LOG_LEVEL || 'info'
-  
+
     let opts = process.env.NODE_ENV === 'development' ? {
       json: false,
       stringify: false,
       colorize: true,
-      prettyPrint: true,
+      prettyPrint: true
     } : {
       json: true,
       stringify: true,
@@ -28,19 +28,19 @@ class Logger {
       humanReadableUnhandledException: true,
       timestamp: () => new Date().toISOString()
     }
-  
+
     const transports = [
       process.env.NODE_ENV !== 'test'
         ? new winston.transports.Console(opts)
         : new winston.transports.File({ filename: '/dev/null' })
     ]
-  
+
     this.winston = new winston.Logger({
       level,
       levels,
       transports
     })
-  
+
     return this.winston
   }
 

@@ -8,7 +8,7 @@ describe('Logger', () => {
     afterEach(() => {
       Logger.context = {}
     })
-  
+
     it('should add properties to context', () => {
       Logger.addContext({ account: 'dev', environment: 'test' })
       Logger.context.account.should.equal('dev')
@@ -32,7 +32,7 @@ describe('Logger', () => {
     })
 
     it('should return the existing winston logger if already created', () => {
-      Logger.winston= { log () {} }
+      Logger.winston = { log () {} }
       const winstonLogger = Logger.getWinstonLogger()
       winstonLogger.should.eql(Logger.winston)
     })
@@ -109,7 +109,7 @@ describe('Logger', () => {
     after(() => {
       if (origLogLevel) process.env.LOG_LEVEL = origLogLevel
     })
-  
+
     describe('trace', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'trace'
