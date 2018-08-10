@@ -62,6 +62,7 @@ describe('Mongo', () => {
 
     beforeEach(() => {
       opts = {
+        useNewUrlParser: true,
         autoReconnect: true,
         auth: {
           user: config.mongoUser,
