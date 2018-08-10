@@ -16,7 +16,6 @@ services:
     ports:
       - "4010:4010"
     environment:
-      - NODE_ENV=development
       - LOG_LEVEL=debug
       - MONGO_URL=mongodb://mongo:27017
   site-service-test:
