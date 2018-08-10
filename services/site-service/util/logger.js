@@ -1,18 +1,57 @@
 const _ = require('lodash')
 const winston = require('winston')
 
-const LOG_LEVELS = { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, trace: 5 }
+const levels = { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, trace: 5 }
 
-/**
- * options:
- *   - context: { ... }
- *   - winston: a winston logger instance
- */
 class Logger {
-  constructor (logger, options) {
+  static addContext (context) {
+    Object.assign(this.context, context)
+  }
+  
+  // ref: https://github.com/winstonjs/winston/tree/2.x
+  static getWinstonLogger() {
+    if (this.winston) {
+      return this.winston
+    }
+
+    const level = process.env.LOG_LEVEL || 'info'
+  
+    let opts = process.env.NODE_ENV === 'development' ? {
+      json: false,
+      stringify: false,
+      colorize: true,
+      prettyPrint: true,
+    } : {
+      json: true,
+      stringify: true,
+      handleExceptions: true,
+      humanReadableUnhandledException: true,
+      timestamp: () => new Date().toISOString()
+    }
+  
+    const transports = [
+      process.env.NODE_ENV !== 'test'
+        ? new winston.transports.Console(opts)
+        : new winston.transports.File({ filename: '/dev/null' })
+    ]
+  
+    this.winston = new winston.Logger({
+      level,
+      levels,
+      transports
+    })
+  
+    return this.winston
+  }
+
+  /**
+   * @param {string} module     name of the module
+   * @param {Object} [options]  winston: a winston logger instance, context: { ... }
+   */
+  constructor (module, options) {
     options = options || {}
     this.winston = options.winston || Logger.getWinstonLogger()
-    this.context = Object.assign({ pid: process.pid }, Logger.context, options.context, logger ? { logger } : {})
+    this.context = Object.assign({ pid: process.pid }, Logger.context, options.context, module ? { module } : {})
   }
 
   _log (level, args) {
@@ -21,13 +60,13 @@ class Logger {
 
     // Make sure all objects are logged as context
     for (let arg of args) {
-      if (!_.isObject(arg)) {
-        values.push(arg)
-      } else if (arg instanceof Error) {
+      if (arg instanceof Error) {
         values.push(arg.message)
         Object.assign(context, { error: arg })
-      } else {
+      } else if (_.isObject(arg)) {
         Object.assign(context, arg)
+      } else {
+        values.push(arg)
       }
     }
 
@@ -60,46 +99,5 @@ class Logger {
 }
 
 Logger.context = {}
-
-Logger.addContext = function (context) {
-  Object.assign(Logger.context, context)
-}
-
-Logger.getWinstonLogger = function () {
-  if (Logger.winston) {
-    return Logger.winston
-  }
-
-  const level = process.env.LOG_LEVEL || 'info'
-
-  let opts = {
-    level,
-    json: true,
-    stringify: true,
-    handleExceptions: true,
-    humanReadableUnhandledException: true,
-    timestamp: () => new Date().toISOString()
-  }
-
-  if (process.env.NODE_ENV === 'development') {
-    opts.json = false
-    opts.stringify = false
-    opts.colorize = true
-    opts.prettyPrint = true
-  }
-
-  const transports = [
-    process.env.NODE_ENV !== 'test'
-      ? new winston.transports.Console(opts)
-      : new winston.transports.File({ filename: '/dev/null' })
-  ]
-
-  Logger.winston = winston.createLogger({
-    transports,
-    levels: LOG_LEVELS
-  })
-
-  return Logger.winston
-}
 
 module.exports = Logger
