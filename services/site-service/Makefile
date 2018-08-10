@@ -3,12 +3,11 @@ docker_image ?= moorara/site-service
 docker_test_image ?= site-service-test
 
 path := $(shell pwd)
-report_dir := $(path)/coverage
 docker_dir := /tmp/workspace
 
 
 clean:
-	@ rm -rf $(report_dir)
+	@ rm -rf coverage .nyc_output
 
 docker:
 	@ docker build -t $(docker_image):$(docker_tag) .

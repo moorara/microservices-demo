@@ -19,6 +19,7 @@ class Mongo {
       let connection = this.mongoose.connection
 
       let opts = {
+        useNewUrlParser: true,
         autoReconnect: true
       }
 
