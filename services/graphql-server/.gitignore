@@ -4,6 +4,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-lib-cov/
 coverage/
+.nyc_output/
 node_modules/
