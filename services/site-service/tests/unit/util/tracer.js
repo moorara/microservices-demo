@@ -130,25 +130,16 @@ describe('Tracer', () => {
       const config = {
         serviceName: 'node-service'
       }
-      tracer = createTracer(config, options)
+      tracer = createTracer(config)
 
       should.exist(tracer)
       tracer.close(done)
     })
-    it('should create a new tracer with non-default agent', done => {
+    it('should create a new tracer with provided options', done => {
       const config = {
         serviceName: 'node-service',
         jaegerAgentHost: 'jaeger-agent',
-        jaegerAgentPort: 6832
-      }
-      tracer = createTracer(config, options)
-
-      should.exist(tracer)
-      tracer.close(done)
-    })
-    it('should create a new tracer with logging spans enabled', done => {
-      const config = {
-        serviceName: 'node-service',
+        jaegerAgentPort: 6832,
         jaegerLogSpans: true
       }
       tracer = createTracer(config, options)
