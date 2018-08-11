@@ -4,7 +4,7 @@ const { createTracer } = require('../util/tracer')
 
 module.exports.create = options => {
   options = options || {}
-  options.tracer = options.tracer || createTracer('site-service-middleware')
+  options.tracer = options.tracer || createTracer({ serviceName: 'middleware' })
 
   return (req, res, next) => {
     const span = options.tracer.startSpan('http-request')

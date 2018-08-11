@@ -89,24 +89,24 @@ describe('Middleware', () => {
   })
 
   describe('catchError', () => {
-    let err, middleware
+    let middleware
 
     it('should ignore if response is already sent', done => {
       res.headersSent = true
       middleware = Middleware.catchError()
-      middleware(err, req, res)
+      middleware(null, req, res)
       _res.verify()
       done()
     })
     it('should error with status 500 and no body when environment is production', done => {
       middleware = Middleware.catchError({ environment: 'production' })
       _res.expects('sendStatus').withArgs(500).returns()
-      middleware(err, req, res)
+      middleware(null, req, res)
       _res.verify()
       done()
     })
     it('should error with status 500 and error in body when environment is not production', done => {
-      err = { message: 'error' }
+      const err = new Error('error')
       middleware = Middleware.catchError({ environment: 'development' })
       _res.expects('status').withArgs(500).returns(res)
       _res.expects('send').withArgs(err).returns()

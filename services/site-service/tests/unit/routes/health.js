@@ -10,12 +10,11 @@ describe('HealthRouter', () => {
   beforeEach(() => {
     app = express()
     app.use('/', HealthRouter)
-
     request = supertest(app)
   })
 
   it('should return 200', done => {
     request.get('/')
-      .expect(200, {}, done)
+      .expect(200, done)
   })
 })

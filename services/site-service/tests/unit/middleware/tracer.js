@@ -13,6 +13,15 @@ describe('TracerMiddleware', () => {
     let app, request
     let spanFromCtx
 
+    const verify = (spanName, method, url, statusCode) => {
+      const span = tracer._spans[0]
+      span.should.eql(spanFromCtx)
+      span._operationName.should.equal(spanName)
+      span._tags['http.method'].should.equal(method)
+      span._tags['http.url'].should.equal(url)
+      span._tags['http.status_code'].should.equal(statusCode)
+    }
+
     beforeEach(() => {
       tracer = new opentracing.MockTracer()
       middleware = TracerMiddleware.create({ tracer })
@@ -31,13 +40,18 @@ describe('TracerMiddleware', () => {
       request.get('/resources/1234')
         .expect(200)
         .then(res => {
-          tracer._spans[0].should.eql(spanFromCtx)
-          tracer._spans[0]._operationName.should.equal('http-request')
-          tracer._spans[0]._tags['http.method'].should.equal('GET')
-          tracer._spans[0]._tags['http.url'].should.equal('/resources/1234')
-          tracer._spans[0]._tags['http.status_code'].should.equal(200)
+          verify('http-request', 'GET', '/resources/1234', 200)
           done()
-        })
+        }).catch(done)
+    })
+    it('should create a span and add it to request context', done => {
+      request = supertest(app)
+      request.get('/resources/abcd')
+        .expect(200)
+        .then(res => {
+          verify('http-request', 'GET', '/resources/abcd', 200)
+          done()
+        }).catch(done)
     })
   })
 })
