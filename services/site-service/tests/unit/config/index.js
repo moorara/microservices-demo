@@ -1,7 +1,7 @@
 /* eslint-env mocha */
-require('should')
 const fs = require('fs')
 const tmp = require('tmp')
+const should = require('should')
 
 const ConfigProvider = require('../../../config')
 
@@ -37,8 +37,8 @@ describe('ConfigProvider', () => {
         c.serviceName.should.equal('site-service')
         c.servicePort.should.equal(4010)
         c.mongoUrl.should.equal('mongodb://localhost:27017/sites')
-        c.mongoUser.should.equal(null)
-        c.mongoPass.should.equal(null)
+        should.equal(c.mongoUser, null)
+        should.equal(c.mongoPass, null)
         c.jaegerAgentHost.should.equal('localhost')
         c.jaegerAgentPort.should.equal(6832)
         c.jaegerLogSpans.should.equal(false)
