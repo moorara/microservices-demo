@@ -114,7 +114,7 @@ describe('Logger', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'trace'
         Logger.addContext({ environment: 'test' })
-        logger = new Logger()
+        logger = new Logger('logger')
       })
 
       it('should log string and context in trace level', () => {
@@ -140,7 +140,7 @@ describe('Logger', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'debug'
         Logger.addContext({ environment: 'test' })
-        logger = new Logger()
+        logger = new Logger('logger')
       })
 
       it('should log string and context in debug level', () => {
@@ -166,7 +166,7 @@ describe('Logger', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'info'
         Logger.addContext({ environment: 'test' })
-        logger = new Logger()
+        logger = new Logger('logger')
       })
 
       it('should log string and context in info level', () => {
@@ -192,7 +192,7 @@ describe('Logger', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'warn'
         Logger.addContext({ environment: 'test' })
-        logger = new Logger()
+        logger = new Logger('logger')
       })
 
       it('should log string and context in warn level', () => {
@@ -218,7 +218,7 @@ describe('Logger', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'error'
         Logger.addContext({ environment: 'test' })
-        logger = new Logger()
+        logger = new Logger('logger')
       })
 
       it('should log string and context in error level', () => {
@@ -244,7 +244,7 @@ describe('Logger', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'fatal'
         Logger.addContext({ environment: 'test' })
-        logger = new Logger()
+        logger = new Logger('logger')
       })
 
       it('should log string and context in fatal level', () => {
