@@ -11,7 +11,7 @@
 | `make run`                   | Runs the service locally                             |
 | `make build`                 | Builds the service binary locally                    |
 | `make docker`                | Builds Docker image                                  |
-| `make docker-test`           | Builds Docker test image                             |
+| `make docker-test`           | Builds Docker image for testing                      |
 | `make save-images`           | Saves built Docker images                            |
 | `make up`                    | Runs the service locally in containers               |
 | `make down`                  | Stops and removes local containers                   |

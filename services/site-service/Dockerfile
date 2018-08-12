@@ -8,6 +8,7 @@ COPY . .
 
 # STAGE 2
 FROM node:10-alpine
+ENV NODE_ENV production
 EXPOSE 4010
 HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD wget -q -O - http://localhost:4010/health || exit 1
 RUN apk add --no-cache ca-certificates
