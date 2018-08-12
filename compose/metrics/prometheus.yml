@@ -37,3 +37,6 @@ scrape_configs:
   - job_name: 'switch-service'
     static_configs:
       - targets: ['switch-service:4031']
+  - job_name: 'graphql-server'
+    static_configs:
+      - targets: ['graphql-server:5000']
