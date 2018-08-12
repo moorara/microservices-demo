@@ -49,8 +49,8 @@ class Logger {
   }
 
   /**
-   * @param {string} module     name of the module
-   * @param {Object} [options]  winston: a winston logger instance, metadata: { ... }
+   * @param {string} module   name of the module
+   * @param {Object} options  winston: a winston logger instance, metadata: { ... }
    */
   constructor (module, options) {
     options = options || {}

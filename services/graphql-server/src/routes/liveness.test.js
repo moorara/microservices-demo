@@ -15,6 +15,6 @@ describe('LivenessRouter', () => {
 
   it('should return 200', done => {
     request.get('/liveness')
-      .expect(200, {}, done)
+      .expect(200, done)
   })
 })

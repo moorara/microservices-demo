@@ -5,9 +5,10 @@ const ConfigProvider = require('./config')
 const Logger = require('./utils/logger')
 const Metrics = require('./utils/metrics')
 const Tracer = require('./utils/tracer')
-const Middleware = require('./middleware')
 const LivenessRouter = require('./routes/liveness')
 const ReadinessRouter = require('./routes/readiness')
+const Middleware = require('./middleware')
+const MonitorMiddleware = require('./middleware/monitor')
 
 class Server {
   constructor (options) {
@@ -36,7 +37,16 @@ class Server {
       this.app.use(ReadinessRouter)
       this.app.use(this.metrics.router)
 
+      // Monitoring middleware for logs, metrics, and traces
+      const monitorMiddleware = new MonitorMiddleware({
+        register: this.metrics.register,
+        tracer: this.tracer,
+        spanName: 'graphql-request'
+      })
+      this.app.use(monitorMiddleware.router)
+
       // Service routes
+      this.app.use((req, res, next) => res.sendStatus(200))
 
       // Make sure unexpected errors are not sent
       this.app.use(Middleware.catchError)

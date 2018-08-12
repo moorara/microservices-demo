@@ -15,6 +15,6 @@ describe('ReadinessRouter', () => {
 
   it('should return 200', done => {
     request.get('/readiness')
-      .expect(200, {}, done)
+      .expect(200, done)
   })
 })
