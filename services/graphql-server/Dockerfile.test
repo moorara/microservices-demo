@@ -1,0 +1,7 @@
+ARG version=latest
+
+# Test Image
+FROM moorara/graphql-server:$version
+USER root
+ENV NODE_ENV test
+RUN npm install

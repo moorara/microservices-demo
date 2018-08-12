@@ -1,0 +1,18 @@
+version: "3.4"
+services:
+  graphql-server:
+    image: moorara/graphql-server:${VERSION:-latest}
+    hostname: graphql-server
+    container_name: graphql-server
+    ports:
+      - "5000:5000"
+    environment:
+      - LOG_LEVEL=debug
+  graphql-server-test:
+    image: graphql-server-test
+    hostname: graphql-server-test
+    container_name: graphql-server-test
+    depends_on:
+      - graphql-server
+    environment:
+      - SERVER_URL=http://graphql-server:5000

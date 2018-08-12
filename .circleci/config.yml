@@ -285,6 +285,75 @@ jobs:
           path: services/react-client/public
           prefix: public
 
+  graphql-server-build-images:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Build Docker Image
+          working_directory: services/graphql-server
+          command: make docker
+      - run:
+          name: Build Docker Test Image
+          working_directory: services/graphql-server
+          command: make docker-test
+      - run:
+          name: Save Docker Images
+          working_directory: services/graphql-server
+          command: make save-images
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker.tar
+            - docker-test.tar
+
+  graphql-server-unit-tests:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - run:
+          name: Install Packages
+          working_directory: services/graphql-server
+          command: yarn install
+      - run:
+          name: Checking Security
+          working_directory: services/graphql-server
+          command: yarn run nsp
+      - run:
+          name: Linting
+          working_directory: services/graphql-server
+          command: yarn run lint
+      - run:
+          name: Unit Testing
+          working_directory: services/graphql-server
+          command: yarn run test
+      - store_artifacts:
+          path: services/graphql-server/coverage/
+          prefix: coverage/
+
+  graphql-server-component-tests:
+    <<: *node-job-init
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Load Docker Images
+          command: |
+            docker image load -i /tmp/workspace/docker.tar
+            docker image load -i /tmp/workspace/docker-test.tar
+      - run:
+          name: Component Testing
+          working_directory: services/graphql-server
+          command: make test-component
+      - store_artifacts:
+          path: services/graphql-server/component-tests.log
+          destination: component-tests.log
+
 workflows:
   version: 2
   site-service:
@@ -316,3 +385,10 @@ workflows:
       - react-client-build-images
       - react-client-unit-tests
       - react-client-build-app
+  graphql-server:
+    jobs:
+      - graphql-server-build-images
+      - graphql-server-unit-tests
+      - graphql-server-component-tests:
+          requires:
+            - graphql-server-build-images

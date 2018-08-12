@@ -355,3 +355,23 @@ services:
     labels:
       <<: *labels
     <<: *logdriver
+  graphql-server:
+    image: moorara/graphql-server:latest
+    hostname: graphql-server
+    container_name: graphql-server
+    depends_on:
+      - fluentd
+      - jaeger
+    ports:
+      - "5000:5000"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=graphql-server
+      - SERVICE_TAGS=monitor
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6832
+    networks:
+      - local
+    labels:
+      <<: *labels
+    <<: *logdriver
