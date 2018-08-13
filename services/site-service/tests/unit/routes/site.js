@@ -15,8 +15,8 @@ describe('SiteRouter', () => {
   beforeEach(() => {
     config = {}
     logger = {
+      trace () {},
       debug () {},
-      verbose () {},
       info () {},
       warn () {},
       error () {},

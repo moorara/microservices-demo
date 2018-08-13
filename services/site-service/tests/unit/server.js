@@ -60,8 +60,8 @@ describe('Server', () => {
       _configProvider = sinon.mock(configProvider)
 
       logger = {
+        trace () {},
         debug () {},
-        verbose () {},
         info () {},
         warn () {},
         error () {},

@@ -14,8 +14,8 @@ describe('SiteService', () => {
   beforeEach(() => {
     config = {}
     logger = {
+      trace () {},
       debug () {},
-      verbose () {},
       info () {},
       warn () {},
       error () {},

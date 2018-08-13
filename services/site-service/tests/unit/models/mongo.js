@@ -27,8 +27,8 @@ describe('Mongo', () => {
       mongoPass: 'pass'
     }
     logger = {
+      trace () {},
       debug () {},
-      verbose () {},
       info () {},
       warn () {},
       error () {},
