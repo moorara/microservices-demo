@@ -155,7 +155,7 @@ func TestComponentSuccess(t *testing.T) {
 			},
 			[]JSON{
 				{"siteId": "1111-aaaa", "name": "temperature", "unit": "fahrenheit", "minSafe": -22.0, "maxSafe": 86.0},
-				{"siteId": "1111-aaaa", "name": "pressure", "unit": "atmosphere", "minSafe": 50000.0, "maxSafe": 100000.0},
+				{"siteId": "1111-aaaa", "name": "pressure", "unit": "pascal", "minSafe": 50000.0, "maxSafe": 100000.0},
 			},
 			201, 200, 204, 200, 204,
 		},
