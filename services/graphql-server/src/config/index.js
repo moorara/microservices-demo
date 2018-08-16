@@ -8,6 +8,7 @@ const defaultJaegerLogSpans = 'false'
 const defaultSiteServiceAddr = 'localhost:4010'
 const defaultSensorServiceAddr = 'localhost:4020'
 const defaultSwitchServiceAddr = 'localhost:4030'
+const defaultGraphiQlEnabled = 'false'
 
 class ConfigProvider {
   constructor (options) {
@@ -40,7 +41,8 @@ class ConfigProvider {
       jaegerLogSpans: this._getValue('JAEGER_LOG_SPANS', defaultJaegerLogSpans) === 'true',
       siteServiceAddr: this._getValue('SITE_SERVICE_ADDR', defaultSiteServiceAddr),
       sensorServiceAddr: this._getValue('SENSOR_SERVICE_ADDR', defaultSensorServiceAddr),
-      switchServiceAddr: this._getValue('SWITCH_SERVICE_ADDR', defaultSwitchServiceAddr)
+      switchServiceAddr: this._getValue('SWITCH_SERVICE_ADDR', defaultSwitchServiceAddr),
+      graphiQlEnabled: this._getValue('GRAPHIQL_ENABLED', defaultGraphiQlEnabled) === 'true'
     }
 
     return Promise.resolve(config)

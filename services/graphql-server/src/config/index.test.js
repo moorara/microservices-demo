@@ -29,6 +29,8 @@ describe('ConfigProvider', () => {
     delete process.env.SENSOR_SERVICE_ADDR_FILE
     delete process.env.SWITCH_SERVICE_ADDR
     delete process.env.SWITCH_SERVICE_ADDR_FILE
+    delete process.env.GRAPHIQL_ENABLED
+    delete process.env.GRAPHIQL_ENABLED_FILE
   })
 
   describe('getConfig', () => {
@@ -42,6 +44,7 @@ describe('ConfigProvider', () => {
         c.siteServiceAddr.should.equal('localhost:4010')
         c.sensorServiceAddr.should.equal('localhost:4020')
         c.switchServiceAddr.should.equal('localhost:4030')
+        c.graphiQlEnabled.should.equal(false)
         done()
       }).catch(done)
     })
@@ -55,6 +58,7 @@ describe('ConfigProvider', () => {
       process.env.SITE_SERVICE_ADDR = 'site-service:4010'
       process.env.SENSOR_SERVICE_ADDR = 'sensor-service:4020'
       process.env.SWITCH_SERVICE_ADDR = 'switch-service:4030'
+      process.env.GRAPHIQL_ENABLED = 'true'
 
       config.getConfig().then(c => {
         c.serviceName.should.equal('my-service')
@@ -65,6 +69,7 @@ describe('ConfigProvider', () => {
         c.siteServiceAddr.should.equal('site-service:4010')
         c.sensorServiceAddr.should.equal('sensor-service:4020')
         c.switchServiceAddr.should.equal('switch-service:4030')
+        c.graphiQlEnabled.should.equal(true)
         done()
       }).catch(done)
     })
@@ -80,6 +85,7 @@ describe('ConfigProvider', () => {
       const siteFile = tmp.fileSync()
       const sensorFile = tmp.fileSync()
       const switchFile = tmp.fileSync()
+      const grahpiqlFile = tmp.fileSync()
 
       process.env.SERVICE_NAME_FILE = nameFile.name
       process.env.SERVICE_PORT_FILE = portFile.name
@@ -89,6 +95,7 @@ describe('ConfigProvider', () => {
       process.env.SITE_SERVICE_ADDR_FILE = siteFile.name
       process.env.SENSOR_SERVICE_ADDR_FILE = sensorFile.name
       process.env.SWITCH_SERVICE_ADDR_FILE = switchFile.name
+      process.env.GRAPHIQL_ENABLED_FILE = grahpiqlFile.name
 
       fs.writeFileSync(nameFile.fd, 'new-service')
       fs.writeFileSync(portFile.fd, '20000')
@@ -98,6 +105,7 @@ describe('ConfigProvider', () => {
       fs.writeFileSync(siteFile.fd, 'site-service:4010')
       fs.writeFileSync(sensorFile.fd, 'sensor-service:4020')
       fs.writeFileSync(switchFile.fd, 'switch-service:4030')
+      fs.writeFileSync(grahpiqlFile.fd, 'true')
 
       config.getConfig().then(c => {
         c.serviceName.should.equal('new-service')
@@ -108,6 +116,7 @@ describe('ConfigProvider', () => {
         c.siteServiceAddr.should.equal('site-service:4010')
         c.sensorServiceAddr.should.equal('sensor-service:4020')
         c.switchServiceAddr.should.equal('switch-service:4030')
+        c.graphiQlEnabled.should.equal(true)
         done()
       }).catch(done)
     })
