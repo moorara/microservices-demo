@@ -5,6 +5,9 @@ const defaultServicePort = '5000'
 const defaultJaegerAgentHost = 'localhost'
 const defaultJaegerAgentPort = '6832'
 const defaultJaegerLogSpans = 'false'
+const defaultSiteServiceAddr = 'localhost:4010'
+const defaultSensorServiceAddr = 'localhost:4020'
+const defaultSwitchServiceAddr = 'localhost:4030'
 
 class ConfigProvider {
   constructor (options) {
@@ -34,7 +37,10 @@ class ConfigProvider {
       servicePort: parseInt(this._getValue('SERVICE_PORT', defaultServicePort)),
       jaegerAgentHost: this._getValue('JAEGER_AGENT_HOST', defaultJaegerAgentHost),
       jaegerAgentPort: parseInt(this._getValue('JAEGER_AGENT_PORT', defaultJaegerAgentPort)),
-      jaegerLogSpans: this._getValue('JAEGER_LOG_SPANS', defaultJaegerLogSpans) === 'true'
+      jaegerLogSpans: this._getValue('JAEGER_LOG_SPANS', defaultJaegerLogSpans) === 'true',
+      siteServiceAddr: this._getValue('SITE_SERVICE_ADDR', defaultSiteServiceAddr),
+      sensorServiceAddr: this._getValue('SENSOR_SERVICE_ADDR', defaultSensorServiceAddr),
+      switchServiceAddr: this._getValue('SWITCH_SERVICE_ADDR', defaultSwitchServiceAddr)
     }
 
     return Promise.resolve(config)
