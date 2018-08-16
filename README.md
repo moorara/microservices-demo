@@ -26,6 +26,10 @@ This demo application covers the following topics:
   * [docker swarm](./swarm)
   * [kubernetes](./kubernetes)
 
+## Architecture
+
+![system architecture](./docs/architecture.png)
+
 
 [circleci-url]: https://circleci.com/gh/moorara/microservices-demo/tree/master
 [circleci-image]: https://circleci.com/gh/moorara/microservices-demo/tree/master.svg?style=shield
