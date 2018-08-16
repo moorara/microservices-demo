@@ -44,6 +44,8 @@
   - https://github.com/graphql-go/relay
 
   **Apollo**
+  - https://www.apollographql.com/docs/graphql-tools
+    - https://github.com/apollographql/graphql-tools
   - https://www.apollographql.com/client
     - https://github.com/apollographql/apollo-client
   - https://www.apollographql.com/server
