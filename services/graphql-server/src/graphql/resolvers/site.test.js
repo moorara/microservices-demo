@@ -27,7 +27,7 @@ describe('siteResolvers', () => {
       all () {},
       create () {},
       update () {},
-      delete () {},
+      delete () {}
     }
     _siteService = sinon.mock(siteService)
 
@@ -57,7 +57,7 @@ describe('siteResolvers', () => {
 
       it('should throw an error when service.get fails', done => {
         id = 'aaaa-aaaa'
-        const err = new Error("get error")
+        const err = new Error('get error')
         _siteService.expects('get').withArgs({ span }, id).rejects(err)
         resolvers.Query.site(null, { id }, context, info).catch(e => {
           e.should.eql(err)
@@ -78,10 +78,10 @@ describe('siteResolvers', () => {
     })
 
     describe('sites', () => {
-      let args  // name, location, tags, minPriority, maxPriority, limit, skip
+      let args // name, location, tags, minPriority, maxPriority, limit, skip
 
       it('should throw an error when service.all fails', done => {
-        const err = new Error("all error")
+        const err = new Error('all error')
         _siteService.expects('all').withArgs({ span }, args).rejects(err)
         resolvers.Query.sites(null, args, context, info).catch(e => {
           e.should.eql(err)
@@ -107,7 +107,7 @@ describe('siteResolvers', () => {
 
       it('should throw an error when service.create fails', done => {
         input = {}
-        const err = new Error("create error")
+        const err = new Error('create error')
         _siteService.expects('create').withArgs({ span }, input).rejects(err)
         resolvers.Mutation.createSite(null, { input }, context, info).catch(e => {
           e.should.eql(err)
@@ -133,7 +133,7 @@ describe('siteResolvers', () => {
       it('should throw an error when service.update fails', done => {
         id = 'aaaa-aaaa'
         input = {}
-        const err = new Error("update error")
+        const err = new Error('update error')
         _siteService.expects('update').withArgs({ span }, id, input).rejects(err)
         resolvers.Mutation.updateSite(null, { id, input }, context, info).catch(e => {
           e.should.eql(err)
@@ -155,11 +155,11 @@ describe('siteResolvers', () => {
     })
 
     describe('deleteSite', () => {
-      let input
+      let id
 
       it('should throw an error when service.delete fails', done => {
         id = 'aaaa-aaaa'
-        const err = new Error("delete error")
+        const err = new Error('delete error')
         _siteService.expects('delete').withArgs({ span }, id).rejects(err)
         resolvers.Mutation.deleteSite(null, { id }, context, info).catch(e => {
           e.should.eql(err)

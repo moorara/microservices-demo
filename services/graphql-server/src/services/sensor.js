@@ -1,11 +1,15 @@
 const _ = require('lodash')
 
 const Logger = require('../utils/logger')
+const { createTracer } = require('../utils/tracer')
 
 class SensorService {
   constructor (config, options) {
     options = options || {}
     this.logger = options.logger || new Logger('SensorService')
+    this.histogram = options.histogram || { observe () {} }
+    this.summary = options.summary || { observe () {} }
+    this.tracer = options.tracer || createTracer({ serviceName: 'sensor-service' })
 
     this.store = {
       sensors: [
@@ -16,7 +20,7 @@ class SensorService {
   }
 
   create (context, input) {
-    let sensor = Object.assign({}, input)
+    const sensor = Object.assign({}, input)
     sensor.id = _.uniqueId()
     this.store.sensors.push(sensor)
     return Promise.resolve(sensor)

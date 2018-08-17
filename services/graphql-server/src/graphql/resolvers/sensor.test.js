@@ -25,7 +25,7 @@ describe('sensorResolvers', () => {
       all () {},
       create () {},
       update () {},
-      delete () {},
+      delete () {}
     }
     _sensorService = sinon.mock(sensorService)
 
@@ -43,7 +43,7 @@ describe('sensorResolvers', () => {
 
       it('should throw an error when service.get fails', done => {
         id = '1111-1111'
-        const err = new Error("get error")
+        const err = new Error('get error')
         _sensorService.expects('get').withArgs({ span }, id).rejects(err)
         resolvers.Query.sensor(null, { id }, context, info).catch(e => {
           e.should.eql(err)
@@ -68,7 +68,7 @@ describe('sensorResolvers', () => {
 
       it('should throw an error when service.all fails', done => {
         siteId = 'aaaa-aaaa'
-        const err = new Error("all error")
+        const err = new Error('all error')
         _sensorService.expects('all').withArgs({ span }, siteId).rejects(err)
         resolvers.Query.sensors(null, { siteId }, context, info).catch(e => {
           e.should.eql(err)
@@ -95,7 +95,7 @@ describe('sensorResolvers', () => {
 
       it('should throw an error when service.create fails', done => {
         input = {}
-        const err = new Error("create error")
+        const err = new Error('create error')
         _sensorService.expects('create').withArgs({ span }, input).rejects(err)
         resolvers.Mutation.createSensor(null, { input }, context, info).catch(e => {
           e.should.eql(err)
@@ -121,7 +121,7 @@ describe('sensorResolvers', () => {
       it('should throw an error when service.update fails', done => {
         id = '1111-1111'
         input = {}
-        const err = new Error("update error")
+        const err = new Error('update error')
         _sensorService.expects('update').withArgs({ span }, id, input).rejects(err)
         resolvers.Mutation.updateSensor(null, { id, input }, context, info).catch(e => {
           e.should.eql(err)
@@ -143,11 +143,11 @@ describe('sensorResolvers', () => {
     })
 
     describe('deleteSensor', () => {
-      let input
+      let id
 
       it('should throw an error when service.delete fails', done => {
         id = '1111-1111'
-        const err = new Error("delete error")
+        const err = new Error('delete error')
         _sensorService.expects('delete').withArgs({ span }, id).rejects(err)
         resolvers.Mutation.deleteSensor(null, { id }, context, info).catch(e => {
           e.should.eql(err)

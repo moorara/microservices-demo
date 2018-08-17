@@ -25,7 +25,7 @@ describe('switchResolvers', () => {
       all () {},
       create () {},
       update () {},
-      delete () {},
+      delete () {}
     }
     _switchService = sinon.mock(switchService)
 
@@ -43,7 +43,7 @@ describe('switchResolvers', () => {
 
       it('should throw an error when service.get fails', done => {
         id = '3333-3333'
-        const err = new Error("get error")
+        const err = new Error('get error')
         _switchService.expects('get').withArgs({ span }, id).rejects(err)
         resolvers.Query.switch(null, { id }, context, info).catch(e => {
           e.should.eql(err)
@@ -68,7 +68,7 @@ describe('switchResolvers', () => {
 
       it('should throw an error when service.all fails', done => {
         siteId = 'aaaa-aaaa'
-        const err = new Error("all error")
+        const err = new Error('all error')
         _switchService.expects('all').withArgs({ span }, siteId).rejects(err)
         resolvers.Query.switches(null, { siteId }, context, info).catch(e => {
           e.should.eql(err)
@@ -95,7 +95,7 @@ describe('switchResolvers', () => {
 
       it('should throw an error when service.create fails', done => {
         input = {}
-        const err = new Error("create error")
+        const err = new Error('create error')
         _switchService.expects('create').withArgs({ span }, input).rejects(err)
         resolvers.Mutation.installSwitch(null, { input }, context, info).catch(e => {
           e.should.eql(err)
@@ -121,7 +121,7 @@ describe('switchResolvers', () => {
       it('should throw an error when service.update fails', done => {
         id = '3333-3333'
         state = ''
-        const err = new Error("update error")
+        const err = new Error('update error')
         _switchService.expects('update').withArgs({ span }, id, { state }).rejects(err)
         resolvers.Mutation.setSwitch(null, { id, state }, context, info).catch(e => {
           e.should.eql(err)
@@ -143,11 +143,11 @@ describe('switchResolvers', () => {
     })
 
     describe('removeSwitch', () => {
-      let input
+      let id
 
       it('should throw an error when service.delete fails', done => {
         id = '3333-3333'
-        const err = new Error("delete error")
+        const err = new Error('delete error')
         _switchService.expects('delete').withArgs({ span }, id).rejects(err)
         resolvers.Mutation.removeSwitch(null, { id }, context, info).catch(e => {
           e.should.eql(err)

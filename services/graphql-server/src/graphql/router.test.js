@@ -1,42 +1,46 @@
 /* eslint-env mocha */
 const should = require('should')
+const promClient = require('prom-client')
+const opentracing = require('opentracing')
 
 const GraphQLRouter = require('./router')
 
 describe('GraphQLRouter', () => {
   describe('constructor', () => {
-    let config, logger
+    let config, options
 
     beforeEach(() => {
       config = {
         graphiQlEnabled: false
       }
-      logger = {
-        trace () {},
-        debug () {},
-        info () {},
-        warn () {},
-        error () {},
-        fatal () {}
+
+      options = {
+        logger: {
+          trace () {},
+          debug () {},
+          info () {},
+          warn () {},
+          error () {},
+          fatal () {}
+        },
+        register: new promClient.Registry(),
+        tracer: new opentracing.MockTracer(),
+        context: {},
+        siteService: {},
+        sensorService: {},
+        switchService: {}
       }
     })
 
     it('should create a new graphql router with defaults', () => {
-      const router = new GraphQLRouter(config)
+      const router = new GraphQLRouter(config, { tracer: options.tracer })
       should.exist(router.router)
     })
     it('should create a new graphql router with provided options', () => {
-      const options = {
-        logger,
-        context: {},
-        siteService: {},
-        sensorService: {},
-        switchService: {},
-        typeDefs: `type Query { hello: String }`,
-        resolvers: {
-          Query: {
-            hello: () => 'hello, world!'
-          }
+      options.typeDefs = `type Query { hello: String }`
+      options.resolvers = {
+        Query: {
+          hello: () => 'hello, world!'
         }
       }
 

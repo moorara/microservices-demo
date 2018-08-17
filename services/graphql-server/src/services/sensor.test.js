@@ -1,32 +1,43 @@
 /* eslint-env mocha */
 const should = require('should')
+const opentracing = require('opentracing')
 
 const SensorService = require('./sensor')
 
 describe('SensorService', () => {
-  let config, logger
+  let config, options
 
   beforeEach(() => {
     config = {}
-    logger = {
-      debug () {},
-      verbose () {},
-      info () {},
-      warn () {},
-      error () {},
-      fatal () {}
+    options = {
+      logger: {
+        debug () {},
+        verbose () {},
+        info () {},
+        warn () {},
+        error () {},
+        fatal () {}
+      },
+      histogram: { observe () {} },
+      summary: { observe () {} },
+      tracer: new opentracing.MockTracer()
     }
   })
 
   describe('constructor', () => {
     it('should create a new service with defaults', () => {
-      const service = new SensorService(config)
+      const service = new SensorService(config, { tracer: options.tracer })
       should.exist(service.logger)
+      should.exist(service.histogram)
+      should.exist(service.summary)
+      should.exist(service.tracer)
     })
     it('should create a new service with provided options', () => {
-      const options = { logger }
       const service = new SensorService(config, options)
       service.logger.should.equal(options.logger)
+      service.histogram.should.equal(options.histogram)
+      service.summary.should.equal(options.summary)
+      service.tracer.should.equal(options.tracer)
     })
   })
 
@@ -34,7 +45,7 @@ describe('SensorService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SensorService(config, { logger })
+      service = new SensorService(config, options)
       context = {}
     })
 
@@ -68,7 +79,7 @@ describe('SensorService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SensorService(config, { logger })
+      service = new SensorService(config, options)
       context = {}
     })
 
@@ -92,7 +103,7 @@ describe('SensorService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SensorService(config, { logger })
+      service = new SensorService(config, options)
       context = {}
     })
 
@@ -126,7 +137,7 @@ describe('SensorService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SensorService(config, { logger })
+      service = new SensorService(config, options)
       context = {}
     })
 
@@ -162,7 +173,7 @@ describe('SensorService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SensorService(config, { logger })
+      service = new SensorService(config, options)
       context = {}
     })
 

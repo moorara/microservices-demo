@@ -1,11 +1,15 @@
 const _ = require('lodash')
 
 const Logger = require('../utils/logger')
+const { createTracer } = require('../utils/tracer')
 
 class SiteService {
   constructor (config, options) {
     options = options || {}
     this.logger = options.logger || new Logger('SiteService')
+    this.histogram = options.histogram || { observe () {} }
+    this.summary = options.summary || { observe () {} }
+    this.tracer = options.tracer || createTracer({ serviceName: 'site-service' })
 
     this.store = {
       sites: [
@@ -16,8 +20,8 @@ class SiteService {
   }
 
   create (context, input) {
-    let site = Object.assign({}, input)
-    site.id =
+    const site = Object.assign({}, input)
+    site.id = _.uniqueId()
     this.store.sites.push(site)
     return Promise.resolve(site)
   }

@@ -1,32 +1,43 @@
 /* eslint-env mocha */
 const should = require('should')
+const opentracing = require('opentracing')
 
 const SwitchService = require('./switch')
 
 describe('SwitchService', () => {
-  let config, logger
+  let config, options
 
   beforeEach(() => {
     config = {}
-    logger = {
-      debug () {},
-      verbose () {},
-      info () {},
-      warn () {},
-      error () {},
-      fatal () {}
+    options = {
+      logger: {
+        debug () {},
+        verbose () {},
+        info () {},
+        warn () {},
+        error () {},
+        fatal () {}
+      },
+      histogram: { observe () {} },
+      summary: { observe () {} },
+      tracer: new opentracing.MockTracer()
     }
   })
 
   describe('constructor', () => {
     it('should create a new service with defaults', () => {
-      const service = new SwitchService(config)
+      const service = new SwitchService(config, { tracer: options.tracer })
       should.exist(service.logger)
+      should.exist(service.histogram)
+      should.exist(service.summary)
+      should.exist(service.tracer)
     })
     it('should create a new service with provided options', () => {
-      const options = { logger }
       const service = new SwitchService(config, options)
       service.logger.should.equal(options.logger)
+      service.histogram.should.equal(options.histogram)
+      service.summary.should.equal(options.summary)
+      service.tracer.should.equal(options.tracer)
     })
   })
 
@@ -34,7 +45,7 @@ describe('SwitchService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SwitchService(config, { logger })
+      service = new SwitchService(config, options)
       context = {}
     })
 
@@ -66,7 +77,7 @@ describe('SwitchService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SwitchService(config, { logger })
+      service = new SwitchService(config, options)
       context = {}
     })
 
@@ -90,7 +101,7 @@ describe('SwitchService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SwitchService(config, { logger })
+      service = new SwitchService(config, options)
       context = {}
     })
 
@@ -122,7 +133,7 @@ describe('SwitchService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SwitchService(config, { logger })
+      service = new SwitchService(config, options)
       context = {}
     })
 
@@ -156,7 +167,7 @@ describe('SwitchService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SwitchService(config, { logger })
+      service = new SwitchService(config, options)
       context = {}
     })
 

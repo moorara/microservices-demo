@@ -1,11 +1,15 @@
 const _ = require('lodash')
 
 const Logger = require('../utils/logger')
+const { createTracer } = require('../utils/tracer')
 
 class SwitchService {
   constructor (config, options) {
     options = options || {}
     this.logger = options.logger || new Logger('SwitchService')
+    this.histogram = options.histogram || { observe () {} }
+    this.summary = options.summary || { observe () {} }
+    this.tracer = options.tracer || createTracer({ serviceName: 'switch-service' })
 
     this.store = {
       switches: [
@@ -16,7 +20,7 @@ class SwitchService {
   }
 
   create (context, input) {
-    let swtch = Object.assign({}, input)
+    const swtch = Object.assign({}, input)
     swtch.id = _.uniqueId()
     this.store.switches.push(swtch)
     return Promise.resolve(swtch)

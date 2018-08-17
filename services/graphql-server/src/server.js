@@ -40,8 +40,7 @@ class Server {
 
       this.routers.graphql = this.routers.graphql || new GraphQLRouter(config, {
         register: this.metrics.register,
-        tracer: this.tracer,
-        context: {}
+        tracer: this.tracer
       })
 
       this.middleware.monitor = this.middleware.monitor || new MonitorMiddleware({
