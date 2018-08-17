@@ -26,6 +26,7 @@
   - https://graphql.org
   - https://graphql.org/learn/queries
   - https://graphql.org/learn/schema
+  - https://graphql.org/learn/execution
   - https://graphql.org/learn/introspection
   - https://graphql.org/learn/best-practices
     - https://graphql.org/learn/serving-over-http

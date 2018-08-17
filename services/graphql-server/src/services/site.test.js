@@ -69,7 +69,8 @@ describe('SiteService', () => {
     })
 
     it('should return all sites', done => {
-      service.all(context).then(sites => {
+      const query = {}
+      service.all(context, query).then(sites => {
         sites.should.have.length(2)
         done()
       }).catch(done)

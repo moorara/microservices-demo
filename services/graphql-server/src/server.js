@@ -4,25 +4,29 @@ const express = require('express')
 const ConfigProvider = require('./config')
 const Logger = require('./utils/logger')
 const Metrics = require('./utils/metrics')
-const Tracer = require('./utils/tracer')
-const LivenessRouter = require('./routes/liveness')
-const ReadinessRouter = require('./routes/readiness')
-const Middleware = require('./middleware')
+const { createTracer } = require('./utils/tracer')
+const middleware = require('./middleware')
 const MonitorMiddleware = require('./middleware/monitor')
+const livenessRouter = require('./routes/liveness')
+const readinessRouter = require('./routes/readiness')
+const GraphQLRouter = require('./graphql/router')
 
 class Server {
   constructor (options) {
+    options = options || {}
+
     Logger.addMetadata({
       service: process.env.SERVICE_NAME || 'graphql-server'
     })
 
-    options = options || {}
-    this.app = options.app || express()
-    this.routers = options.routers || {}
+    this.configProvider = options.configProvider || new ConfigProvider()
     this.logger = options.logger || new Logger('Server')
     this.metrics = options.metrics || new Metrics()
     this.tracer = options.tracer
-    this.configProvider = options.configProvider || new ConfigProvider()
+
+    this.app = options.app || express()
+    this.routers = options.routers || {}
+    this.middleware = options.middleware || {}
   }
 
   async start () {
@@ -30,26 +34,35 @@ class Server {
       const config = await this.configProvider.getConfig()
 
       // Dependencies
-      this.tracer = this.tracer || Tracer.createTracer(config)
+      this.tracer = this.tracer || createTracer(config)
+      this.routers.liveness = this.routers.liveness || livenessRouter
+      this.routers.readiness = this.routers.readiness || readinessRouter
 
-      // General routes
-      this.app.use(LivenessRouter)
-      this.app.use(ReadinessRouter)
-      this.app.use(this.metrics.router)
+      this.routers.graphql = this.routers.graphql || new GraphQLRouter(config, {
+        register: this.metrics.register,
+        tracer: this.tracer,
+        context: {}
+      })
 
-      // Monitoring middleware for logs, metrics, and traces
-      const monitorMiddleware = new MonitorMiddleware({
+      this.middleware.monitor = this.middleware.monitor || new MonitorMiddleware({
         register: this.metrics.register,
         tracer: this.tracer,
         spanName: 'graphql-request'
       })
-      this.app.use(monitorMiddleware.router)
+
+      // General routes
+      this.app.use(this.routers.liveness)
+      this.app.use(this.routers.readiness)
+      this.app.use(this.metrics.router)
+
+      // Middleware
+      this.app.use(this.middleware.monitor.router)
 
       // Service routes
-      this.app.use((req, res, next) => res.sendStatus(200))
+      this.app.use(this.routers.graphql.router)
 
       // Make sure unexpected errors are not sent
-      this.app.use(Middleware.catchError)
+      this.app.use(middleware.catchError)
 
       // Create and start a http server
       const server = http.createServer(this.app)

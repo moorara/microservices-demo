@@ -22,7 +22,7 @@ class SiteService {
     return Promise.resolve(site)
   }
 
-  all (context) {
+  all (context, query) {
     const sites = Object.assign([], this.store.sites)
     return Promise.resolve(sites)
   }
