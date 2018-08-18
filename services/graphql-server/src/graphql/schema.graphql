@@ -1,0 +1,131 @@
+## http://facebook.github.io/graphql
+## https://graphql.org/learn/schema
+## http://graphql.github.io/graphql-js
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  "Retrieve a single site."
+  site(id: ID!): Site
+  "Retrieve all sites."
+  sites(
+    "The name of sites."
+    name: String
+    "The location of sites."
+    location: String
+    "A comma-separated list of tags."
+    tags: String
+    "The minimum priority of sites."
+    minPriority: Int
+    "The maximum priority of sites."
+    maxPriority: Int
+    "The number of sites to be returned."
+    limit: Int
+    "The number of sites to be skipped."
+    skip: Int
+  ): [Site!]!
+  "Retrieve a single sensor."
+  sensor(id: ID!): Sensor
+  "Retrieve all sensors of a site."
+  sensors(siteId: ID!): [Sensor!]
+  "Retrieve a single switch."
+  switch(id: ID!): Switch
+  "Retrieve all switches of a site."
+  switches(siteId: ID!): [Switch!]
+}
+
+type Mutation {
+  "Create a new site."
+  createSite(input: SiteInput!): Site!
+  "Update an existing site."
+  updateSite(id: ID!, input: SiteInput!): Site
+  "Delete an existing site."
+  deleteSite(id: ID!): Boolean
+
+  "Create a new sensor."
+  createSensor(input: SensorInput!): Sensor!
+  "Update an existing sensor."
+  updateSensor(id: ID!, input: SensorInput!): Sensor
+  "Delete an existing sensor."
+  deleteSensor(id: ID!): Boolean
+
+  "Create a new switch."
+  installSwitch(input: SwitchInput!): Switch!
+  "Set the state of a switch."
+  setSwitch(id: ID!, state: String!): Switch
+  "Remove an existing switch."
+  removeSwitch(id: ID!): Boolean
+}
+
+"""
+SiteInput can be used for creating or updating a site.
+"""
+input SiteInput {
+  name: String!
+  location: String!
+  priority: Int
+  tags: [String!]
+}
+
+"""
+Site is the generic type for any kind of place, station, plant, etc.
+Each site can have some tags, and sites can be prioritized over each other.
+"""
+type Site {
+  id: ID!
+  name: String!
+  location: String!
+  priority: Int
+  tags: [String!]!
+  sensors: [Sensor!]!
+  switches: [Switch!]!
+}
+
+"""
+SensorInput can be used for creating or updating a sensor.
+"""
+input SensorInput {
+  siteId: ID!
+  name: String!
+  unit: String!
+  minSafe: Float!
+  maxSafe: Float!
+}
+
+"""
+Sensor is the type for any kind of device that receives live data on a site.
+Each sensor has a unit in which it reports data points as well as a safe range for data points.
+"""
+type Sensor {
+  id: ID!
+  siteId: ID!
+  name: String!
+  unit: String!
+  minSafe: Float!
+  maxSafe: Float!
+}
+
+"""
+SwitchInput can be used for creating a switch.
+"""
+input SwitchInput {
+  siteId: ID!
+  name: String!
+  state: String!
+  states: [String!]!
+}
+
+"""
+Switch is the type for any kind of device that interacts with a site and alters it.
+Each switch has a set of pre-defined states and can be in one of the state at a time. 
+"""
+type Switch {
+  id: ID!
+  siteId: ID!
+  name: String!
+  state: String!
+  states: [String!]!
+}

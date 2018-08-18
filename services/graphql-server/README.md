@@ -26,6 +26,7 @@
   - https://graphql.org
   - https://graphql.org/learn/queries
   - https://graphql.org/learn/schema
+  - https://graphql.org/learn/execution
   - https://graphql.org/learn/introspection
   - https://graphql.org/learn/best-practices
     - https://graphql.org/learn/serving-over-http
@@ -44,6 +45,8 @@
   - https://github.com/graphql-go/relay
 
   **Apollo**
+  - https://www.apollographql.com/docs/graphql-tools
+    - https://github.com/apollographql/graphql-tools
   - https://www.apollographql.com/client
     - https://github.com/apollographql/apollo-client
   - https://www.apollographql.com/server

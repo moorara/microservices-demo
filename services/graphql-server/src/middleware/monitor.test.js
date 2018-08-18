@@ -28,6 +28,7 @@ describe('MonitorMiddleware', () => {
         tracer: new opentracing.MockTracer(),
         spanName: 'test-request'
       }
+
       const middleware = new MonitorMiddleware(options)
       should.exist(middleware.router)
       should.exist(middleware.histogram)

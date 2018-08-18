@@ -1,32 +1,43 @@
 /* eslint-env mocha */
 const should = require('should')
+const opentracing = require('opentracing')
 
 const SiteService = require('./site')
 
 describe('SiteService', () => {
-  let config, logger
+  let config, options
 
   beforeEach(() => {
     config = {}
-    logger = {
-      debug () {},
-      verbose () {},
-      info () {},
-      warn () {},
-      error () {},
-      fatal () {}
+    options = {
+      logger: {
+        debug () {},
+        verbose () {},
+        info () {},
+        warn () {},
+        error () {},
+        fatal () {}
+      },
+      histogram: { observe () {} },
+      summary: { observe () {} },
+      tracer: new opentracing.MockTracer()
     }
   })
 
   describe('constructor', () => {
     it('should create a new service with defaults', () => {
-      const service = new SiteService(config)
+      const service = new SiteService(config, { tracer: options.tracer })
       should.exist(service.logger)
+      should.exist(service.histogram)
+      should.exist(service.summary)
+      should.exist(service.tracer)
     })
     it('should create a new service with provided options', () => {
-      const options = { logger }
       const service = new SiteService(config, options)
       service.logger.should.equal(options.logger)
+      service.histogram.should.equal(options.histogram)
+      service.summary.should.equal(options.summary)
+      service.tracer.should.equal(options.tracer)
     })
   })
 
@@ -34,7 +45,7 @@ describe('SiteService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SiteService(config, { logger })
+      service = new SiteService(config, options)
       context = {}
     })
 
@@ -64,12 +75,13 @@ describe('SiteService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SiteService(config, { logger })
+      service = new SiteService(config, options)
       context = {}
     })
 
     it('should return all sites', done => {
-      service.all(context).then(sites => {
+      const query = {}
+      service.all(context, query).then(sites => {
         sites.should.have.length(2)
         done()
       }).catch(done)
@@ -80,7 +92,7 @@ describe('SiteService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SiteService(config, { logger })
+      service = new SiteService(config, options)
       context = {}
     })
 
@@ -110,7 +122,7 @@ describe('SiteService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SiteService(config, { logger })
+      service = new SiteService(config, options)
       context = {}
     })
 
@@ -140,7 +152,7 @@ describe('SiteService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SiteService(config, { logger })
+      service = new SiteService(config, options)
       context = {}
     })
 
@@ -174,7 +186,7 @@ describe('SiteService', () => {
     let service, context
 
     beforeEach(() => {
-      service = new SiteService(config, { logger })
+      service = new SiteService(config, options)
       context = {}
     })
 

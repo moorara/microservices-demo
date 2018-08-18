@@ -11,48 +11,31 @@ describe('Server', () => {
   describe('constructor', () => {
     it('should create a new server with defaults', () => {
       const server = new Server()
-      should.exist(server.app)
-      should.exist(server.routers)
+      should.exist(server.configProvider)
       should.exist(server.logger)
       should.exist(server.metrics)
-      should.exist(server.configProvider)
+      should.exist(server.app)
+      should.exist(server.routers)
+      should.exist(server.middleware)
     })
   })
 
   describe('start', () => {
     let httpServer, _createServer, _listen, _close
-    let app, routers, logger, metrics, tracer
     let config, configProvider, _configProvider
+    let logger, metrics, tracer
+    let app, routers, middleware
     let server
 
     beforeEach(() => {
       httpServer = {
         close () {},
-        listen (port, cb) { cb() }
+        listen (port, callback) { callback() }
       }
       _createServer = sinon.stub(http, 'createServer')
       _createServer.callsFake(() => httpServer)
       _listen = sinon.spy(httpServer, 'listen')
       _close = sinon.spy(httpServer, 'close')
-
-      app = {
-        use () {}
-      }
-      routers = {}
-
-      logger = {
-        debug () {},
-        verbose () {},
-        info () {},
-        warn () {},
-        error () {},
-        fatal () {}
-      }
-      metrics = {
-        router: {},
-        register: new promClient.Registry()
-      }
-      tracer = new opentracing.MockTracer()
 
       config = {
         servicePort: '10000',
@@ -65,21 +48,52 @@ describe('Server', () => {
       }
       _configProvider = sinon.mock(configProvider)
 
+      logger = {
+        trace () {},
+        debug () {},
+        info () {},
+        warn () {},
+        error () {},
+        fatal () {}
+      }
+      metrics = {
+        router: {},
+        register: new promClient.Registry()
+      }
+      tracer = new opentracing.MockTracer()
+
+      app = {
+        use () {}
+      }
+      routers = {
+        liveness: (req, res) => res.sendStatus(200),
+        readiness: (req, res) => res.sendStatus(200),
+        graphql: {
+          router: (req, res) => res.sendStatus(200)
+        }
+      }
+      middleware = {
+        monitor: {
+          router: (req, res, next) => next()
+        }
+      }
+
       server = new Server({
-        app,
-        routers,
+        configProvider,
         logger,
         metrics,
         tracer,
-        configProvider
+        app,
+        routers,
+        middleware
       })
     })
 
     afterEach(() => {
+      _configProvider.restore()
       _createServer.restore()
       _listen.restore()
       _close.restore()
-      _configProvider.restore()
     })
 
     it('should error when cannot get config', done => {
