@@ -370,6 +370,10 @@ services:
       - SERVICE_TAGS=monitor
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6832
+      - SITE_SERVICE_ADDR=site-service:4010
+      - SENSOR_SERVICE_ADDR=sensor-service:4020
+      - SWITCH_SERVICE_ADDR=switch-service:4030
+      - GRAPHIQL_ENABLED=true
     networks:
       - local
     labels:
