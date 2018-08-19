@@ -13,6 +13,7 @@
 | `yarn run lint`           | Runs standard linter                       |
 | `yarn run test`           | Runs the unit tests                        |
 | `yarn run test:component` | Runs the component tests                   |
+| `yarn run mock`           | Runs a mock REST API server                |
 | `make docker`             | Builds Docker image                        |
 | `make docker-test`        | Builds Docker image for testing            |
 | `make save-images`        | Saves built Docker images                  |

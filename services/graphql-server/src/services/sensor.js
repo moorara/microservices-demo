@@ -1,7 +1,11 @@
-const _ = require('lodash')
+const http = require('http')
+const axios = require('axios')
+const opentracing = require('opentracing')
 
 const Logger = require('../utils/logger')
 const { createTracer } = require('../utils/tracer')
+
+const timeout = 1000
 
 class SensorService {
   constructor (config, options) {
@@ -9,149 +13,121 @@ class SensorService {
     this.logger = options.logger || new Logger('SensorService')
     this.histogram = options.histogram || { observe () {} }
     this.summary = options.summary || { observe () {} }
-    this.tracer = options.tracer || createTracer({ serviceName: 'sensor-service' })
+    this.tracer = options.tracer || createTracer({ serviceName: 'SensorService' })
+    this.axios = options.axios || axios.create({
+      timeout,
+      httpAgent: new http.Agent({ keepAlive: true }),
+      baseURL: `http://${config.sensorServiceAddr}/v1/`
+    })
+  }
 
-    this.store = {
-      sensors: [
-        { id: '1111-1111', siteId: 'aaaa-aaaa', name: 'temperature', unit: 'celsius', minSafe: -30.0, maxSafe: 30.0 },
-        { id: '2222-2222', siteId: 'bbbb-bbbb', name: 'temperature', unit: 'fahrenheit', minSafe: -22.0, maxSafe: 86.0 }
-      ]
+  async exec (context, name, func) {
+    let result, err
+    let latency
+
+    // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
+    const span = this.tracer.startSpan(name, { childOf: context.span })
+    span.setTag(opentracing.Tags.SPAN_KIND, 'client')
+    span.setTag(opentracing.Tags.PEER_SERVICE, 'sensor-service')
+    span.setTag(opentracing.Tags.PEER_ADDRESS, this.axios.defaults.baseUrl)
+
+    const headers = {}
+    this.tracer.inject(span, opentracing.FORMAT_HTTP_HEADERS, headers)
+
+    // Core functionality
+    try {
+      const startTime = +new Date()
+      result = await func(headers)
+      const endTime = +new Date()
+      latency = (endTime - startTime) / 1000
+    } catch (e) {
+      err = e
+      this.logger.error(err)
     }
+
+    // Metrics
+    const labelValues = { op: name, success: err ? 'false' : 'true' }
+    this.histogram.observe(labelValues, latency)
+    this.summary.observe(labelValues, latency)
+
+    // Tracing
+    span.log({
+      event: name,
+      message: err ? err.message : 'successful!'
+    })
+    span.finish()
+
+    if (err) {
+      throw err
+    }
+
+    return result
   }
 
   create (context, input) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('create-sensor', { childOf: context.span })
-
-    // TODO
-    const sensor = Object.assign({}, input)
-    sensor.id = _.uniqueId()
-    this.store.sensors.push(sensor)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'create_sensor', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'sensor-service')
-    span.setTag('peer.address', 'sensor-service:4020')
-    span.log({ event: 'create-sensor', message: '' })
-    span.finish()
-
-    return Promise.resolve(sensor)
+    return this.exec(context, 'create-sensor', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'post',
+        url: '/sensors',
+        data: input
+      }).then(res => res.data)
+    })
   }
 
   all (context, siteId) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('get-sensors', { childOf: context.span })
-
-    // TODO
-    const sensors = this.store.sensors.filter(s => s.siteId === siteId)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'get_sensors', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'sensor-service')
-    span.setTag('peer.address', 'sensor-service:4020')
-    span.log({ event: 'get-sensors', message: '' })
-    span.finish()
-
-    return Promise.resolve(sensors)
+    return this.exec(context, 'get-sensors', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'get',
+        url: '/sensors',
+        params: { siteId }
+      }).then(res => res.data)
+    })
   }
 
   get (context, id) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('get-sensor', { childOf: context.span })
-
-    // TODO
-    const sensor = Object.assign({}, this.store.sensors.find(s => s.id === id))
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'get_sensor', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'sensor-service')
-    span.setTag('peer.address', 'sensor-service:4020')
-    span.log({ event: 'get-sensor', message: '' })
-    span.finish()
-
-    return Promise.resolve(sensor)
+    return this.exec(context, 'get-sensor', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'get',
+        url: `/sensors/${id}`
+      }).then(res => res.data)
+    })
   }
 
   update (context, id, input) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('update-sensor', { childOf: context.span })
+    return this.exec(context, 'update-sensor', async (headers) => {
+      try {
+        await this.axios.request({
+          headers,
+          method: 'put',
+          url: `/sensors/${id}`,
+          data: input
+        })
 
-    // TODO
-    let updated
-    const sensor = Object.assign({}, { id }, input)
-    for (let i in this.store.sensors) {
-      if (this.store.sensors[i].id === id) {
-        this.store.sensors[i] = sensor
-        updated = Object.assign({}, sensor)
-        break
+        // sensor-service does not respond with updated sensor
+        const updated = await this.axios.request({
+          headers,
+          method: 'get',
+          url: `/sensors/${id}`
+        })
+
+        return updated.data
+      } catch (err) {
+        throw err
       }
-    }
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'update_sensor', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'sensor-service')
-    span.setTag('peer.address', 'sensor-service:4020')
-    span.log({ event: 'update-sensor', message: '' })
-    span.finish()
-
-    return Promise.resolve(updated)
+    })
   }
 
   delete (context, id) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('delete-sensor', { childOf: context.span })
-
-    // TODO
-    _.remove(this.store.sensors, s => s.id === id)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'delete_sensor', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'sensor-service')
-    span.setTag('peer.address', 'sensor-service:4020')
-    span.log({ event: 'delete-sensor', message: '' })
-    span.finish()
-
-    return Promise.resolve()
+    return this.exec(context, 'delete-sensor', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'delete',
+        url: `/sensors/${id}`
+      }).then(res => res.data)
+    })
   }
 }
 
