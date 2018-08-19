@@ -5,7 +5,7 @@ docker_dir := /tmp/workspace
 
 
 clean:
-	@ rm -rf coverage .nyc_output
+	@ rm -rf coverage .nyc_output component-tests.log
 
 docker:
 	@ docker build -t $(docker_image):$(docker_tag) .

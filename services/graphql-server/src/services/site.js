@@ -1,7 +1,11 @@
-const _ = require('lodash')
+const http = require('http')
+const axios = require('axios')
+const opentracing = require('opentracing')
 
 const Logger = require('../utils/logger')
 const { createTracer } = require('../utils/tracer')
+
+const timeout = 1000
 
 class SiteService {
   constructor (config, options) {
@@ -9,182 +13,132 @@ class SiteService {
     this.logger = options.logger || new Logger('SiteService')
     this.histogram = options.histogram || { observe () {} }
     this.summary = options.summary || { observe () {} }
-    this.tracer = options.tracer || createTracer({ serviceName: 'site-service' })
+    this.tracer = options.tracer || createTracer({ serviceName: 'SiteService' })
+    this.axios = options.axios || axios.create({
+      timeout,
+      httpAgent: new http.Agent({ keepAlive: true }),
+      baseURL: `http://${config.siteServiceAddr}/v1/`
+    })
+  }
 
-    this.store = {
-      sites: [
-        { id: 'aaaa-aaaa', name: 'Gas Station', location: 'Toronto, ON', tags: ['energy', 'gas'] },
-        { id: 'bbbb-bbbb', name: 'Power Plant', location: 'Montreal, QC', tags: ['energy', 'power'] }
-      ]
+  async exec (context, name, func) {
+    let result, err
+    let latency
+
+    // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
+    const span = this.tracer.startSpan(name, { childOf: context.span })
+    span.setTag(opentracing.Tags.SPAN_KIND, 'client')
+    span.setTag(opentracing.Tags.PEER_SERVICE, 'site-service')
+    span.setTag(opentracing.Tags.PEER_ADDRESS, this.axios.defaults.baseUrl)
+
+    const headers = {}
+    this.tracer.inject(span, opentracing.FORMAT_HTTP_HEADERS, headers)
+
+    // Core functionality
+    try {
+      const startTime = +new Date()
+      result = await func(headers)
+      const endTime = +new Date()
+      latency = (endTime - startTime) / 1000
+    } catch (e) {
+      err = e
+      this.logger.error(err)
     }
+
+    // Metrics
+    const labelValues = { op: name, success: err ? 'false' : 'true' }
+    this.histogram.observe(labelValues, latency)
+    this.summary.observe(labelValues, latency)
+
+    // Tracing
+    span.log({
+      event: name,
+      message: err ? err.message : 'successful!'
+    })
+    span.finish()
+
+    if (err) {
+      throw err
+    }
+
+    return result
   }
 
   create (context, input) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('create-site', { childOf: context.span })
-
-    // TODO
-    const site = Object.assign({}, input)
-    site.id = _.uniqueId()
-    this.store.sites.push(site)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'create_site', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'site-service')
-    span.setTag('peer.address', 'site-service:4010')
-    span.log({ event: 'create-site', message: '' })
-    span.finish()
-
-    return Promise.resolve(site)
+    return this.exec(context, 'create-site', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'post',
+        url: '/sites',
+        data: input
+      }).then(res => res.data)
+    })
   }
 
   all (context, query) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('get-sites', { childOf: context.span })
-
-    // TODO
-    const sites = Object.assign([], this.store.sites)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'get_sites', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'site-service')
-    span.setTag('peer.address', 'site-service:4010')
-    span.log({ event: 'get-sites', message: '' })
-    span.finish()
-
-    return Promise.resolve(sites)
+    return this.exec(context, 'get-sites', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'get',
+        url: '/sites',
+        params: query
+      }).then(res => res.data)
+    })
   }
 
   get (context, id) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('get-site', { childOf: context.span })
-
-    // TODO
-    const site = Object.assign({}, this.store.sites.find(s => s.id === id))
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'get_site', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'site-service')
-    span.setTag('peer.address', 'site-service:4010')
-    span.log({ event: 'get-site', message: '' })
-    span.finish()
-
-    return Promise.resolve(site)
+    return this.exec(context, 'get-site', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'get',
+        url: `/sites/${id}`
+      }).then(res => res.data)
+    })
   }
 
   update (context, id, input) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('update-site', { childOf: context.span })
+    return this.exec(context, 'update-site', async (headers) => {
+      try {
+        await this.axios.request({
+          headers,
+          method: 'put',
+          url: `/sites/${id}`,
+          data: input
+        })
 
-    // TODO
-    let updated
-    const site = Object.assign({}, { id }, input)
-    for (let i in this.store.sites) {
-      if (this.store.sites[i].id === id) {
-        this.store.sites[i] = site
-        updated = Object.assign({}, site)
-        break
+        // site-service does not respond with updated site
+        const updated = await this.axios.request({
+          headers,
+          method: 'get',
+          url: `/sites/${id}`
+        })
+
+        return updated.data
+      } catch (err) {
+        throw err
       }
-    }
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'update_site', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'site-service')
-    span.setTag('peer.address', 'site-service:4010')
-    span.log({ event: 'update-site', message: '' })
-    span.finish()
-
-    return Promise.resolve(updated)
+    })
   }
 
   modify (context, id, input) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('modify-site', { childOf: context.span })
-
-    // TODO
-    let updated
-    const site = Object.assign({}, { id }, input)
-    for (let i in this.store.sites) {
-      if (this.store.sites[i].id === id) {
-        Object.assign(this.store.sites[i], site)
-        updated = Object.assign({}, this.store.sites[i])
-        break
-      }
-    }
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'modify_site', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'site-service')
-    span.setTag('peer.address', 'site-service:4010')
-    span.log({ event: 'modify-site', message: '' })
-    span.finish()
-
-    return Promise.resolve(updated)
+    return this.exec(context, 'modify-site', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'patch',
+        url: `/sites/${id}`,
+        data: input
+      }).then(res => res.data)
+    })
   }
 
   delete (context, id) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('delete-site', { childOf: context.span })
-
-    // TODO
-    _.remove(this.store.sites, s => s.id === id)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'delete_site', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Traces
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'site-service')
-    span.setTag('peer.address', 'site-service:4010')
-    span.log({ event: 'delete-site', message: '' })
-    span.finish()
-
-    return Promise.resolve()
+    return this.exec(context, 'delete-site', (headers) => {
+      return this.axios.request({
+        headers,
+        method: 'delete',
+        url: `/sites/${id}`
+      }).then(res => res.data)
+    })
   }
 }
 

@@ -1,7 +1,7 @@
-ARG version=latest
-
-# Test Image
-FROM moorara/graphql-server:$version
-USER root
+FROM node:10-alpine
 ENV NODE_ENV test
+WORKDIR /usr/src/app
+COPY [ "package.json", "." ]
+RUN apk add --no-cache ca-certificates
 RUN npm install
+COPY . .

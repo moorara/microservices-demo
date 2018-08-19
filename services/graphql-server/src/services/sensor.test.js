@@ -1,27 +1,69 @@
 /* eslint-env mocha */
+const sinon = require('sinon')
 const should = require('should')
 const opentracing = require('opentracing')
 
 const SensorService = require('./sensor')
 
 describe('SensorService', () => {
+  let logger
+  let histogram, _histogram
+  let summary, _summary
+  let tracer, _tracer
+  let axios, _axios
   let config, options
+  let service, _service
+  let span, context
 
   beforeEach(() => {
-    config = {}
-    options = {
-      logger: {
-        debug () {},
-        verbose () {},
-        info () {},
-        warn () {},
-        error () {},
-        fatal () {}
-      },
-      histogram: { observe () {} },
-      summary: { observe () {} },
-      tracer: new opentracing.MockTracer()
+    logger = {
+      debug () {},
+      verbose () {},
+      info () {},
+      warn () {},
+      error () {},
+      fatal () {}
     }
+
+    histogram = {
+      observe () {}
+    }
+    _histogram = sinon.mock(histogram)
+
+    summary = {
+      observe () {}
+    }
+    _summary = sinon.mock(summary)
+
+    // MockTracer has not implemented inect and extract!
+    tracer = new opentracing.MockTracer()
+    _tracer = sinon.mock(tracer)
+    _tracer.expects('inject').returns()
+
+    axios = {
+      request () {},
+      defaults: {
+        baseUrl: 'http://localhost/'
+      }
+    }
+    _axios = sinon.mock(axios)
+
+    config = {}
+    options = { logger, histogram, summary, tracer, axios }
+
+    service = new SensorService(config, options)
+    _service = sinon.mock(service)
+
+    span = {}
+    context = { span }
+  })
+
+  afterEach(() => {
+    _histogram.restore()
+    _summary.restore()
+    _tracer.restore()
+    _axios.restore()
+    _service.restore()
   })
 
   describe('constructor', () => {
@@ -31,6 +73,7 @@ describe('SensorService', () => {
       should.exist(service.histogram)
       should.exist(service.summary)
       should.exist(service.tracer)
+      should.exist(service.axios)
     })
     it('should create a new service with provided options', () => {
       const service = new SensorService(config, options)
@@ -38,154 +81,251 @@ describe('SensorService', () => {
       service.histogram.should.equal(options.histogram)
       service.summary.should.equal(options.summary)
       service.tracer.should.equal(options.tracer)
+      service.axios.should.equal(options.axios)
+    })
+  })
+
+  describe('exec', () => {
+    const verifyTrace = (spanName, logMessage) => {
+      const span = tracer._spans[0]
+      span._operationName.should.equal(spanName)
+      span._tags[opentracing.Tags.SPAN_KIND].should.equal('client')
+      span._tags[opentracing.Tags.PEER_SERVICE].should.equal('sensor-service')
+      span._tags[opentracing.Tags.PEER_ADDRESS].should.equal(axios.defaults.baseUrl)
+      span._logs[0].fields.event.should.equal(spanName)
+      span._logs[0].fields.message.should.equal(logMessage)
+    }
+
+    it('should reject with an error when input function rejects', done => {
+      const stub = sinon.stub()
+      stub.rejects(new Error('mock error'))
+      _histogram.expects('observe').withArgs({ op: 'unit-test', success: 'false' }).returns()
+      _summary.expects('observe').withArgs({ op: 'unit-test', success: 'false' }).returns()
+      service.exec(context, 'unit-test', stub).catch(err => {
+        err.message.should.equal('mock error')
+        _histogram.verify()
+        _summary.verify()
+        verifyTrace('unit-test', 'mock error')
+        done()
+      })
+    })
+    it('should resolve successfully when input function resolves', done => {
+      const stub = sinon.stub()
+      stub.resolves()
+      _histogram.expects('observe').withArgs({ op: 'unit-test', success: 'true' }).returns()
+      _summary.expects('observe').withArgs({ op: 'unit-test', success: 'true' }).returns()
+      service.exec(context, 'unit-test', stub).then(result => {
+        _histogram.verify()
+        _summary.verify()
+        verifyTrace('unit-test', 'successful!')
+        done()
+      }).catch(done)
     })
   })
 
   describe('create', () => {
-    let service, context
-
     beforeEach(() => {
-      service = new SensorService(config, options)
-      context = {}
+      _service.expects('exec').callsFake((ctx, name, func) => {
+        ctx.should.eql(context)
+        name.should.equal('create-sensor')
+
+        const headers = {}
+        return func(headers)
+      })
     })
 
-    it('should create and persist a new sensor', done => {
-      const input = { siteId: 'aaaa-aaaa', name: 'pressure', unit: 'atmosphere', minSafe: 0.5, maxSafe: 1.0 }
-      service.create(context, input).then(sensor => {
-        should.exist(sensor.id)
-        sensor.siteId.should.equal(input.siteId)
-        sensor.name.should.equal(input.name)
-        sensor.unit.should.equal(input.unit)
-        sensor.minSafe.should.equal(input.minSafe)
-        sensor.maxSafe.should.equal(input.maxSafe)
-        done()
-      }).catch(done)
+    afterEach(() => {
+      _service.verify()
+      _service.restore()
     })
-    it('should create and persist a new sensor', done => {
-      const input = { siteId: 'bbbb-bbbb', name: 'pressure', unit: 'pascal', minSafe: 50000.0, maxSafe: 100000.0 }
-      service.create(context, input).then(sensor => {
-        should.exist(sensor.id)
-        sensor.siteId.should.equal(input.siteId)
-        sensor.name.should.equal(input.name)
-        sensor.unit.should.equal(input.unit)
-        sensor.minSafe.should.equal(input.minSafe)
-        sensor.maxSafe.should.equal(input.maxSafe)
+
+    it('should reject with an error when request rejects', done => {
+      const input = { siteId: 'aaaa-aaaa', name: 'temperature', unit: 'celsius', minSafe: -30, maxSafe: 30 }
+      const err = new Error('create error')
+      _axios.expects('request').withArgs({ headers: {}, method: 'post', url: '/sensors', data: input }).rejects(err)
+      service.create(context, input).catch(e => {
+        e.should.equal(err)
+        _axios.verify()
+        done()
+      })
+    })
+    it('should resolve successfully when request resolves', done => {
+      const input = { siteId: 'aaaa-aaaa', name: 'temperature', unit: 'celsius', minSafe: -30, maxSafe: 30 }
+      const sensor = Object.assign({}, { id: '1111-1111' }, input)
+      _axios.expects('request').withArgs({ headers: {}, method: 'post', url: '/sensors', data: input }).resolves({ data: sensor })
+      service.create(context, input).then(s => {
+        s.should.equal(sensor)
+        _axios.verify()
         done()
       }).catch(done)
     })
   })
 
   describe('all', () => {
-    let service, context
-
     beforeEach(() => {
-      service = new SensorService(config, options)
-      context = {}
+      _service.expects('exec').callsFake((ctx, name, func) => {
+        ctx.should.eql(context)
+        name.should.equal('get-sensors')
+
+        const headers = {}
+        return func(headers)
+      })
     })
 
-    it('should return all sensors of a site', done => {
-      const siteId = 'aaaa-aaaa'
-      service.all(context, siteId).then(sensors => {
-        sensors.should.have.length(1)
-        done()
-      }).catch(done)
+    afterEach(() => {
+      _service.verify()
+      _service.restore()
     })
-    it('should return all sensors of a site', done => {
-      const siteId = 'bbbb-bbbb'
-      service.all(context, siteId).then(sensors => {
-        sensors.should.have.length(1)
+
+    it('should reject with an error when request rejects', done => {
+      const siteId = 'aaaa-aaaa'
+      const err = new Error('all error')
+      _axios.expects('request').withArgs({ headers: {}, method: 'get', url: '/sensors', params: { siteId } }).rejects(err)
+      service.all(context, siteId).catch(e => {
+        e.should.equal(err)
+        _axios.verify()
+        done()
+      })
+    })
+    it('should resolve successfully when request resolves', done => {
+      const siteId = 'aaaa-aaaa'
+      const sensors = [
+        { siteId: 'aaaa-aaaa', name: 'temperature', unit: 'celsius', minSafe: -30, maxSafe: 30 },
+        { siteId: 'aaaa-aaaa', name: 'pressure', unit: 'atmosphere', minSafe: 0.5, maxSafe: 1.0 }
+      ]
+      _axios.expects('request').withArgs({ headers: {}, method: 'get', url: '/sensors', params: { siteId } }).resolves({ data: sensors })
+      service.all(context, siteId).then(s => {
+        s.should.equal(sensors)
+        _axios.verify()
         done()
       }).catch(done)
     })
   })
 
   describe('get', () => {
-    let service, context
-
     beforeEach(() => {
-      service = new SensorService(config, options)
-      context = {}
+      _service.expects('exec').callsFake((ctx, name, func) => {
+        ctx.should.eql(context)
+        name.should.equal('get-sensor')
+
+        const headers = {}
+        return func(headers)
+      })
     })
 
-    it('should return a sensor by id', done => {
-      const id = '1111-1111'
-      service.get(context, id).then(sensor => {
-        sensor.id.should.equal(id)
-        sensor.siteId.should.equal('aaaa-aaaa')
-        sensor.name.should.equal('temperature')
-        sensor.unit.should.equal('celsius')
-        sensor.minSafe.should.equal(-30.0)
-        sensor.maxSafe.should.equal(30.0)
-        done()
-      }).catch(done)
+    afterEach(() => {
+      _service.verify()
+      _service.restore()
     })
-    it('should return a sensor by id', done => {
-      const id = '2222-2222'
-      service.get(context, id).then(sensor => {
-        sensor.id.should.equal(id)
-        sensor.siteId.should.equal('bbbb-bbbb')
-        sensor.name.should.equal('temperature')
-        sensor.unit.should.equal('fahrenheit')
-        sensor.minSafe.should.equal(-22.0)
-        sensor.maxSafe.should.equal(86.0)
+
+    it('should reject with an error when request rejects', done => {
+      const id = '1111-1111'
+      const err = new Error('get error')
+      _axios.expects('request').withArgs({ headers: {}, method: 'get', url: `/sensors/${id}` }).rejects(err)
+      service.get(context, id).catch(e => {
+        e.should.equal(err)
+        _axios.verify()
+        done()
+      })
+    })
+    it('should resolve successfully when request resolves', done => {
+      const id = '1111-1111'
+      const sensor = { id: '1111-1111', siteId: 'aaaa-aaaa', name: 'temperature', unit: 'celsius', minSafe: -30, maxSafe: 30 }
+      _axios.expects('request').withArgs({ headers: {}, method: 'get', url: `/sensors/${id}` }).resolves({ data: sensor })
+      service.get(context, id).then(s => {
+        s.should.equal(sensor)
+        _axios.verify()
         done()
       }).catch(done)
     })
   })
 
   describe('update', () => {
-    let service, context
-
     beforeEach(() => {
-      service = new SensorService(config, options)
-      context = {}
+      _service.expects('exec').callsFake((ctx, name, func) => {
+        ctx.should.eql(context)
+        name.should.equal('update-sensor')
+
+        const headers = {}
+        return func(headers)
+      })
     })
 
-    it('should update a sensor by id', done => {
-      const id = '1111-1111'
-      const input = { siteId: 'aaaa-aaaa', name: 'pressure', unit: 'atmosphere', minSafe: 0.6, maxSafe: 0.9 }
-      service.update(context, id, input).then(sensor => {
-        sensor.id.should.equal(id)
-        sensor.siteId.should.equal(input.siteId)
-        sensor.name.should.equal(input.name)
-        sensor.unit.should.equal(input.unit)
-        sensor.minSafe.should.equal(input.minSafe)
-        sensor.maxSafe.should.equal(input.maxSafe)
-        done()
-      }).catch(done)
+    afterEach(() => {
+      _service.verify()
+      _service.restore()
     })
-    it('should update a sensor by id', done => {
-      const id = '2222-2222'
-      const input = { siteId: 'bbbb-bbbb', name: 'pressure', unit: 'pascal', minSafe: 60000.0, maxSafe: 90000.0 }
-      service.update(context, id, input).then(sensor => {
-        sensor.id.should.equal(id)
-        sensor.siteId.should.equal(input.siteId)
-        sensor.name.should.equal(input.name)
-        sensor.unit.should.equal(input.unit)
-        sensor.minSafe.should.equal(input.minSafe)
-        sensor.maxSafe.should.equal(input.maxSafe)
+
+    it('should reject with an error when first request rejects', done => {
+      const id = '1111-1111'
+      const input = { siteId: 'aaaa-aaaa', name: 'temperature', unit: 'fahrenheit', minSafe: -22, maxSafe: 86 }
+      const err = new Error('update error')
+      _axios.expects('request').withArgs({ headers: {}, method: 'put', url: `/sensors/${id}`, data: input }).rejects(err)
+      service.update(context, id, input).catch(e => {
+        e.should.equal(err)
+        _axios.verify()
+        done()
+      })
+    })
+    it('should reject with an error when second request rejects', done => {
+      const id = '1111-1111'
+      const input = { siteId: 'aaaa-aaaa', name: 'temperature', unit: 'fahrenheit', minSafe: -22, maxSafe: 86 }
+      const err = new Error('get error')
+      _axios.expects('request').withArgs({ headers: {}, method: 'put', url: `/sensors/${id}`, data: input }).resolves({})
+      _axios.expects('request').withArgs({ headers: {}, method: 'get', url: `/sensors/${id}` }).rejects(err)
+      service.update(context, id, input).catch(e => {
+        e.should.equal(err)
+        _axios.verify()
+        done()
+      })
+    })
+    it('should resolve successfully when request resolves', done => {
+      const id = '1111-1111'
+      const input = { siteId: 'aaaa-aaaa', name: 'temperature', unit: 'fahrenheit', minSafe: -22, maxSafe: 86 }
+      const sensor = { id: '1111-1111', siteId: 'aaaa-aaaa', name: 'temperature', unit: 'fahrenheit', minSafe: -22, maxSafe: 86 }
+      _axios.expects('request').withArgs({ headers: {}, method: 'put', url: `/sensors/${id}`, data: input }).resolves({})
+      _axios.expects('request').withArgs({ headers: {}, method: 'get', url: `/sensors/${id}` }).resolves({ data: sensor })
+      service.update(context, id, input).then(s => {
+        s.should.equal(sensor)
+        _axios.verify()
         done()
       }).catch(done)
     })
   })
 
   describe('delete', () => {
-    let service, context
-
     beforeEach(() => {
-      service = new SensorService(config, options)
-      context = {}
+      _service.expects('exec').callsFake((ctx, name, func) => {
+        ctx.should.eql(context)
+        name.should.equal('delete-sensor')
+
+        const headers = {}
+        return func(headers)
+      })
     })
 
-    it('should delete a sensor by id', done => {
-      const id = '1111-1111'
-      service.delete(context, id).then(() => {
-        done()
-      }).catch(done)
+    afterEach(() => {
+      _service.verify()
+      _service.restore()
     })
-    it('should delete a sensor by id', done => {
-      const id = '2222-2222'
-      service.delete(context, id).then(() => {
+
+    it('should reject with an error when request rejects', done => {
+      const id = '1111-1111'
+      const err = new Error('delete error')
+      _axios.expects('request').withArgs({ headers: {}, method: 'delete', url: `/sensors/${id}` }).rejects(err)
+      service.delete(context, id).catch(e => {
+        e.should.equal(err)
+        _axios.verify()
+        done()
+      })
+    })
+    it('should resolve successfully when request resolves', done => {
+      const id = '1111-1111'
+      const result = { data: {} }
+      _axios.expects('request').withArgs({ headers: {}, method: 'delete', url: `/sensors/${id}` }).resolves(result)
+      service.delete(context, id).then(r => {
+        r.should.eql(result.data)
+        _axios.verify()
         done()
       }).catch(done)
     })

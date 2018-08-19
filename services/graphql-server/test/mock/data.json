@@ -1,0 +1,17 @@
+{
+  "sites": [
+    { "id": "1111-1111", "name": "Station 1", "location": "Ottawa, ON",    "priority": 2, "tags": [ "energy", "power" ] },
+    { "id": "2222-2222", "name": "Station 2", "location": "Toronto, ON",   "priority": 3, "tags": [ "energy", "hydro" ] },
+    { "id": "3333-3333", "name": "Station 3", "location": "Montreal, QC",  "priority": 4, "tags": [ "energy", "gas" ] },
+    { "id": "4444-4444", "name": "Station 4", "location": "Vancouver, BC", "priority": 5, "tags": [ "energy", "oil" ] }
+  ],
+
+  "sensors": [
+    { "id": "aaaa-aaaa", "siteId": "1111-1111", "name": "temperature", "unit": "celsius", "minSafe": -30, "maxSafe": 30 },
+    { "id": "bbbb-bbbb", "siteId": "1111-1111", "name": "pressure", "unit": "atmosphere", "minSafe": 0.5, "maxSafe": 1 },
+    { "id": "cccc-cccc", "siteId": "2222-2222", "name": "temperature", "unit": "fahrenheit", "minSafe": -22, "maxSafe": 86 },
+    { "id": "dddd-dddd", "siteId": "2222-2222", "name": "pressure", "unit": "pascal", "minSafe": 50000, "maxSafe": 100000 },
+    { "id": "eeee-eeee", "siteId": "3333-3333", "name": "temperature", "unit": "celsius", "minSafe": -30, "maxSafe": 30 },
+    { "id": "ffff-ffff", "siteId": "4444-4444", "name": "temperature", "unit": "fahrenheit", "minSafe": -22, "maxSafe": 86 }
+  ]
+}

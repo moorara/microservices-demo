@@ -9,7 +9,7 @@ class SwitchService {
     this.logger = options.logger || new Logger('SwitchService')
     this.histogram = options.histogram || { observe () {} }
     this.summary = options.summary || { observe () {} }
-    this.tracer = options.tracer || createTracer({ serviceName: 'switch-service' })
+    this.tracer = options.tracer || createTracer({ serviceName: 'SwitchService' })
 
     this.store = {
       switches: [
@@ -36,7 +36,7 @@ class SwitchService {
     this.histogram.observe(labelValues, latency)
     this.summary.observe(labelValues, latency)
 
-    // Traces
+    // Tracing
     span.setTag('span.kind', 'client')
     span.setTag('peer.service', 'switch-service')
     span.setTag('peer.address', 'switch-service:4030')
@@ -61,7 +61,7 @@ class SwitchService {
     this.histogram.observe(labelValues, latency)
     this.summary.observe(labelValues, latency)
 
-    // Traces
+    // Tracing
     span.setTag('span.kind', 'client')
     span.setTag('peer.service', 'switch-service')
     span.setTag('peer.address', 'switch-service:4030')
@@ -86,7 +86,7 @@ class SwitchService {
     this.histogram.observe(labelValues, latency)
     this.summary.observe(labelValues, latency)
 
-    // Traces
+    // Tracing
     span.setTag('span.kind', 'client')
     span.setTag('peer.service', 'switch-service')
     span.setTag('peer.address', 'switch-service:4030')
@@ -113,7 +113,7 @@ class SwitchService {
     this.histogram.observe(labelValues, latency)
     this.summary.observe(labelValues, latency)
 
-    // Traces
+    // Tracing
     span.setTag('span.kind', 'client')
     span.setTag('peer.service', 'switch-service')
     span.setTag('peer.address', 'switch-service:4030')
@@ -138,7 +138,7 @@ class SwitchService {
     this.histogram.observe(labelValues, latency)
     this.summary.observe(labelValues, latency)
 
-    // Traces
+    // Tracing
     span.setTag('span.kind', 'client')
     span.setTag('peer.service', 'switch-service')
     span.setTag('peer.address', 'switch-service:4030')
