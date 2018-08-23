@@ -43,12 +43,14 @@ describe('SiteService', () => {
     axios = {
       request () {},
       defaults: {
-        baseUrl: 'http://localhost/'
+        baseUrl: 'http://site-service:4010/v1/'
       }
     }
     _axios = sinon.mock(axios)
 
-    config = {}
+    config = {
+      siteServiceAddr: 'site-service:4010'
+    }
     options = { logger, histogram, summary, tracer, axios }
 
     service = new SiteService(config, options)
@@ -190,8 +192,8 @@ describe('SiteService', () => {
     it('should resolve successfully when request resolves', done => {
       const query = { name: 'Plant', location: 'Canada', tags: 'energy', minPriority: 2, maxPriority: 4, limit: 10, skip: 10 }
       const sites = [
-        { name: 'Power Plant', location: 'Toronto, Canada', tags: [ 'energy', 'power' ], priority: 2 },
-        { name: 'Hydro Plant', location: 'Montreal, Canada', tags: [ 'energy', 'hydro' ], priority: 4 }
+        { id: 'aaaa-aaaa', name: 'Power Plant', location: 'Toronto, Canada', tags: [ 'energy', 'power' ], priority: 2 },
+        { id: 'bbbb-bbbb', name: 'Hydro Plant', location: 'Montreal, Canada', tags: [ 'energy', 'hydro' ], priority: 4 }
       ]
       _axios.expects('request').withArgs({ headers: {}, method: 'get', url: '/sites', params: query }).resolves({ data: sites })
       service.all(context, query).then(s => {
@@ -279,7 +281,7 @@ describe('SiteService', () => {
         done()
       })
     })
-    it('should resolve successfully when request resolves', done => {
+    it('should resolve successfully when requests resolve', done => {
       const id = 'aaaa-aaaa'
       const input = { name: 'Power Plant', location: 'Toronto, Canada', priority: 2, tags: ['energy', 'power'] }
       const site = { id: 'aaaa-aaaa', name: 'Power Plant', location: 'Toronto, Canada', priority: 2, tags: ['energy', 'power'] }

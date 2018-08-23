@@ -21,11 +21,11 @@ describe('switchResolvers', () => {
     }
 
     switchService = {
-      get () {},
-      all () {},
-      create () {},
-      update () {},
-      delete () {}
+      getSwitch () {},
+      getSwitches () {},
+      installSwitch () {},
+      setSwitch () {},
+      removeSwitch () {}
     }
     _switchService = sinon.mock(switchService)
 
@@ -41,10 +41,10 @@ describe('switchResolvers', () => {
     describe('switch', () => {
       let id
 
-      it('should throw an error when service.get fails', done => {
+      it('should throw an error when service.getSwitch fails', done => {
         id = '3333-3333'
         const err = new Error('get error')
-        _switchService.expects('get').withArgs({ span }, id).rejects(err)
+        _switchService.expects('getSwitch').withArgs({ span }, id).rejects(err)
         resolvers.Query.switch(null, { id }, context, info).catch(e => {
           e.should.eql(err)
           _switchService.verify()
@@ -54,7 +54,7 @@ describe('switchResolvers', () => {
       it('should return a promise that resolves to a switch', done => {
         id = '4444-4444'
         const swtch = { id: '3333-3333', siteId: 'aaaa-aaaa', name: 'Light', state: 'OFF', states: ['OFF', 'ON'] }
-        _switchService.expects('get').withArgs({ span }, id).resolves(swtch)
+        _switchService.expects('getSwitch').withArgs({ span }, id).resolves(swtch)
         resolvers.Query.switch(null, { id }, context, info).then(s => {
           s.should.eql(swtch)
           _switchService.verify()
@@ -66,10 +66,10 @@ describe('switchResolvers', () => {
     describe('switches', () => {
       let siteId
 
-      it('should throw an error when service.all fails', done => {
+      it('should throw an error when service.getSwitches fails', done => {
         siteId = 'aaaa-aaaa'
-        const err = new Error('all error')
-        _switchService.expects('all').withArgs({ span }, siteId).rejects(err)
+        const err = new Error('get error')
+        _switchService.expects('getSwitches').withArgs({ span }, siteId).rejects(err)
         resolvers.Query.switches(null, { siteId }, context, info).catch(e => {
           e.should.eql(err)
           _switchService.verify()
@@ -79,7 +79,7 @@ describe('switchResolvers', () => {
       it('should return a promise that resolves to an array switches', done => {
         siteId = 'bbbb-bbbb'
         const switches = [{ id: '3333-3333', siteId: 'aaaa-aaaa', name: 'Light', state: 'OFF', states: ['OFF', 'ON'] }]
-        _switchService.expects('all').withArgs({ span }, siteId).resolves(switches)
+        _switchService.expects('getSwitches').withArgs({ span }, siteId).resolves(switches)
         resolvers.Query.switches(null, { siteId }, context, info).then(s => {
           s.should.eql(switches)
           _switchService.verify()
@@ -93,10 +93,10 @@ describe('switchResolvers', () => {
     describe('installSwitch', () => {
       let input
 
-      it('should throw an error when service.create fails', done => {
+      it('should throw an error when service.installSwitch fails', done => {
         input = {}
         const err = new Error('create error')
-        _switchService.expects('create').withArgs({ span }, input).rejects(err)
+        _switchService.expects('installSwitch').withArgs({ span }, input).rejects(err)
         resolvers.Mutation.installSwitch(null, { input }, context, info).catch(e => {
           e.should.eql(err)
           _switchService.verify()
@@ -106,7 +106,7 @@ describe('switchResolvers', () => {
       it('should return a promise that resolves to the new switch', done => {
         input = { siteId: 'aaaa-aaaa', name: 'Light', state: 'OFF', states: ['OFF', 'ON'] }
         const swtch = Object.assign({}, { id: '4444-4444' }, input)
-        _switchService.expects('create').withArgs({ span }, input).resolves(swtch)
+        _switchService.expects('installSwitch').withArgs({ span }, input).resolves(swtch)
         resolvers.Mutation.installSwitch(null, { input }, context, info).then(s => {
           s.should.eql(swtch)
           _switchService.verify()
@@ -118,11 +118,11 @@ describe('switchResolvers', () => {
     describe('setSwitch', () => {
       let id, state
 
-      it('should throw an error when service.update fails', done => {
+      it('should throw an error when service.setSwitch fails', done => {
         id = '3333-3333'
         state = ''
         const err = new Error('update error')
-        _switchService.expects('update').withArgs({ span }, id, { state }).rejects(err)
+        _switchService.expects('setSwitch').withArgs({ span }, id, { state }).rejects(err)
         resolvers.Mutation.setSwitch(null, { id, state }, context, info).catch(e => {
           e.should.eql(err)
           _switchService.verify()
@@ -133,7 +133,7 @@ describe('switchResolvers', () => {
         id = '4444-4444'
         state = 'ON'
         const swtch = { siteId: 'aaaa-aaaa', name: 'Light', state: 'ON', states: ['OFF', 'ON'] }
-        _switchService.expects('update').withArgs({ span }, id, { state }).resolves(swtch)
+        _switchService.expects('setSwitch').withArgs({ span }, id, { state }).resolves(swtch)
         resolvers.Mutation.setSwitch(null, { id, state }, context, info).then(s => {
           s.should.eql(swtch)
           _switchService.verify()
@@ -145,10 +145,10 @@ describe('switchResolvers', () => {
     describe('removeSwitch', () => {
       let id
 
-      it('should throw an error when service.delete fails', done => {
+      it('should throw an error when service.removeSwitch fails', done => {
         id = '3333-3333'
         const err = new Error('delete error')
-        _switchService.expects('delete').withArgs({ span }, id).rejects(err)
+        _switchService.expects('removeSwitch').withArgs({ span }, id).rejects(err)
         resolvers.Mutation.removeSwitch(null, { id }, context, info).catch(e => {
           e.should.eql(err)
           _switchService.verify()
@@ -157,7 +157,7 @@ describe('switchResolvers', () => {
       })
       it('should return a promise that resolves true', done => {
         id = '4444-4444'
-        _switchService.expects('delete').withArgs({ span }, id).resolves(true)
+        _switchService.expects('removeSwitch').withArgs({ span }, id).resolves(true)
         resolvers.Mutation.removeSwitch(null, { id }, context, info).then(result => {
           result.should.be.true()
           _switchService.verify()

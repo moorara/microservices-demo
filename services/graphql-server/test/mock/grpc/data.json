@@ -1,0 +1,8 @@
+{
+  "switches": [
+    { "id": "aaaa-aaaa", "siteId": "1111-1111", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+    { "id": "bbbb-bbbb", "siteId": "2222-2222", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+    { "id": "cccc-cccc", "siteId": "3333-3333", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+    { "id": "dddd-dddd", "siteId": "4444-4444", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] }
+  ]
+}

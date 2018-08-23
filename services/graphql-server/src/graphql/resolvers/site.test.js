@@ -37,7 +37,7 @@ describe('siteResolvers', () => {
     _sensorService = sinon.mock(sensorService)
 
     switchService = {
-      all () {}
+      getSwitches () {}
     }
     _switchService = sinon.mock(switchService)
 
@@ -241,7 +241,7 @@ describe('siteResolvers', () => {
     describe('switches', () => {
       it('should return a promise that rejects with an error when service.all fails', done => {
         const err = new Error('all error')
-        _switchService.expects('all').withArgs({ span }, site.id).rejects(err)
+        _switchService.expects('getSwitches').withArgs({ span }, site.id).rejects(err)
         resolvers.Site.switches(site, {}, context, info).catch(e => {
           e.should.eql(err)
           _switchService.verify()
@@ -250,7 +250,7 @@ describe('siteResolvers', () => {
       })
       it('should return a promise that resolves to site switches', done => {
         const switches = [{ id: '3333-3333', siteId: 'aaaa-aaaa', name: 'Light', state: 'OFF', states: ['OFF', 'ON'] }]
-        _switchService.expects('all').withArgs({ span }, site.id).resolves(switches)
+        _switchService.expects('getSwitches').withArgs({ span }, site.id).resolves(switches)
         resolvers.Site.switches(site, {}, context, info).then(s => {
           s.should.eql(switches)
           _switchService.verify()

@@ -11,6 +11,9 @@ describe('GraphQLRouter', () => {
 
     beforeEach(() => {
       config = {
+        siteServiceAddr: 'service:9999',
+        sensorServiceAddr: 'service:9999',
+        switchServiceAddr: 'service:9999',
         graphiQlEnabled: false
       }
 

@@ -14,10 +14,11 @@ app.use((req, res, next) => {
     res.end = end
     res.end(data, encoding)
 
-    const status = chalk.black.bgGreen(res.statusCode)
+    const timestamp = chalk.green(new Date().toISOString())
+    const status = chalk.black.bgCyan.bold(res.statusCode)
     const method = chalk.black.bgYellow.bold(req.method).padEnd(8)
     const url = chalk.yellow(req.path).padEnd(32)
-    console.log(` ${status}  ${method} ${url}`)
+    console.log(` ${timestamp}  ${status}  ${method} ${url}`)
   }
 
   next()
@@ -32,5 +33,5 @@ app.listen(port, err => {
     return console.log(err)
   }
 
-  console.log(`mock api server listening on ${port} ...`)
+  console.log(chalk.green(`Mock REST API Server Listening on ${port} ...`))
 })
