@@ -13,16 +13,20 @@
     "lint:fix": "standard --fix",
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive src",
     "test:component": "NODE_ENV=test mocha test/component/index.js",
-    "mock": "cd test/mock && json-server --config config.json data.json"
+    "mock:rest": "cd test/mock/rest && json-server --config config.json data.json",
+    "mock:grpc": "node test/mock/grpc/index.js"
   },
   "dependencies": {
+    "@grpc/proto-loader": "^0.3.0",
     "axios": "^0.18.0",
     "express": "^4.16.3",
     "express-graphql": "^0.6.12",
     "express-winston": "^2.6.0",
+    "google-protobuf": "^3.6.1",
     "graphiql": "^0.11.11",
     "graphql": "^0.13.2",
     "graphql-tools": "^3.1.1",
+    "grpc": "^1.14.1",
     "jaeger-client": "^3.12.0",
     "lodash": "^4.17.10",
     "opentracing": "^0.14.3",

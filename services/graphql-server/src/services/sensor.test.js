@@ -43,12 +43,14 @@ describe('SensorService', () => {
     axios = {
       request () {},
       defaults: {
-        baseUrl: 'http://localhost/'
+        baseUrl: 'http://sensor-service:4020/v1/'
       }
     }
     _axios = sinon.mock(axios)
 
-    config = {}
+    config = {
+      sensorServiceAddr: 'sensor-service:4020'
+    }
     options = { logger, histogram, summary, tracer, axios }
 
     service = new SensorService(config, options)
@@ -190,8 +192,8 @@ describe('SensorService', () => {
     it('should resolve successfully when request resolves', done => {
       const siteId = 'aaaa-aaaa'
       const sensors = [
-        { siteId: 'aaaa-aaaa', name: 'temperature', unit: 'celsius', minSafe: -30, maxSafe: 30 },
-        { siteId: 'aaaa-aaaa', name: 'pressure', unit: 'atmosphere', minSafe: 0.5, maxSafe: 1.0 }
+        { id: '1111-1111', siteId: 'aaaa-aaaa', name: 'temperature', unit: 'celsius', minSafe: -30, maxSafe: 30 },
+        { id: '2222-2222', siteId: 'aaaa-aaaa', name: 'pressure', unit: 'atmosphere', minSafe: 0.5, maxSafe: 1.0 }
       ]
       _axios.expects('request').withArgs({ headers: {}, method: 'get', url: '/sensors', params: { siteId } }).resolves({ data: sensors })
       service.all(context, siteId).then(s => {
@@ -279,7 +281,7 @@ describe('SensorService', () => {
         done()
       })
     })
-    it('should resolve successfully when request resolves', done => {
+    it('should resolve successfully when requests resolve', done => {
       const id = '1111-1111'
       const input = { siteId: 'aaaa-aaaa', name: 'temperature', unit: 'fahrenheit', minSafe: -22, maxSafe: 86 }
       const sensor = { id: '1111-1111', siteId: 'aaaa-aaaa', name: 'temperature', unit: 'fahrenheit', minSafe: -22, maxSafe: 86 }

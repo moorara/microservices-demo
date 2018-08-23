@@ -1,0 +1,48 @@
+// This should be in sync with its counterpart contract in switch-service
+
+syntax = "proto3";
+package proto;
+
+message Switch {
+  string id = 1;
+  string site_id = 2;
+  string name = 3;
+  string state = 4;
+  repeated string states = 5;
+}
+
+message InstallSwitchRequest {
+  string site_id = 1;
+  string name = 2;
+  string state = 3;
+  repeated string states = 4;
+}
+
+message RemoveSwitchRequest {
+  string id = 1;
+}
+
+message RemoveSwitchResponse {}
+
+message GetSwitchRequest {
+  string id = 1;
+}
+
+message GetSwitchesRequest {
+  string site_id = 1;
+}
+
+message SetSwitchRequest {
+  string id = 1;
+  string state = 2;
+}
+
+message SetSwitchResponse {}
+
+service SwitchService {
+  rpc InstallSwitch (InstallSwitchRequest) returns (Switch);
+  rpc RemoveSwitch (RemoveSwitchRequest) returns (RemoveSwitchResponse);
+  rpc GetSwitch (GetSwitchRequest) returns (Switch);
+  rpc GetSwitches (GetSwitchesRequest) returns (stream Switch);
+  rpc SetSwitch (SetSwitchRequest) returns (SetSwitchResponse);
+}

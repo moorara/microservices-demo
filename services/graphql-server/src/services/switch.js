@@ -1,151 +1,127 @@
-const _ = require('lodash')
+const grpc = require('grpc')
+const opentracing = require('opentracing')
 
+const { proto } = require('../grpc')
 const Logger = require('../utils/logger')
 const { createTracer } = require('../utils/tracer')
 
 class SwitchService {
   constructor (config, options) {
     options = options || {}
+    this.serviceAddr = config.switchServiceAddr
     this.logger = options.logger || new Logger('SwitchService')
     this.histogram = options.histogram || { observe () {} }
     this.summary = options.summary || { observe () {} }
     this.tracer = options.tracer || createTracer({ serviceName: 'SwitchService' })
+    this.client = options.client || new proto.SwitchService(
+      this.serviceAddr,
+      grpc.credentials.createInsecure()
+    )
+  }
 
-    this.store = {
-      switches: [
-        { id: '3333-3333', siteId: 'aaaa-aaaa', name: 'Light', state: 'OFF', states: ['OFF', 'ON'] },
-        { id: '4444-4444', siteId: 'bbbb-bbbb', name: 'Light', state: 'OFF', states: ['OFF', 'ON'] }
-      ]
+  async exec (context, name, func) {
+    let result, err
+    let latency
+
+    // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
+    const span = this.tracer.startSpan(name, { childOf: context.span })
+    span.setTag(opentracing.Tags.SPAN_KIND, 'client')
+    span.setTag(opentracing.Tags.PEER_SERVICE, 'switch-service')
+    span.setTag(opentracing.Tags.PEER_ADDRESS, this.serviceAddr)
+
+    const carrier = {}
+    this.tracer.inject(span, opentracing.FORMAT_TEXT_MAP, carrier)
+
+    const metadata = new grpc.Metadata()
+    metadata.add('span', JSON.stringify(carrier))
+
+    // Core functionality
+    try {
+      const startTime = +new Date()
+      result = await func(metadata)
+      const endTime = +new Date()
+      latency = (endTime - startTime) / 1000
+    } catch (e) {
+      err = e
+      this.logger.error(err)
     }
-  }
-
-  create (context, input) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('create-switch', { childOf: context.span })
-
-    // TODO
-    const swtch = Object.assign({}, input)
-    swtch.id = _.uniqueId()
-    this.store.switches.push(swtch)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
 
     // Metrics
-    const labelValues = { op: 'create_switch', success: 'true' }
+    const labelValues = { op: name, success: err ? 'false' : 'true' }
     this.histogram.observe(labelValues, latency)
     this.summary.observe(labelValues, latency)
 
     // Tracing
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'switch-service')
-    span.setTag('peer.address', 'switch-service:4030')
-    span.log({ event: 'create-switch', message: '' })
+    span.log({
+      event: name,
+      message: err ? err.message : 'successful!'
+    })
     span.finish()
 
-    return Promise.resolve(swtch)
+    if (err) {
+      throw err
+    }
+
+    return result
   }
 
-  all (context, siteId) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('get-switches', { childOf: context.span })
-
-    // TODO
-    const switches = this.store.switches.filter(s => s.siteId === siteId)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'get_switches', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Tracing
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'switch-service')
-    span.setTag('peer.address', 'switch-service:4030')
-    span.log({ event: 'get-switches', message: '' })
-    span.finish()
-
-    return Promise.resolve(switches)
+  installSwitch (context, { siteId, name, state, states }) {
+    return this.exec(context, 'install-switch', metadata => {
+      return new Promise((resolve, reject) => {
+        this.client.installSwitch({ siteId, name, state, states }, metadata, (err, swtch) => {
+          return err ? reject(err) : resolve(swtch)
+        })
+      })
+    })
   }
 
-  get (context, id) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('get-switch', { childOf: context.span })
-
-    // TODO
-    const swtch = Object.assign({}, this.store.switches.find(s => s.id === id))
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'get_switch', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Tracing
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'switch-service')
-    span.setTag('peer.address', 'switch-service:4030')
-    span.log({ event: 'get-switch', message: '' })
-    span.finish()
-
-    return Promise.resolve(swtch)
+  removeSwitch (context, id) {
+    return this.exec(context, 'remove-switch', metadata => {
+      return new Promise((resolve, reject) => {
+        this.client.removeSwitch({ id }, metadata, err => {
+          return err ? reject(err) : resolve()
+        })
+      })
+    })
   }
 
-  update (context, id, { state }) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('update-switch', { childOf: context.span })
-
-    // TODO
-    const swtch = this.store.switches.find(s => s.id === id)
-    swtch.state = state
-    const updated = Object.assign({}, swtch)
-
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'update_switch', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Tracing
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'switch-service')
-    span.setTag('peer.address', 'switch-service:4030')
-    span.log({ event: 'update-switch', message: '' })
-    span.finish()
-
-    return Promise.resolve(updated)
+  getSwitch (context, id) {
+    return this.exec(context, 'get-switch', metadata => {
+      return new Promise((resolve, reject) => {
+        this.client.getSwitch({ id }, metadata, (err, swtch) => {
+          return err ? reject(err) : resolve(swtch)
+        })
+      })
+    })
   }
 
-  delete (context, id) {
-    const startTime = +new Date()
-    const span = this.tracer.startSpan('delete-switch', { childOf: context.span })
+  getSwitches (context, siteId) {
+    return this.exec(context, 'get-switches', metadata => {
+      return new Promise((resolve, reject) => {
+        const switches = []
+        const call = this.client.getSwitches({ siteId }, metadata)
+        call.on('data', swtch => switches.push(swtch))
+        call.on('error', err => reject(err))
+        call.on('end', () => resolve(switches))
+      })
+    })
+  }
 
-    // TODO
-    _.remove(this.store.switches, s => s.id === id)
+  setSwitch (context, id, { state }) {
+    return this.exec(context, 'set-switch', metadata => {
+      return new Promise((resolve, reject) => {
+        this.client.setSwitch({ id, state }, metadata, err => {
+          if (err) {
+            reject(err)
+          }
 
-    const endTime = +new Date()
-    const latency = (endTime - startTime) / 1000
-
-    // Metrics
-    const labelValues = { op: 'delete_switch', success: 'true' }
-    this.histogram.observe(labelValues, latency)
-    this.summary.observe(labelValues, latency)
-
-    // Tracing
-    span.setTag('span.kind', 'client')
-    span.setTag('peer.service', 'switch-service')
-    span.setTag('peer.address', 'switch-service:4030')
-    span.log({ event: 'delete-switch', message: '' })
-    span.finish()
-
-    return Promise.resolve()
+          // switch-service does not respond with updated switch
+          this.client.getSwitch({ id }, metadata, (err, swtch) => {
+            return err ? reject(err) : resolve(swtch)
+          })
+        })
+      })
+    })
   }
 }
 

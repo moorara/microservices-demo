@@ -68,7 +68,7 @@ const resolvers = {
 
     switches: (site, args, context, info) => {
       const ctx = { span: context.span }
-      return context.switchService.all(ctx, site.id)
+      return context.switchService.getSwitches(ctx, site.id)
     }
   }
 }

@@ -1,24 +1,33 @@
 version: "3.4"
 services:
-  mock-server:
+  mock-rest:
     image: graphql-server-test
-    hostname: mock-server
-    container_name: mock-server
+    hostname: mock-rest
+    container_name: mock-rest
     ports:
       - "4400:4400"
-    command: [ "node", "test/mock/index.js" ]
+    command: [ "node", "test/mock/rest/index.js" ]
+  mock-grpc:
+    image: graphql-server-test
+    hostname: mock-grpc
+    container_name: mock-grpc
+    ports:
+      - "4500:4500"
+    command: [ "node", "test/mock/grpc/index.js" ]
   graphql-server:
     image: moorara/graphql-server:${VERSION:-latest}
     hostname: graphql-server
     container_name: graphql-server
     depends_on:
-      - mock-server
+      - mock-rest
+      - mock-grpc
     ports:
       - "5000:5000"
     environment:
       - LOG_LEVEL=debug
-      - SITE_SERVICE_ADDR=mock-server:4400
-      - SENSOR_SERVICE_ADDR=mock-server:4400
+      - SITE_SERVICE_ADDR=mock-rest:4400
+      - SENSOR_SERVICE_ADDR=mock-rest:4400
+      - SWITCH_SERVICE_ADDR=mock-grpc:4500
   graphql-server-test:
     image: graphql-server-test
     hostname: graphql-server-test
