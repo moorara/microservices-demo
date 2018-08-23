@@ -13,6 +13,29 @@
 | `test-integration` | Runs the integration tests                           |
 | `init-data`        | Initializes databases with sample data               |
 
+## API Gateways
+
+| Type    | Transport | Gateway | URL                            |
+| --------|-----------|---------|--------------------------------|
+| REST    | HTTP      | Træfik  | http://localhost:1080/api/v1/  |
+| REST    | HTTPS     | Træfik  | https://localhost:1443/api/v1/ |
+| REST    | HTTPS     | Caddy   | https://localhost/api/v1/      |
+| GraphQL | HTTPS     | Caddy   | https://localhost/graphql      |
+
+
+## Dashboards
+
+| Dashboard         | URL                    | Username | Password | Required Information             |
+|-------------------|------------------------|----------|----------|----------------------------------|
+| **GraphiQL**      | http://localhost:5000  |          |          |                                  |
+| **Kibana**        | http://localhost:5601  |          |          | Index Pattern: `fluentd`         |
+| **Grafana**       | http://localhost:3000  | `admin`  | `pass`   | Source: `http://prometheus:9090` |
+| **Prometheus**    | http://localhost:9090  |          |          |                                  |
+| **Alert Manager** | http://localhost:9093  |          |          |                                  |
+| **cAdvisor**      | http://localhost:9800  |          |          |                                  |
+| **Jaeger UI**     | http://localhost:16686 |          |          |                                  |
+| **Træfik**        | http://localhost:1900  |          |          |                                  |
+
 ## Ports
 
 | Port       | Container        | Description                                                      |
@@ -26,6 +49,9 @@
 | `4000`     | `react-client`   | react-client service                                             |
 | `4010`     | `site-service`   | site-service service                                             |
 | `4020`     | `sensor-service` | sensor-service service                                           |
+| `4030`     | `switch-service` | switch-service service (grpc)                                    |
+| `4031`     | `switch-service` | switch-service service (http)                                    |
+| `5000`     | `graphql-server` | graphql-server service                                           |
 | `6379`     | `redis`          | Redis service                                                    |
 | `27017`    | `mongo`          | MongoDB service                                                  |
 | `8529`     | `arango`         | ArangoDB service                                                 |
@@ -47,18 +73,6 @@
 | `9411`     | `jaeger`         | jaeger-collector: zipkin compatible endpoint                     |
 | `14268`    | `jaeger`         | jaeger-collector: accept jaeger.thrift directly from clients     |
 | `16686`    | `jaeger`         | jaeger-query: serve jaeger ui at `/` and api endpoints at `/api` |
-
-## Dashboards
-
-| Dashboard                               | Required Information                                                        |
-|-----------------------------------------|-----------------------------------------------------------------------------|
-| [Kibana](http://localhost:5601)         | Index Pattern: `fluentd`                                                    |
-| [Grafana](http://localhost:3000)        | User: `admin` <br/> Password: `pass` <br/> Source: `http://prometheus:9090` |
-| [Prometheus](http://localhost:9090)     |                                                                             |
-| [Alert Manager ](http://localhost:9093) |                                                                             |
-| [cAdvisor](http://localhost:9800)       |                                                                             |
-| [Jaeger UI](http://localhost:16686)     |                                                                             |
-| [Træfik](http://localhost:1900)         |                                                                             |
 
 ## Documentation
 
