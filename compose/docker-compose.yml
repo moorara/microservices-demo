@@ -81,7 +81,7 @@ services:
       - local
     volumes:
       - "postgres_data:/var/lib/postgresql/data"
-      - "./init/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
+      - "./data/postgres/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
 
   # LOGGING
   elasticsearch:

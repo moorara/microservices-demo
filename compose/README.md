@@ -11,7 +11,7 @@
 | `make clean`       | Removes created Docker volumes                       |
 | `test-up`          | Brings up a subset of local environment for testing  |
 | `test-integration` | Runs the integration tests                           |
-| `init-data`        | Initializes databases with sample data               |
+| `sample-data`      | Import sample data to databases                      |
 
 ## API Gateways
 

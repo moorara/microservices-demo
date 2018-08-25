@@ -31,22 +31,11 @@ test-integration:
 	@ cd tests && ./integration.sh
 
 
-init-data:
-	@ chmod 0600 $(path)/init/pgpass
-	@ docker run \
-	    --network compose_local --link mongo \
-	    --volume "$(path)/init/sites.json:/data/sites.json" \
-	    mongo \
-	    mongoimport --host mongo --port 27017 --db sites --collection sites /data/sites.json
-	@ docker run \
-	    --network compose_local --link postgres \
-	    --volume "$(path)/init/pgpass:/root/.pgpass" \
-	    --volume "$(path)/init/sensors.sql:/data/sensors.sql" \
-	    postgres \
-	    psql --host postgres --port 5432 --username root --dbname sensors --file /data/sensors.sql --echo-all
+sample-data:
+	@ ./seed-data.sh
 
 
 .PHONY: images services
 .PHONY: up down clean
 .PHONY: test-up test-integration
-.PHONY: init-data
+.PHONY: sample-data
