@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test(t *testing.T) {
+func TestResponseWriter(t *testing.T) {
 	tests := []struct {
 		name        string
 		statusCode  int
