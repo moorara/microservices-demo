@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	defaultArangoEndpoints = []string{"http://localhost:8529"}
+	defaultArangoEndpoints = []string{"tcp://localhost:8529"}
 )
 
 // Config defines the schema for configurations

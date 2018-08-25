@@ -89,11 +89,11 @@ describe('SensorService', () => {
 
   describe('exec', () => {
     const verifyTrace = (spanName, logMessage) => {
-      const span = tracer._spans[0]
-      span._operationName.should.equal(spanName)
-      span._tags[opentracing.Tags.SPAN_KIND].should.equal('client')
-      span._tags[opentracing.Tags.PEER_SERVICE].should.equal('sensor-service')
-      span._tags[opentracing.Tags.PEER_ADDRESS].should.equal(axios.defaults.baseUrl)
+      const span = tracer.report().spans[0]
+      span.operationName().should.equal(spanName)
+      span.tags()[opentracing.Tags.SPAN_KIND].should.equal('client')
+      span.tags()[opentracing.Tags.PEER_SERVICE].should.equal('sensor-service')
+      span.tags()[opentracing.Tags.PEER_ADDRESS].should.equal(axios.defaults.baseUrl)
       span._logs[0].fields.event.should.equal(spanName)
       span._logs[0].fields.message.should.equal(logMessage)
     }

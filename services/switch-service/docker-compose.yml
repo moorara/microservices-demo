@@ -20,7 +20,7 @@ services:
       - "4031:4031"
     environment:
       - LOG_LEVEL=debug
-      - ARANGO_ENDPOINTS=http://arango:8529
+      - ARANGO_ENDPOINTS=tcp://arango:8529
       - ARANGO_PASSWORD=pass
 
   integration-test:

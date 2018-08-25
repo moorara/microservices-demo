@@ -1,0 +1,4 @@
+{ "_id": "aaaaaaaaaaaaaaaaaaaaaaaa", "name": "Station B", "location": "Toronto, ON", "tags": [ "energy", "power", "nuclear" ], "priority": 1 }
+{ "_id": "bbbbbbbbbbbbbbbbbbbbbbbb", "name": "Station A", "location": "Ottawa, ON", "tags": [ "energy", "power", "hydro" ], "priority": 2 }
+{ "_id": "cccccccccccccccccccccccc", "name": "Station C", "location": "Montreal, QC", "tags": [ "energy", "fuel", "gas" ], "priority": 3 }
+{ "_id": "dddddddddddddddddddddddd", "name": "Station D", "location": "Vancouver, BC", "tags": [ "energy", "fuel", "gasoline" ], "priority": 4 }

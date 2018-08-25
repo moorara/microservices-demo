@@ -10,6 +10,7 @@
     "start": "node server.js",
     "nsp": "nsp check",
     "lint": "standard",
+    "lint:fix": "standard --fix",
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text mocha tests/unit/*",
     "test:component": "NODE_ENV=test mocha tests/component/index.js"
   },

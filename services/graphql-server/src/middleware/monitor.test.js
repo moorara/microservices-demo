@@ -77,13 +77,13 @@ describe('MonitorMiddleware', () => {
         val.labels.statusCode.should.equal(statusCode)
       }
 
-      const span = tracer._spans[0]
+      const span = tracer.report().spans[0]
       span.should.eql(reqSpan)
-      span._operationName.should.equal(spanName)
-      span._tags['http.version'].should.equal(httpVersion)
-      span._tags['http.method'].should.equal(method)
-      span._tags['http.url'].should.equal(url)
-      span._tags['http.status_code'].should.equal(statusCode)
+      span.operationName().should.equal(spanName)
+      span.tags()['http.version'].should.equal(httpVersion)
+      span.tags()[opentracing.Tags.HTTP_METHOD].should.equal(method)
+      span.tags()[opentracing.Tags.HTTP_URL].should.equal(url)
+      span.tags()[opentracing.Tags.HTTP_STATUS_CODE].should.equal(statusCode)
     }
 
     beforeEach(() => {

@@ -81,7 +81,7 @@ services:
       - local
     volumes:
       - "postgres_data:/var/lib/postgresql/data"
-      - "./init/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
+      - "./data/postgres/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
 
   # LOGGING
   elasticsearch:
@@ -347,7 +347,7 @@ services:
       - LOG_LEVEL=debug
       - SERVICE_NAME=switch-service
       - SERVICE_TAGS=monitor
-      - ARANGO_ENDPOINTS=http://arango:8529
+      - ARANGO_ENDPOINTS=tcp://arango:8529
       - ARANGO_PASSWORD=pass
       - JAEGER_AGENT_ADDR=jaeger:6831
     networks:

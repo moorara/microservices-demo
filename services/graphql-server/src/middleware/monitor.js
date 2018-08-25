@@ -1,5 +1,6 @@
 const express = require('express')
 const promClient = require('prom-client')
+const opentracing = require('opentracing')
 const expressWinston = require('express-winston')
 
 const Logger = require('../utils/logger')
@@ -62,18 +63,16 @@ class MonitorMiddleware {
   }
 
   _middleware (req, res, next) {
-    const startTime = +new Date()
+    const startTime = Date.now()
     const span = this.tracer.startSpan(this.spanName)
     req.context = { span }
 
     const end = res.end
     res.end = (data, encoding) => {
-      const endTime = +new Date()
-
       res.end = end
       res.end(data, encoding)
 
-      const duration = (endTime - startTime) / 1000
+      const duration = (Date.now() - startTime) / 1000
       const url = req.path
 
       // Metrics
@@ -89,9 +88,9 @@ class MonitorMiddleware {
       // Traces
       // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
       span.setTag('http.version', req.httpVersion)
-      span.setTag('http.method', req.method)
-      span.setTag('http.url', url)
-      span.setTag('http.status_code', res.statusCode)
+      span.setTag(opentracing.Tags.HTTP_METHOD, req.method)
+      span.setTag(opentracing.Tags.HTTP_URL, url)
+      span.setTag(opentracing.Tags.HTTP_STATUS_CODE, res.statusCode)
       span.finish()
     }
 

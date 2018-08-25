@@ -1,0 +1,13 @@
+[
+  { "siteId": "aaaaaaaaaaaaaaaaaaaaaaaa", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+  { "siteId": "aaaaaaaaaaaaaaaaaaaaaaaa", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+
+  { "siteId": "bbbbbbbbbbbbbbbbbbbbbbbb", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+  { "siteId": "bbbbbbbbbbbbbbbbbbbbbbbb", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+
+  { "siteId": "cccccccccccccccccccccccc", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+  { "siteId": "cccccccccccccccccccccccc", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+
+  { "siteId": "dddddddddddddddddddddddd", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] },
+  { "siteId": "dddddddddddddddddddddddd", "name": "Light", "state": "OFF", "states": ["OFF", "ON"] }
+]

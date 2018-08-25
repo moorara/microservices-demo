@@ -14,179 +14,129 @@ class SiteService {
     this.SiteModel = options.SiteModel || new Site().Model
   }
 
-  async create (specs, context) {
-    let site
-
-    const siteModel = new this.SiteModel(
-      _.pick(specs, [ 'name', 'location', 'tags', 'priority' ])
-    )
-
+  async exec (context, name, mongoQuery, func) {
     context = context || {}
-    const parentSpan = context.span
-    const span = this.tracer.startSpan('save-document', { childOf: parentSpan })
+    let latency, result, err
 
+    // https://opentracing-javascript.surge.sh/interfaces/spanoptions.html
+    // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
+    const span = this.tracer.startSpan(name, { childOf: context.span }) // { childOf: context.span.context() }
+    span.setTag(opentracing.Tags.DB_TYPE, 'mongo')
+    span.setTag(opentracing.Tags.DB_STATEMENT, mongoQuery)
+
+    // Core functionality
     try {
-      site = await siteModel.save()
-      site = site.toJSON()
-    } catch (err) {
-      this.logger.error(`Error creating site ${specs.name}.`, err)
-      throw err
+      const startTime = Date.now()
+      result = await func()
+      latency = (Date.now() - startTime) / 1000
+    } catch (e) {
+      err = e
+      this.logger.error(err)
     }
 
-    span.setTag('db.type', 'mongo')
+    // Metrics
+
+    // Tracing
     span.log({
-      'event': 'save-document',
-      'db.statement': 'save'
+      event: name,
+      latency: latency,
+      message: err ? err.message : 'successful!'
     })
     span.finish()
 
-    return site
+    if (err) {
+      throw err
+    }
+    return result
+  }
+
+  async create (specs, context) {
+    return this.exec(context, 'save-document', 'save()', async () => {
+      const siteModel = new this.SiteModel(
+        _.pick(specs, [ 'name', 'location', 'tags', 'priority' ])
+      )
+
+      try {
+        const site = await siteModel.save()
+        return site.toJSON()
+      } catch (err) {
+        throw err
+      }
+    })
   }
 
   /**
    * query: name, location, tags, minPriority, maxPriority, limit, skip
    */
   async all (query, context) {
-    let sites
-    let mongoQuery = {}
+    return this.exec(context, 'find-documents', 'find().limit().skip().exec()', async () => {
+      query = query || {}
+      let mongoQuery = {}
 
-    query = query || {}
-    if (query.name) mongoQuery.name = new RegExp(`.*${query.name}.*`, 'i')
-    if (query.location) mongoQuery.location = new RegExp(`.*${query.location}.*`, 'i')
-    if (query.tags) _.set(mongoQuery, 'tags.$in', query.tags.split(','))
-    if (query.minPriority) _.set(mongoQuery, 'priority.$gte', +query.minPriority)
-    if (query.maxPriority) _.set(mongoQuery, 'priority.$lte', +query.maxPriority)
+      if (query.name) mongoQuery.name = new RegExp(`.*${query.name}.*`, 'i')
+      if (query.location) mongoQuery.location = new RegExp(`.*${query.location}.*`, 'i')
+      if (query.tags) _.set(mongoQuery, 'tags.$in', query.tags.split(','))
+      if (query.minPriority) _.set(mongoQuery, 'priority.$gte', +query.minPriority)
+      if (query.maxPriority) _.set(mongoQuery, 'priority.$lte', +query.maxPriority)
 
-    context = context || {}
-    const parentSpan = context.span
-    const span = this.tracer.startSpan('find-documents', { childOf: parentSpan })
-
-    try {
-      sites = await this.SiteModel
-        .find(mongoQuery)
-        .limit(+query.limit)
-        .skip(+query.skip)
-        .exec()
-    } catch (err) {
-      this.logger.error('Error getting sites.', err)
-      throw err
-    }
-
-    span.setTag('db.type', 'mongo')
-    span.log({
-      'event': 'find-documents',
-      'db.statement': 'find'
+      try {
+        const sites = await this.SiteModel.find(mongoQuery).limit(+query.limit).skip(+query.skip).exec()
+        return sites.map(l => l.toJSON())
+      } catch (err) {
+        throw err
+      }
     })
-    span.finish()
-
-    return sites.map(l => l.toJSON())
   }
 
   async get (id, context) {
-    let site
-
-    context = context || {}
-    const parentSpan = context.span
-    const span = this.tracer.startSpan('find-document', { childOf: parentSpan })
-
-    try {
-      site = await this.SiteModel.findById(id)
-      site = site ? site.toJSON() : null
-    } catch (err) {
-      this.logger.error(`Error getting site ${id}.`, err)
-      throw err
-    }
-
-    span.setTag('db.type', 'mongo')
-    span.log({
-      'event': 'find-document',
-      'db.statement': 'findById'
+    return this.exec(context, 'find-document', 'findById()', async () => {
+      try {
+        const site = await this.SiteModel.findById(id)
+        return site ? site.toJSON() : null
+      } catch (err) {
+        throw err
+      }
     })
-    span.finish()
-
-    return site
   }
 
   async update (id, specs, context) {
-    let result
+    return this.exec(context, 'update-document', 'update()', async () => {
+      const query = { _id: id }
+      const update = Object.assign({}, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
+      const options = { upsert: false, runValidators: true, overwrite: true }
 
-    const query = { _id: id }
-    const update = Object.assign({}, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
-    const options = { upsert: false, runValidators: true, overwrite: true }
-
-    context = context || {}
-    const parentSpan = context.span
-    const span = this.tracer.startSpan('update-document', { childOf: parentSpan })
-
-    try {
-      let res = await this.SiteModel.update(query, update, options)
-      result = res.ok === 1 && res.n === 1
-    } catch (err) {
-      this.logger.error(`Error updating site ${id}.`, err)
-      throw err
-    }
-
-    span.setTag('db.type', 'mongo')
-    span.log({
-      'event': 'update-document',
-      'db.statement': 'update'
+      try {
+        const res = await this.SiteModel.update(query, update, options)
+        return res.ok === 1 && res.n === 1
+      } catch (err) {
+        throw err
+      }
     })
-    span.finish()
-
-    return result
   }
 
   async modify (id, specs, context) {
-    let site
+    return this.exec(context, 'modify-document', 'findByIdAndUpdate()', async () => {
+      const update = Object.assign({}, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
+      const options = { new: true, upsert: false, runValidators: true }
 
-    const update = Object.assign({}, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
-    const options = { new: true, upsert: false, runValidators: true }
-
-    context = context || {}
-    const parentSpan = context.span
-    const span = this.tracer.startSpan('modify-document', { childOf: parentSpan })
-
-    try {
-      site = await this.SiteModel.findByIdAndUpdate(id, update, options)
-      site = site ? site.toJSON() : null
-    } catch (err) {
-      this.logger.error(`Error updating site ${id}.`, err)
-      throw err
-    }
-
-    span.setTag('db.type', 'mongo')
-    span.log({
-      'event': 'modify-document',
-      'db.statement': 'findByIdAndUpdate'
+      try {
+        const site = await this.SiteModel.findByIdAndUpdate(id, update, options)
+        return site ? site.toJSON() : null
+      } catch (err) {
+        throw err
+      }
     })
-    span.finish()
-
-    return site
   }
 
   async delete (id, context) {
-    let site
-
-    context = context || {}
-    const parentSpan = context.span
-    const span = this.tracer.startSpan('delete-document', { childOf: parentSpan })
-
-    try {
-      site = await this.SiteModel.findByIdAndRemove(id)
-      site = site ? site.toJSON() : null
-    } catch (err) {
-      this.logger.error(`Error deleting site ${id}.`, err)
-      throw err
-    }
-
-    span.setTag('db.type', 'mongo')
-    span.log({
-      'event': 'delete-document',
-      'db.statement': 'findByIdAndRemove'
+    return this.exec(context, 'delete-document', 'findByIdAndRemove()', async () => {
+      try {
+        const site = await this.SiteModel.findByIdAndRemove(id)
+        return site ? site.toJSON() : null
+      } catch (err) {
+        throw err
+      }
     })
-    span.finish()
-
-    return site
   }
 }
 

@@ -23,8 +23,9 @@ class SwitchService {
     let result, err
     let latency
 
+    // https://opentracing-javascript.surge.sh/interfaces/spanoptions.html
     // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
-    const span = this.tracer.startSpan(name, { childOf: context.span })
+    const span = this.tracer.startSpan(name, { childOf: context.span }) // { childOf: context.span.context() }
     span.setTag(opentracing.Tags.SPAN_KIND, 'client')
     span.setTag(opentracing.Tags.PEER_SERVICE, 'switch-service')
     span.setTag(opentracing.Tags.PEER_ADDRESS, this.serviceAddr)
@@ -33,14 +34,13 @@ class SwitchService {
     this.tracer.inject(span, opentracing.FORMAT_TEXT_MAP, carrier)
 
     const metadata = new grpc.Metadata()
-    metadata.add('span', JSON.stringify(carrier))
+    metadata.add('span.context', JSON.stringify(carrier))
 
     // Core functionality
     try {
-      const startTime = +new Date()
+      const startTime = Date.now()
       result = await func(metadata)
-      const endTime = +new Date()
-      latency = (endTime - startTime) / 1000
+      latency = (Date.now() - startTime) / 1000
     } catch (e) {
       err = e
       this.logger.error(err)
