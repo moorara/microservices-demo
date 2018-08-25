@@ -34,7 +34,7 @@ class SwitchService {
     this.tracer.inject(span, opentracing.FORMAT_TEXT_MAP, carrier)
 
     const metadata = new grpc.Metadata()
-    metadata.add('span', JSON.stringify(carrier))
+    metadata.add('span.context', JSON.stringify(carrier))
 
     // Core functionality
     try {

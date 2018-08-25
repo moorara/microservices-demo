@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -11,19 +12,28 @@ import (
 	"github.com/moorara/microservices-demo/services/switch-service/internal/proto"
 	"github.com/moorara/microservices-demo/services/switch-service/pkg/log"
 	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
+	"google.golang.org/grpc/metadata"
+
+	arango "github.com/arangodb/go-driver"
+	opentracingLog "github.com/opentracing/opentracing-go/log"
 )
 
 const (
 	queryGetSwitches = `FOR sw IN switches FILTER sw.siteId == @siteId RETURN sw`
 )
 
-// SwitchService implements proto.SwitchServiceServer
-type SwitchService struct {
-	arango  ArangoService
-	logger  *log.Logger
-	metrics *metrics.Metrics
-	tracer  opentracing.Tracer
-}
+type (
+	callback func() error
+
+	// SwitchService implements proto.SwitchServiceServer
+	SwitchService struct {
+		arango  ArangoService
+		logger  *log.Logger
+		metrics *metrics.Metrics
+		tracer  opentracing.Tracer
+	}
+)
 
 // NewSwitchService creates a new switch service
 func NewSwitchService(arango ArangoService, logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) proto.SwitchServiceServer {
@@ -35,8 +45,63 @@ func NewSwitchService(arango ArangoService, logger *log.Logger, metrics *metrics
 	}
 }
 
+func (s *SwitchService) extractParentSpanContext(ctx context.Context) (opentracing.SpanContext, error) {
+	meta, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		vals := meta.Get("span.context")
+		if len(vals) == 1 {
+			data := make(map[string]string)
+			err := json.Unmarshal([]byte(vals[0]), &data)
+			if err != nil {
+				return nil, err
+			}
+
+			carrier := opentracing.TextMapCarrier(data)
+			return s.tracer.Extract(opentracing.TextMap, carrier)
+		}
+	}
+
+	return nil, nil
+}
+
+func (s *SwitchService) exec(ctx context.Context, req interface{}, op, query string, fn callback) {
+	var span opentracing.Span
+	parentSpanContext, _ := s.extractParentSpanContext(ctx)
+	if parentSpanContext == nil {
+		span = s.tracer.StartSpan(op)
+	} else {
+		span = s.tracer.StartSpan(op, opentracing.ChildOf(parentSpanContext))
+	}
+
+	// https://github.com/opentracing/specification/blob/master/semantic_conventions.md
+	defer span.Finish()
+	ext.DBType.Set(span, "arango")
+	ext.DBStatement.Set(span, query)
+	span.LogFields(opentracingLog.String("event", op))
+
+	start := time.Now()
+	err := fn()
+	latency := time.Now().Sub(start).Seconds()
+
+	success := "true"
+	if err != nil {
+		success = "false"
+		s.logger.Error("message", fmt.Sprintf("%s failed: %s", op, err))
+		span.LogFields(opentracingLog.String("message", err.Error()))
+	} else {
+		s.logger.Debug("message", fmt.Sprintf("%s succeeded.", op), "req", req)
+		span.LogFields(opentracingLog.String("message", "successful!"))
+	}
+
+	s.metrics.OpLatencyHist.WithLabelValues(op, success).Observe(latency)
+	s.metrics.OpLatencySumm.WithLabelValues(op, success).Observe(latency)
+}
+
 // InstallSwitch creates a new switch
 func (s *SwitchService) InstallSwitch(ctx context.Context, req *proto.InstallSwitchRequest) (*proto.Switch, error) {
+	var err error
+	var meta arango.DocumentMeta
+
 	doc := &model.Switch{
 		Key:    uuid.New().String(),
 		SiteID: req.GetSiteId(),
@@ -45,20 +110,14 @@ func (s *SwitchService) InstallSwitch(ctx context.Context, req *proto.InstallSwi
 		States: req.GetStates(),
 	}
 
-	start := time.Now()
-	meta, err := s.arango.CreateDocument(ctx, doc)
-	duration := time.Now().Sub(start).Seconds()
+	s.exec(ctx, req, "InstallSwitch_CreateDocument", "CreateDocument", func() error {
+		meta, err = s.arango.CreateDocument(ctx, doc)
+		return err
+	})
 
 	if err != nil {
-		s.logger.Error("message", fmt.Sprintf("InstallSwitch failed: %s", err))
-		s.metrics.OpLatencyHist.WithLabelValues("install_switch_create_doc", "false").Observe(duration)
-		s.metrics.OpLatencySumm.WithLabelValues("install_switch_create_doc", "false").Observe(duration)
 		return nil, err
 	}
-
-	s.logger.Debug("message", "InstallSwitch succeeded.", "req", req)
-	s.metrics.OpLatencyHist.WithLabelValues("install_switch_create_doc", "true").Observe(duration)
-	s.metrics.OpLatencySumm.WithLabelValues("install_switch_create_doc", "true").Observe(duration)
 
 	doc.ID = meta.ID.String()
 	doc.Key = meta.Key
@@ -75,45 +134,35 @@ func (s *SwitchService) InstallSwitch(ctx context.Context, req *proto.InstallSwi
 
 // RemoveSwitch deletes a switch
 func (s *SwitchService) RemoveSwitch(ctx context.Context, req *proto.RemoveSwitchRequest) (*proto.RemoveSwitchResponse, error) {
+	var err error
 	key := req.GetId()
 
-	start := time.Now()
-	_, err := s.arango.RemoveDocument(ctx, key)
-	duration := time.Now().Sub(start).Seconds()
+	s.exec(ctx, req, "RemoveSwitch_RemoveDocument", "RemoveDocument", func() error {
+		_, err = s.arango.RemoveDocument(ctx, key)
+		return err
+	})
 
 	if err != nil {
-		s.logger.Error("message", fmt.Sprintf("RemoveSwitch failed: %s", err))
-		s.metrics.OpLatencyHist.WithLabelValues("remove_switch_remove_doc", "false").Observe(duration)
-		s.metrics.OpLatencySumm.WithLabelValues("remove_switch_remove_doc", "false").Observe(duration)
 		return nil, err
 	}
-
-	s.logger.Debug("message", "RemoveSwitch succeeded.", "req", req)
-	s.metrics.OpLatencyHist.WithLabelValues("remove_switch_remove_doc", "true").Observe(duration)
-	s.metrics.OpLatencySumm.WithLabelValues("remove_switch_remove_doc", "true").Observe(duration)
 
 	return &proto.RemoveSwitchResponse{}, nil
 }
 
 // GetSwitch retrieves a switch
 func (s *SwitchService) GetSwitch(ctx context.Context, req *proto.GetSwitchRequest) (*proto.Switch, error) {
+	var err error
 	key := req.GetId()
 	doc := &model.Switch{}
 
-	start := time.Now()
-	_, err := s.arango.ReadDocument(ctx, key, doc)
-	duration := time.Now().Sub(start).Seconds()
+	s.exec(ctx, req, "GetSwitch_ReadDocument", "ReadDocument", func() error {
+		_, err = s.arango.ReadDocument(ctx, key, doc)
+		return err
+	})
 
 	if err != nil {
-		s.logger.Error("message", fmt.Sprintf("GetSwitch failed: %s", err))
-		s.metrics.OpLatencyHist.WithLabelValues("get_switch_read_doc", "false").Observe(duration)
-		s.metrics.OpLatencySumm.WithLabelValues("get_switch_read_doc", "false").Observe(duration)
 		return nil, err
 	}
-
-	s.logger.Debug("message", "GetSwitch succeeded.", "req", req)
-	s.metrics.OpLatencyHist.WithLabelValues("get_switch_read_doc", "true").Observe(duration)
-	s.metrics.OpLatencySumm.WithLabelValues("get_switch_read_doc", "true").Observe(duration)
 
 	return &proto.Switch{
 		Id:     doc.Key,
@@ -126,86 +175,69 @@ func (s *SwitchService) GetSwitch(ctx context.Context, req *proto.GetSwitchReque
 
 // GetSwitches retrieves a group of switches
 func (s *SwitchService) GetSwitches(req *proto.GetSwitchesRequest, stream proto.SwitchService_GetSwitchesServer) error {
+	var err error
+	var cursor arango.Cursor
+
 	ctx := stream.Context()
 	vars := map[string]interface{}{
 		"siteId": req.GetSiteId(),
 	}
 
-	start := time.Now()
-	cursor, err := s.arango.Query(ctx, queryGetSwitches, vars)
-	duration := time.Now().Sub(start).Seconds()
+	s.exec(ctx, req, "GetSwitches_Query", queryGetSwitches, func() error {
+		cursor, err = s.arango.Query(ctx, queryGetSwitches, vars)
+		return err
+	})
 
 	if err != nil {
-		s.logger.Error("message", fmt.Sprintf("GetSwitches failed: %s", err))
-		s.metrics.OpLatencyHist.WithLabelValues("get_switches_query", "false").Observe(duration)
-		s.metrics.OpLatencySumm.WithLabelValues("get_switches_query", "false").Observe(duration)
 		return err
 	}
+
 	defer cursor.Close()
 
-	s.metrics.OpLatencyHist.WithLabelValues("get_switches_query", "true").Observe(duration)
-	s.metrics.OpLatencySumm.WithLabelValues("get_switches_query", "true").Observe(duration)
+	s.exec(ctx, req, "GetSwitches_ReadDocument_Send", "ReadDocument", func() error {
+		for cursor.HasMore() {
+			doc := &model.Switch{}
+			_, err = cursor.ReadDocument(ctx, doc)
+			if err != nil {
+				return err
+			}
 
-	start = time.Now()
+			sw := &proto.Switch{
+				Id:     doc.Key,
+				SiteId: doc.SiteID,
+				Name:   doc.Name,
+				State:  doc.State,
+				States: doc.States,
+			}
 
-	for cursor.HasMore() {
-		doc := &model.Switch{}
-		_, err := cursor.ReadDocument(ctx, doc)
-		if err != nil {
-			duration = time.Now().Sub(start).Seconds()
-			s.logger.Error("message", fmt.Sprintf("GetSwitches failed: %s", err))
-			s.metrics.OpLatencyHist.WithLabelValues("get_switches_send_stream", "false").Observe(duration)
-			s.metrics.OpLatencySumm.WithLabelValues("get_switches_send_stream", "false").Observe(duration)
-			return err
+			err = stream.Send(sw)
+			if err != nil {
+				return err
+			}
 		}
 
-		sw := &proto.Switch{
-			Id:     doc.Key,
-			SiteId: doc.SiteID,
-			Name:   doc.Name,
-			State:  doc.State,
-			States: doc.States,
-		}
+		return nil
+	})
 
-		err = stream.Send(sw)
-		if err != nil {
-			duration = time.Now().Sub(start).Seconds()
-			s.logger.Error("message", fmt.Sprintf("GetSwitches failed: %s", err))
-			s.metrics.OpLatencyHist.WithLabelValues("get_switches_send_stream", "false").Observe(duration)
-			s.metrics.OpLatencySumm.WithLabelValues("get_switches_send_stream", "false").Observe(duration)
-			return err
-		}
-	}
-
-	duration = time.Now().Sub(start).Seconds()
-	s.logger.Debug("message", "GetSwitches succeeded.", "req", req)
-	s.metrics.OpLatencyHist.WithLabelValues("get_switches_send_stream", "true").Observe(duration)
-	s.metrics.OpLatencySumm.WithLabelValues("get_switches_send_stream", "true").Observe(duration)
-
-	return nil
+	return err
 }
 
 // SetSwitch changes the state of a switch
 func (s *SwitchService) SetSwitch(ctx context.Context, req *proto.SetSwitchRequest) (*proto.SetSwitchResponse, error) {
+	var err error
 	key := req.GetId()
 	doc := &model.Switch{
 		State: req.GetState(),
 	}
 
-	start := time.Now()
-	_, err := s.arango.UpdateDocument(ctx, key, doc)
-	duration := time.Now().Sub(start).Seconds()
+	s.exec(ctx, req, "SetSwitch_UpdateDocument", "UpdateDocument", func() error {
+		_, err = s.arango.UpdateDocument(ctx, key, doc)
+		return err
+	})
 
 	if err != nil {
-		s.logger.Error("message", fmt.Sprintf("SetSwitch failed: %s", err))
-		s.metrics.OpLatencyHist.WithLabelValues("set_switch_update_doc", "false").Observe(duration)
-		s.metrics.OpLatencySumm.WithLabelValues("set_switch_update_doc", "false").Observe(duration)
 		return nil, err
 	}
-
-	s.logger.Debug("message", "SetSwitch succeeded.", "req", req)
-	s.metrics.OpLatencyHist.WithLabelValues("set_switch_update_doc", "true").Observe(duration)
-	s.metrics.OpLatencySumm.WithLabelValues("set_switch_update_doc", "true").Observe(duration)
 
 	return &proto.SetSwitchResponse{}, nil
 }
