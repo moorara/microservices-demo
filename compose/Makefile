@@ -23,19 +23,10 @@ clean:
 	@ docker volume ls | grep -oe compose_.*_data | xargs docker volume rm
 
 
-test-up:
-	@ docker-compose up -d fluentd
-	@ docker-compose up -d caddy traefik react-client site-service sensor-service
-
-test-integration:
-	@ cd tests && ./integration.sh
-
-
 sample-data:
 	@ ./seed-data.sh
 
 
 .PHONY: images services
 .PHONY: up down clean
-.PHONY: test-up test-integration
 .PHONY: sample-data

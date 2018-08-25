@@ -9,18 +9,19 @@
 | `make up`          | Brings up a local environment using `docker-compose` |
 | `make down`        | Takes down the local environment containers          |
 | `make clean`       | Removes created Docker volumes                       |
-| `test-up`          | Brings up a subset of local environment for testing  |
-| `test-integration` | Runs the integration tests                           |
 | `sample-data`      | Import sample data to databases                      |
 
 ## API Gateways
 
-| Type    | Transport | Gateway | URL                            |
-| --------|-----------|---------|--------------------------------|
-| REST    | HTTP      | Træfik  | http://localhost:1080/api/v1/  |
-| REST    | HTTPS     | Træfik  | https://localhost:1443/api/v1/ |
-| REST    | HTTPS     | Caddy   | https://localhost/api/v1/      |
-| GraphQL | HTTPS     | Caddy   | https://localhost/graphql      |
+| Type    | Transport | Gateway        | URL                              |
+| --------|-----------|----------------|----------------------------------|
+| REST    | HTTP      | site-service   | http://localhost:4010/v1/sites   |
+| REST    | HTTP      | sensor-service | http://localhost:4020/v1/sensors |
+| gRPC    | TCP       | switch-service | localhost:4030                   |
+| REST    | HTTP      | Træfik         | http://localhost:1080/api/v1/    |
+| REST    | HTTPS     | Træfik         | https://localhost:1443/api/v1/   |
+| REST    | HTTPS     | Caddy          | https://localhost/api/v1/        |
+| GraphQL | HTTPS     | Caddy          | https://localhost/graphql        |
 
 
 ## Dashboards
