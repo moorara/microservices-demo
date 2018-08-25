@@ -78,6 +78,8 @@ function seed_mongo {
 function seed_postgres {
   printf "${blue}<======================================== PostgreSQL ========================================>\n"
 
+  chmod 600 ./data/postgres/pgpass
+
   docker run \
     --network compose_local --link postgres \
     --volume "$(pwd)/data/postgres/pgpass:/root/.pgpass" \
