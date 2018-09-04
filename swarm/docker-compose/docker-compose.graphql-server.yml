@@ -1,0 +1,30 @@
+version: "3.7"
+
+networks:
+  microservices:
+    external: true
+  microservices-encrypted:
+    external: true
+
+services:
+  graphql-server:
+    image: moorara/graphql-server:${VERSION:-latest}
+    networks:
+      - microservices
+      - microservices-encrypted
+    environment:
+      - ACCOUNT
+      - ENVIRONMENT
+      - REGION
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == worker
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 100M
+        reservations:
+          cpus: '0.25'
+          memory: 50M

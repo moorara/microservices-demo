@@ -1,0 +1,13 @@
+version: "3.7"
+
+networks:
+  microservices:
+    driver: overlay
+    labels:
+      com.github.moorara.microservices.description: "Unencrypted overlay network for microservices"
+  microservices-encrypted:
+    driver: overlay
+    driver_opts:
+      encrypted: "true"
+    labels:
+      com.github.moorara.microservices.description: "Encrypted overlay network for microservices"

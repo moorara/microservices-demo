@@ -1,0 +1,42 @@
+version: "3.7"
+
+networks:
+  microservices:
+    external: true
+  microservices-encrypted:
+    external: true
+
+services:
+
+  jaeger-agent:
+    image: jaegertracing/jaeger-agent:1.6.0
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  jaeger-collector:
+    image: jaegertracing/jaeger-collector:1.6.0
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  jaeger-query:
+    image: jaegertracing/jaeger-query:1.6.0
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:

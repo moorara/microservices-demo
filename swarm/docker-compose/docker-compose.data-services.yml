@@ -1,0 +1,64 @@
+version: "3.7"
+
+networks:
+  microservices:
+    external: true
+  microservices-encrypted:
+    external: true
+
+services:
+
+  redis:
+    image: redis:4.0.11
+    networks:
+    deploy:
+
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  nats:
+    image: nats:1.2.0
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  mongo:
+    image: mongo:4.0.1
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  arango:
+    image: arangodb:3.3.14
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  postgres:
+    image: postgres:10.5
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:

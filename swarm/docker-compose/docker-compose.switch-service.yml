@@ -1,0 +1,30 @@
+version: "3.7"
+
+networks:
+  microservices:
+    external: true
+  microservices-encrypted:
+    external: true
+
+services:
+  switch-service:
+    image: moorara/switch-service:${VERSION:-latest}
+    networks:
+      - microservices
+      - microservices-encrypted
+    environment:
+      - ACCOUNT
+      - ENVIRONMENT
+      - REGION
+    deploy:
+      replicas: 4
+      placement:
+        constraints:
+          - node.role == worker
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 100M
+        reservations:
+          cpus: '0.25'
+          memory: 50M

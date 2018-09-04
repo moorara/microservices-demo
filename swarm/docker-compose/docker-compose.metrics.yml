@@ -1,0 +1,64 @@
+version: "3.7"
+
+networks:
+  microservices:
+    external: true
+  microservices-encrypted:
+    external: true
+
+services:
+
+  prometheus:
+    image: prom/prometheus:v2.3.2
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  grafana:
+    image: grafana/grafana:5.2.3
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  alertmanager:
+    image: prom/alertmanager:v0.15.2
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  node-exporter:
+    image: prom/node-exporter:v0.16.0
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
+
+  cadvisor:
+    image: google/cadvisor:v0.28.3
+    networks:
+    deploy:
+      
+      placement:
+        constraints:
+      resources:
+        limits:
+        reservations:
