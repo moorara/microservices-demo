@@ -1,5 +1,5 @@
-fluentd_version ?= v1.2.2
-kibana_version ?= 6.3.1
+fluentd_version ?= v1.2.5
+kibana_version ?= 6.4.0
 caddy_version ?= v0.11.0
 
 

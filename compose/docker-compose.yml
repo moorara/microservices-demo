@@ -33,7 +33,7 @@ services:
 
   # DATA BACKENDS
   redis:
-    image: redis:4.0.10
+    image: redis:4.0.11
     hostname: redis
     container_name: redis
     restart: always
@@ -44,7 +44,7 @@ services:
     volumes:
       - "redis_data:/data"
   mongo:
-    image: mongo:4.0.0
+    image: mongo:4.0.1
     hostname: mongo
     container_name: mongo
     restart: always
@@ -55,7 +55,7 @@ services:
     volumes:
       - "mongo_data:/data/db"
   arango:
-    image: arangodb:3.3.13
+    image: arangodb:3.3.14
     hostname: arango
     container_name: arango
     restart: always
@@ -68,7 +68,7 @@ services:
     volumes:
       - "arango_data:/var/lib/arangodb3"
   postgres:
-    image: postgres:10.4
+    image: postgres:10.5
     hostname: postgres
     container_name: postgres
     restart: always
@@ -83,9 +83,22 @@ services:
       - "postgres_data:/var/lib/postgresql/data"
       - "./data/postgres/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
 
+  # MESSAGING
+  nats:
+    image: nats:1.2.0
+    hostname: nats
+    container_name: nats
+    restart: always
+    ports:
+      - "4222:4222"  # Clients
+      - "6222:6222"  # Routing port for clustering
+      - "8222:8222"  # HTTP management port for information reporting
+    networks:
+      - local
+
   # LOGGING
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.3.1
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.4.0
     hostname: elasticsearch
     container_name: elasticsearch
     restart: always
@@ -100,7 +113,7 @@ services:
       - "elasticsearch_data:/usr/share/elasticsearch/data"
       - "./logging/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
   kibana:
-    image: moorara/kibana:6.3.1
+    image: moorara/kibana:6.4.0
     hostname: kibana
     container_name: kibana
     restart: always
@@ -114,7 +127,7 @@ services:
       - "./logging/kibana.yml:/usr/share/kibana/config/kibana.yml"
       - "./logging/logtrail.json:/usr/share/kibana/plugins/logtrail/logtrail.json"
   fluentd:
-    image: moorara/fluentd:v1.2.2
+    image: moorara/fluentd:v1.2.5
     hostname: fluentd
     container_name: fluentd
     restart: always
@@ -148,7 +161,7 @@ services:
       - "./metrics/alerts.yml:/alerts.yml"
     command: "--config.file=/prometheus.yml"
   grafana:
-    image: grafana/grafana:5.2.2
+    image: grafana/grafana:5.2.3
     hostname: grafana
     container_name: grafana
     restart: always
@@ -164,7 +177,7 @@ services:
     volumes:
       - "grafana_data:/var/lib/grafana"
   alertmanager:
-    image: prom/alertmanager:v0.15.1
+    image: prom/alertmanager:v0.15.2
     hostname: alertmanager
     container_name: alertmanager
     restart: always
@@ -221,7 +234,7 @@ services:
 
   # GATEWAYS
   traefik:
-    image: traefik:1.6.5
+    image: traefik:1.6.6
     hostname: traefik
     container_name: traefik
     restart: always
