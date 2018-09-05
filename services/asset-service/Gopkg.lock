@@ -101,6 +101,26 @@
   version = "v0.1.3"
 
 [[projects]]
+  digest = "1:4ce94f3d2074662c04677db471456feb56078244ebcfe3789e6e95901c085bc5"
+  name = "github.com/nats-io/go-nats"
+  packages = [
+    ".",
+    "encoders/builtin",
+    "util",
+  ]
+  pruneopts = "UT"
+  revision = "fb0396ee0bdb8018b0fef30d6d1de798ce99cd05"
+  version = "v1.6.0"
+
+[[projects]]
+  digest = "1:c3cd663f2f30b92536b9f290ac85c6310dae36a14cb8961553ae9ccf0d85ae41"
+  name = "github.com/nats-io/nuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "289cccf02c178dc782430d534e3c1f5b72af807f"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:841fcba20c9b41a7519f3910b083d16be2c3479cc282859333fe07145c5b9a9a"
   name = "github.com/opentracing/opentracing-go"
   packages = [
@@ -233,6 +253,7 @@
     "github.com/go-kit/kit/log/level",
     "github.com/gorilla/mux",
     "github.com/moorara/goto/config",
+    "github.com/nats-io/go-nats",
     "github.com/opentracing/opentracing-go",
     "github.com/opentracing/opentracing-go/ext",
     "github.com/opentracing/opentracing-go/mocktracer",
