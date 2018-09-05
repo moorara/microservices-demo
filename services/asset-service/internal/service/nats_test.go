@@ -7,6 +7,7 @@ import (
 	nats "github.com/nats-io/go-nats"
 )
 
+// mockArango is a mock implementation of event.NATSConnection
 type mockNATSConnection struct {
 	CloseCallCount int
 
