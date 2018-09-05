@@ -9,6 +9,7 @@ services:
 	@ cd ../services/site-service && make docker
 	@ cd ../services/sensor-service && make docker
 	@ cd ../services/switch-service && make docker
+	@ cd ../services/asset-service && make docker
 	@ cd ../services/graphql-server && make docker
 
 

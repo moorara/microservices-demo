@@ -368,6 +368,25 @@ services:
     labels:
       <<: *labels
     <<: *logdriver
+  asset-service:
+    image: moorara/asset-service:latest
+    hostname: asset-service
+    container_name: asset-service
+    depends_on:
+      - fluentd
+      - jaeger
+    ports:
+      - "4040:4040"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=asset-service
+      - SERVICE_TAGS=monitor
+      - JAEGER_AGENT_ADDR=jaeger:6831
+    networks:
+      - local
+    labels:
+      <<: *labels
+    <<: *logdriver
   graphql-server:
     image: moorara/graphql-server:latest
     hostname: graphql-server
