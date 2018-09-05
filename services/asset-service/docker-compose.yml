@@ -1,0 +1,44 @@
+version: "3.7"
+
+services:
+  nats:
+    image: nats:1.2.0
+    hostname: nats
+    container_name: nats
+    restart: always
+    ports:
+      - "4222:4222"  # Clients
+      - "6222:6222"  # Routing port for clustering
+      - "8222:8222"  # HTTP management port for information reporting
+
+  asset-service:
+    image: asset-service:${VERSION:-latest}
+    hostname: asset-service
+    container_name: asset-service
+    depends_on:
+      - nats
+    ports:
+      - "4040:4040"
+    environment:
+      - LOG_LEVEL=debug
+  
+  integration-test:
+    image: asset-service-test
+    hostname: integration-test
+    container_name: integration-test
+    depends_on:
+      - nats
+    environment:
+      - INTEGRATION_TEST=true
+    command: [ "go", "test", "-v", "./test/integration_test.go" ]
+
+  component-test:
+    image: asset-service-test
+    hostname: component-test
+    container_name: component-test
+    depends_on:
+      - asset-service
+    environment:
+      - COMPONENT_TEST=true
+      - SERVICE_URL=http://asset-service:4040
+    command: [ "go", "test", "-v", "./test/component_test.go" ]

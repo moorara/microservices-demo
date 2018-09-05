@@ -1,0 +1,11 @@
+# Compiled files
+main
+asset-service
+
+# Test files
+*.log
+*.out
+*.test
+coverage/
+
+# Misc files
