@@ -5,24 +5,45 @@ import (
 )
 
 const (
+	defaultLogLevel        = "info"
 	defaultServiceName     = "asset-service"
 	defaultServicePort     = ":4040"
-	defaultLogLevel        = "info"
+	defaultArangoUser      = "root"
+	defaultArangoPassword  = ""
+	defaultNatsUser        = ""
+	defaultNatsPassword    = ""
 	defaultJaegerAgentAddr = "localhost:6831"
 	defaultJaegerLogSpans  = false
 )
 
+var (
+	defaultArangoEndpoints = []string{"tcp://localhost:8529"}
+	defaultNatsServers     = []string{"nats://localhost:4222"}
+)
+
 // Config defines the configuration values
 var Config = struct {
+	LogLevel        string
 	ServiceName     string
 	ServicePort     string
-	LogLevel        string
+	ArangoEndpoints []string
+	ArangoUser      string
+	ArangoPassword  string
+	NatsServers     []string
+	NatsUser        string
+	NatsPassword    string
 	JaegerAgentAddr string
 	JaegerLogSpans  bool
 }{
+	LogLevel:        defaultLogLevel,
 	ServiceName:     defaultServiceName,
 	ServicePort:     defaultServicePort,
-	LogLevel:        defaultLogLevel,
+	ArangoEndpoints: defaultArangoEndpoints,
+	ArangoUser:      defaultArangoUser,
+	ArangoPassword:  defaultArangoPassword,
+	NatsServers:     defaultNatsServers,
+	NatsUser:        defaultNatsUser,
+	NatsPassword:    defaultNatsPassword,
 	JaegerAgentAddr: defaultJaegerAgentAddr,
 	JaegerLogSpans:  defaultJaegerLogSpans,
 }

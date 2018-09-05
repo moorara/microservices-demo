@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,51 +9,47 @@ import (
 func TestConfig(t *testing.T) {
 	tests := []struct {
 		name                    string
-		EnvVars                 map[string]string
+		expectedLogLevel        string
 		expectedServiceName     string
 		expectedServicePort     string
-		expectedLogLevel        string
+		expectedArangoEndpoints []string
+		expectedArangoUser      string
+		expectedArangoPassword  string
+		expectedNatsServers     []string
+		expectedNatsUser        string
+		expectedNatsPassword    string
 		expectedJaegerAgentAddr string
 		expectedJaegerLogSpans  bool
 	}{
 		{
 			name:                    "Defauts",
-			EnvVars:                 map[string]string{},
+			expectedLogLevel:        defaultLogLevel,
 			expectedServiceName:     defaultServiceName,
 			expectedServicePort:     defaultServicePort,
-			expectedLogLevel:        defaultLogLevel,
+			expectedArangoEndpoints: defaultArangoEndpoints,
+			expectedArangoUser:      defaultArangoUser,
+			expectedArangoPassword:  defaultArangoPassword,
+			expectedNatsServers:     defaultNatsServers,
+			expectedNatsUser:        defaultNatsUser,
+			expectedNatsPassword:    defaultNatsPassword,
 			expectedJaegerAgentAddr: defaultJaegerAgentAddr,
 			expectedJaegerLogSpans:  defaultJaegerLogSpans,
-		},
-		{
-			name: "Defauts",
-			EnvVars: map[string]string{
-				"SERVICE_NAME":      "test-service",
-				"SERVICE_PORT":      ":5000",
-				"LOG_LEVEL":         "debug",
-				"JAEGER_AGENT_ADDR": "jaeger-agent:6831",
-				"JAEGER_LOG_SPANS":  "true",
-			},
-			expectedServiceName:     "test-service",
-			expectedServicePort:     ":5000",
-			expectedLogLevel:        "debug",
-			expectedJaegerAgentAddr: "jaeger-agent:6831",
-			expectedJaegerLogSpans:  true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			for key, value := range tc.EnvVars {
-				os.Setenv(key, value)
-				defer os.Unsetenv(key)
-			}
-
-			assert.Equal(t, defaultServiceName, Config.ServiceName)
-			assert.Equal(t, defaultServicePort, Config.ServicePort)
-			assert.Equal(t, defaultLogLevel, Config.LogLevel)
-			assert.Equal(t, defaultJaegerAgentAddr, Config.JaegerAgentAddr)
-			assert.Equal(t, defaultJaegerLogSpans, Config.JaegerLogSpans)
+			assert.Equal(t, tc.expectedLogLevel, Config.LogLevel)
+			assert.Equal(t, tc.expectedServiceName, Config.ServiceName)
+			assert.Equal(t, tc.expectedServicePort, Config.ServicePort)
+			assert.Equal(t, tc.expectedArangoEndpoints, Config.ArangoEndpoints)
+			assert.Equal(t, tc.expectedArangoUser, Config.ArangoUser)
+			assert.Equal(t, tc.expectedArangoPassword, Config.ArangoPassword)
+			assert.Equal(t, tc.expectedNatsServers, Config.NatsServers)
+			assert.Equal(t, tc.expectedNatsUser, Config.NatsUser)
+			assert.Equal(t, tc.expectedNatsPassword, Config.NatsPassword)
+			assert.Equal(t, tc.expectedJaegerAgentAddr, Config.JaegerAgentAddr)
+			assert.Equal(t, tc.expectedJaegerLogSpans, Config.JaegerLogSpans)
 		})
 	}
 }
