@@ -23,8 +23,8 @@ docker:
 
 docker-test:
 	@ docker build \
-		--file Dockerfile.test \
-		--tag $(docker_test_image) .
+	    --file Dockerfile.test \
+	    --tag $(docker_test_image) .
 
 save-images:
 	@ mkdir -p $(docker_dir)
