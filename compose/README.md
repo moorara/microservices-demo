@@ -18,6 +18,7 @@
 | REST    | HTTP      | site-service   | http://localhost:4010/v1/sites   |
 | REST    | HTTP      | sensor-service | http://localhost:4020/v1/sensors |
 | gRPC    | TCP       | switch-service | localhost:4030                   |
+| GraphQL | HTTP      | asset-service  | localhost:4040/graphql           |
 | REST    | HTTP      | Træfik         | http://localhost:1080/api/v1/    |
 | REST    | HTTPS     | Træfik         | https://localhost:1443/api/v1/   |
 | REST    | HTTPS     | Caddy          | https://localhost/api/v1/        |
@@ -52,6 +53,7 @@
 | `4020`     | `sensor-service` | sensor-service service                                           |
 | `4030`     | `switch-service` | switch-service service (grpc)                                    |
 | `4031`     | `switch-service` | switch-service service (http)                                    |
+| `4040`     | `asset-service`  | asset-service service                                            |
 | `5000`     | `graphql-server` | graphql-server service                                           |
 | `6379`     | `redis`          | Redis service                                                    |
 | `27017`    | `mongo`          | MongoDB service                                                  |

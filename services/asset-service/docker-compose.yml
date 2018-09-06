@@ -1,0 +1,65 @@
+version: "3.4"
+
+services:
+  arango:
+    image: arangodb
+    hostname: arango
+    container_name: arango
+    restart: always
+    ports:
+      - "8529:8529"
+    environment:
+      - ARANGO_ROOT_PASSWORD=password?!
+  nats:
+    image: nats
+    hostname: nats
+    container_name: nats
+    restart: always
+    ports:
+      - "4222:4222"
+    command: [ "--user", "nats_client", "--pass", "password?!" ]
+  asset-service:
+    image: moorara/asset-service:${VERSION:-latest}
+    hostname: asset-service
+    container_name: asset-service
+    depends_on:
+      - arango
+      - nats
+    ports:
+      - "4040:4040"
+    environment:
+      - LOG_LEVEL=debug
+      - ARANGO_ENDPOINTS=tcp://arango:8529
+      - ARANGO_USER=root
+      - ARANGO_PASSWORD=password?!
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=nats_client
+      - NATS_PASSWORD=password?!
+  
+  integration-test:
+    image: asset-service-test
+    hostname: integration-test
+    container_name: integration-test
+    depends_on:
+      - arango
+      - nats
+    environment:
+      - INTEGRATION_TEST=true
+      - ARANGO_HTTP_ADDR=http://arango:8529
+      - ARANGO_ENDPOINTS=tcp://arango:8529
+      - ARANGO_USER=root
+      - ARANGO_PASSWORD=password?!
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=nats_client
+      - NATS_PASSWORD=password?!
+    command: [ "go", "test", "-v", "./test/integration" ]
+  component-test:
+    image: asset-service-test
+    hostname: component-test
+    container_name: component-test
+    depends_on:
+      - asset-service
+    environment:
+      - COMPONENT_TEST=true
+      - SERVICE_URL=http://asset-service:4040
+    command: [ "go", "test", "-v", "./test/component" ]
