@@ -24,7 +24,7 @@ function process_args {
 
 function test_component {
   export COMPONENT_TEST=true
-  go test -v ./test/component_test.go
+  go test -v ./test/component
 }
 
 function test_component_docker {

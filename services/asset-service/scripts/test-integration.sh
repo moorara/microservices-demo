@@ -24,7 +24,7 @@ function process_args {
 
 function test_integration {
   export INTEGRATION_TEST=true
-  go test -v ./test/integration_test.go
+  go test -v ./test/integration
 }
 
 function test_integration_docker {
