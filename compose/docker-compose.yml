@@ -95,6 +95,7 @@ services:
       - "8222:8222"  # HTTP management port for information reporting
     networks:
       - local
+    command: [ "--user", "nats_client", "--pass", "pass" ]
 
   # LOGGING
   elasticsearch:
@@ -373,6 +374,8 @@ services:
     hostname: asset-service
     container_name: asset-service
     depends_on:
+      - arango
+      - nats
       - fluentd
       - jaeger
     ports:
@@ -381,6 +384,11 @@ services:
       - LOG_LEVEL=debug
       - SERVICE_NAME=asset-service
       - SERVICE_TAGS=monitor
+      - ARANGO_ENDPOINTS=tcp://arango:8529
+      - ARANGO_PASSWORD=pass
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=nats_client
+      - NATS_PASSWORD=pass
       - JAEGER_AGENT_ADDR=jaeger:6831
     networks:
       - local
