@@ -13,6 +13,14 @@ import (
 	opentracingLog "github.com/opentracing/opentracing-go/log"
 )
 
+const (
+	queryCreate = `INSERT INTO sensors (id, site_id, name, unit, min_safe, max_safe) VALUES ($1, $2, $3, $4, $5, $6)`
+	queryAll    = `SELECT id, site_id, name, unit, min_safe, max_safe FROM sensors WHERE site_id = $1`
+	queryGet    = `SELECT id, site_id, name, unit, min_safe, max_safe FROM sensors WHERE id = $1`
+	queryUpdate = `UPDATE sensors SET site_id = $2, name = $3, unit = $4, min_safe = $5, max_safe = $6 WHERE id = $1`
+	queryDelete = `DELETE FROM sensors WHERE id = $1`
+)
+
 type (
 	// Sensor represents a Sensor in a site
 	Sensor struct {
@@ -82,10 +90,9 @@ func (m *postgresSensorManager) Create(ctx context.Context, siteID, name, unit s
 		MinSafe: minSafe,
 		MaxSafe: maxSafe,
 	}
-	query := `insert into sensors (id, site_id, name, unit, min_safe, max_safe) values ($1, $2, $3, $4, $5, $6)`
 
-	err := m.exec(ctx, "insert-record", query, func() error {
-		_, err := m.db.ExecContext(ctx, query, sensor.ID, sensor.SiteID, sensor.Name, sensor.Unit, sensor.MinSafe, sensor.MaxSafe)
+	err := m.exec(ctx, "insert-record", queryCreate, func() error {
+		_, err := m.db.ExecContext(ctx, queryCreate, sensor.ID, sensor.SiteID, sensor.Name, sensor.Unit, sensor.MinSafe, sensor.MaxSafe)
 		return err
 	})
 
@@ -97,10 +104,9 @@ func (m *postgresSensorManager) Create(ctx context.Context, siteID, name, unit s
 
 func (m *postgresSensorManager) All(ctx context.Context, siteID string) ([]Sensor, error) {
 	sensors := make([]Sensor, 0)
-	query := `select id, site_id, name, unit, min_safe, max_safe from sensors where site_id = $1`
 
-	err := m.exec(ctx, "select-records", query, func() error {
-		rows, err := m.db.QueryContext(ctx, query, siteID)
+	err := m.exec(ctx, "select-records", queryAll, func() error {
+		rows, err := m.db.QueryContext(ctx, queryAll, siteID)
 		if err != nil {
 			return err
 		}
@@ -124,10 +130,9 @@ func (m *postgresSensorManager) All(ctx context.Context, siteID string) ([]Senso
 
 func (m *postgresSensorManager) Get(ctx context.Context, id string) (*Sensor, error) {
 	sensor := new(Sensor)
-	query := `select id, site_id, name, unit, min_safe, max_safe from sensors where id = $1`
 
-	err := m.exec(ctx, "select-record", query, func() error {
-		row := m.db.QueryRowContext(ctx, query, id)
+	err := m.exec(ctx, "select-record", queryGet, func() error {
+		row := m.db.QueryRowContext(ctx, queryGet, id)
 		err := row.Scan(&sensor.ID, &sensor.SiteID, &sensor.Name, &sensor.Unit, &sensor.MinSafe, &sensor.MaxSafe)
 		if err == sql.ErrNoRows { // record does not exist
 			sensor = nil
@@ -144,10 +149,9 @@ func (m *postgresSensorManager) Get(ctx context.Context, id string) (*Sensor, er
 
 func (m *postgresSensorManager) Update(ctx context.Context, s Sensor) (int, error) {
 	var n int64
-	query := `update sensors set site_id = $2, name = $3, unit = $4, min_safe = $5, max_safe = $6 where id = $1`
 
-	err := m.exec(ctx, "update-record", query, func() error {
-		res, err := m.db.ExecContext(ctx, query, s.ID, s.SiteID, s.Name, s.Unit, s.MinSafe, s.MaxSafe)
+	err := m.exec(ctx, "update-record", queryUpdate, func() error {
+		res, err := m.db.ExecContext(ctx, queryUpdate, s.ID, s.SiteID, s.Name, s.Unit, s.MinSafe, s.MaxSafe)
 		if err != nil {
 			return err
 		}
@@ -163,10 +167,8 @@ func (m *postgresSensorManager) Update(ctx context.Context, s Sensor) (int, erro
 }
 
 func (m *postgresSensorManager) Delete(ctx context.Context, id string) error {
-	query := `delete from sensors where id = $1`
-
-	err := m.exec(ctx, "delete-record", query, func() error {
-		_, err := m.db.ExecContext(ctx, query, id)
+	err := m.exec(ctx, "delete-record", queryDelete, func() error {
+		_, err := m.db.ExecContext(ctx, queryDelete, id)
 		return err
 	})
 

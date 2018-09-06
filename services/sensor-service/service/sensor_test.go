@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"testing"
 
@@ -10,63 +10,8 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
-
-type mockDB struct {
-	CloseCalled bool
-	CloseError  error
-
-	ExecContextCalled bool
-	ExecContextResult sql.Result
-	ExecContextError  error
-
-	QueryContextCalled bool
-	QueryContextRows   *sql.Rows
-	QueryContextError  error
-
-	QueryRowContextCalled bool
-	QueryRowContextRow    *sql.Row
-}
-
-func (mdb *mockDB) Close() error {
-	mdb.CloseCalled = true
-	return mdb.CloseError
-}
-
-func (mdb *mockDB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
-	mdb.ExecContextCalled = true
-	return mdb.ExecContextResult, mdb.ExecContextError
-}
-
-func (mdb *mockDB) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
-	mdb.QueryContextCalled = true
-	return mdb.QueryContextRows, mdb.QueryContextError
-}
-
-func (mdb *mockDB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
-	mdb.QueryRowContextCalled = true
-	return mdb.QueryRowContextRow
-}
-
-type mockResult struct {
-	LastInsertIDCalled bool
-	LastInsertIDResult int64
-	LastInsertIDError  error
-
-	RowsAffectedCalled bool
-	RowsAffectedResult int64
-	RowsAffectedError  error
-}
-
-func (mr *mockResult) LastInsertId() (int64, error) {
-	mr.LastInsertIDCalled = true
-	return mr.LastInsertIDResult, mr.LastInsertIDError
-}
-
-func (mr *mockResult) RowsAffected() (int64, error) {
-	mr.RowsAffectedCalled = true
-	return mr.RowsAffectedResult, mr.RowsAffectedError
-}
 
 func CreateContextWithSpan() context.Context {
 	tracer := mocktracer.New()
@@ -104,19 +49,21 @@ func TestNewSensorManager(t *testing.T) {
 
 func TestSensorManagerCreate(t *testing.T) {
 	tests := []struct {
-		name             string
-		execContextError error
-		context          context.Context
-		sensorSiteID     string
-		sensorName       string
-		sensorUnit       string
-		sensorMinSafe    float64
-		sensorMaxSafe    float64
-		expectError      bool
+		name          string
+		dbError       error
+		dbResult      driver.Result
+		context       context.Context
+		sensorSiteID  string
+		sensorName    string
+		sensorUnit    string
+		sensorMinSafe float64
+		sensorMaxSafe float64
+		expectError   bool
 	}{
 		{
 			"DatabaseError",
-			errors.New("error"),
+			errors.New("db error"),
+			nil,
 			CreateContextWithSpan(),
 			"", "", "", 0.0, 0.0,
 			true,
@@ -124,6 +71,7 @@ func TestSensorManagerCreate(t *testing.T) {
 		{
 			"CreateSensor",
 			nil,
+			sqlmock.NewResult(0, 1),
 			CreateContextWithSpan(),
 			"1111-aaaa", "temperature", "celsius", -30.0, 30.0,
 			false,
@@ -132,10 +80,8 @@ func TestSensorManagerCreate(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			db := &mockDB{
-				ExecContextResult: nil,
-				ExecContextError:  tc.execContextError,
-			}
+			db, mock, err := sqlmock.New()
+			assert.NoError(t, err)
 
 			m := &postgresSensorManager{
 				db:     db,
@@ -143,11 +89,19 @@ func TestSensorManagerCreate(t *testing.T) {
 				tracer: mocktracer.New(),
 			}
 
+			// Mock SQL query
+			expect := mock.ExpectExec(`INSERT INTO sensors`)
+			if tc.dbError != nil {
+				expect.WillReturnError(tc.dbError)
+			} else {
+				expect.WillReturnResult(tc.dbResult)
+			}
+
 			sensor, err := m.Create(tc.context, tc.sensorSiteID, tc.sensorName, tc.sensorUnit, tc.sensorMinSafe, tc.sensorMaxSafe)
 
-			assert.True(t, db.ExecContextCalled)
 			if tc.expectError {
 				assert.Error(t, err)
+				assert.Nil(t, sensor)
 			} else {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, sensor.ID)
@@ -161,11 +115,161 @@ func TestSensorManagerCreate(t *testing.T) {
 	}
 }
 
+func TestSensorManagerAll(t *testing.T) {
+	tests := []struct {
+		name            string
+		dbError         error
+		dbRows          [][]driver.Value
+		context         context.Context
+		siteID          string
+		expectError     bool
+		expectedSensors []Sensor
+	}{
+		{
+			"DatabaseError",
+			errors.New("db error"),
+			nil,
+			CreateContextWithSpan(),
+			"",
+			true,
+			nil,
+		},
+		{
+			"AllSensors",
+			nil,
+			[][]driver.Value{
+				[]driver.Value{"2222-bbbb", "1111-aaaa", "temperature", "fahrenheit", -22.0, 86.0},
+				[]driver.Value{"3333-cccc", "1111-aaaa", "pressure", "pascal", 50000.0, 100000.0},
+			},
+			CreateContextWithSpan(),
+			"1111-aaaa",
+			false,
+			[]Sensor{
+				Sensor{"2222-bbbb", "1111-aaaa", "temperature", "fahrenheit", -22.0, 86.0},
+				Sensor{"3333-cccc", "1111-aaaa", "pressure", "pascal", 50000.0, 100000.0},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+
+			m := &postgresSensorManager{
+				db:     db,
+				logger: log.NewNopLogger(),
+				tracer: mocktracer.New(),
+			}
+
+			// Mock SQL query
+			expect := mock.ExpectQuery(`SELECT id, site_id, name, unit, min_safe, max_safe FROM sensors`)
+			if tc.dbError != nil {
+				expect.WillReturnError(tc.dbError)
+			} else {
+				rows := sqlmock.NewRows([]string{"id", "site_id", "name", "unit", "min_safe", "max_safe"})
+				for _, row := range tc.dbRows {
+					rows.AddRow(row...)
+				}
+				expect.WillReturnRows(rows)
+			}
+
+			sensors, err := m.All(tc.context, tc.siteID)
+
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, sensors)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, sensors)
+
+				for i, sensor := range sensors {
+					assert.Equal(t, tc.expectedSensors[i].ID, sensor.ID)
+					assert.Equal(t, tc.expectedSensors[i].SiteID, sensor.SiteID)
+					assert.Equal(t, tc.expectedSensors[i].Name, sensor.Name)
+					assert.Equal(t, tc.expectedSensors[i].Unit, sensor.Unit)
+					assert.Equal(t, tc.expectedSensors[i].MinSafe, sensor.MinSafe)
+					assert.Equal(t, tc.expectedSensors[i].MaxSafe, sensor.MaxSafe)
+				}
+			}
+		})
+	}
+}
+
+func TestSensorManagerGet(t *testing.T) {
+	tests := []struct {
+		name           string
+		dbError        error
+		dbRow          []driver.Value
+		context        context.Context
+		id             string
+		expectError    bool
+		expectedSensor *Sensor
+	}{
+		{
+			"DatabaseError",
+			errors.New("db error"),
+			nil,
+			CreateContextWithSpan(),
+			"",
+			true,
+			nil,
+		},
+		{
+			"GetSensor",
+			nil,
+			[]driver.Value{"2222-bbbb", "1111-aaaa", "temperature", "fahrenheit", -22.0, 86.0},
+			CreateContextWithSpan(),
+			"2222-bbbb",
+			false,
+			&Sensor{"2222-bbbb", "1111-aaaa", "temperature", "fahrenheit", -22.0, 86.0},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			db, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+
+			m := &postgresSensorManager{
+				db:     db,
+				logger: log.NewNopLogger(),
+				tracer: mocktracer.New(),
+			}
+
+			// Mock SQL query
+			expect := mock.ExpectQuery(`SELECT id, site_id, name, unit, min_safe, max_safe FROM sensors`)
+			if tc.dbError != nil {
+				expect.WillReturnError(tc.dbError)
+			} else {
+				rows := sqlmock.NewRows([]string{"id", "site_id", "name", "unit", "min_safe", "max_safe"})
+				rows.AddRow(tc.dbRow...)
+				expect.WillReturnRows(rows)
+			}
+
+			sensor, err := m.Get(tc.context, tc.id)
+
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, sensor)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedSensor.ID, sensor.ID)
+				assert.Equal(t, tc.expectedSensor.SiteID, sensor.SiteID)
+				assert.Equal(t, tc.expectedSensor.Name, sensor.Name)
+				assert.Equal(t, tc.expectedSensor.Unit, sensor.Unit)
+				assert.Equal(t, tc.expectedSensor.MinSafe, sensor.MinSafe)
+				assert.Equal(t, tc.expectedSensor.MaxSafe, sensor.MaxSafe)
+			}
+		})
+	}
+}
+
 func TestSensorManagerUpdate(t *testing.T) {
 	tests := []struct {
 		name               string
-		execContextResult  *mockResult
-		execContextError   error
+		dbError            error
+		dbResult           driver.Result
 		context            context.Context
 		sensor             Sensor
 		expectError        bool
@@ -173,19 +277,7 @@ func TestSensorManagerUpdate(t *testing.T) {
 	}{
 		{
 			"DatabaseError",
-			&mockResult{},
-			errors.New("error"),
-			CreateContextWithSpan(),
-			Sensor{"", "", "", "", 0.0, 0.0},
-			true,
-			0,
-		},
-		{
-			"ResultError",
-			&mockResult{
-				RowsAffectedResult: 0,
-				RowsAffectedError:  errors.New("error"),
-			},
+			errors.New("db error"),
 			nil,
 			CreateContextWithSpan(),
 			Sensor{"", "", "", "", 0.0, 0.0},
@@ -194,11 +286,8 @@ func TestSensorManagerUpdate(t *testing.T) {
 		},
 		{
 			"UpdateSensor",
-			&mockResult{
-				RowsAffectedResult: 1,
-				RowsAffectedError:  nil,
-			},
 			nil,
+			sqlmock.NewResult(0, 1),
 			CreateContextWithSpan(),
 			Sensor{"2222-bbbb", "1111-aaaa", "temperature", "fahrenheit", -22.0, 86.0},
 			false,
@@ -208,10 +297,8 @@ func TestSensorManagerUpdate(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			db := &mockDB{
-				ExecContextResult: tc.execContextResult,
-				ExecContextError:  tc.execContextError,
-			}
+			db, mock, err := sqlmock.New()
+			assert.NoError(t, err)
 
 			m := &postgresSensorManager{
 				db:     db,
@@ -219,11 +306,19 @@ func TestSensorManagerUpdate(t *testing.T) {
 				tracer: mocktracer.New(),
 			}
 
+			// Mock SQL query
+			expect := mock.ExpectExec(`UPDATE sensors SET`)
+			if tc.dbError != nil {
+				expect.WillReturnError(tc.dbError)
+			} else {
+				expect.WillReturnResult(tc.dbResult)
+			}
+
 			n, err := m.Update(tc.context, tc.sensor)
 
-			assert.True(t, db.ExecContextCalled)
 			if tc.expectError {
 				assert.Error(t, err)
+				assert.Zero(t, n)
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedAffectedNo, n)
@@ -234,15 +329,17 @@ func TestSensorManagerUpdate(t *testing.T) {
 
 func TestSensorManagerDelete(t *testing.T) {
 	tests := []struct {
-		name             string
-		execContextError error
-		context          context.Context
-		sensorID         string
-		expectError      bool
+		name        string
+		dbError     error
+		dbResult    driver.Result
+		context     context.Context
+		sensorID    string
+		expectError bool
 	}{
 		{
 			"DatabaseError",
-			errors.New("error"),
+			errors.New("db error"),
+			nil,
 			CreateContextWithSpan(),
 			"",
 			true,
@@ -250,6 +347,7 @@ func TestSensorManagerDelete(t *testing.T) {
 		{
 			"DeleteSensor",
 			nil,
+			sqlmock.NewResult(0, 1),
 			CreateContextWithSpan(),
 			"2222-bbbb",
 			false,
@@ -258,10 +356,8 @@ func TestSensorManagerDelete(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			db := &mockDB{
-				ExecContextResult: nil,
-				ExecContextError:  tc.execContextError,
-			}
+			db, mock, err := sqlmock.New()
+			assert.NoError(t, err)
 
 			m := &postgresSensorManager{
 				db:     db,
@@ -269,9 +365,16 @@ func TestSensorManagerDelete(t *testing.T) {
 				tracer: mocktracer.New(),
 			}
 
-			err := m.Delete(tc.context, tc.sensorID)
+			// Mock SQL query
+			expect := mock.ExpectExec(`DELETE FROM sensors`)
+			if tc.dbError != nil {
+				expect.WillReturnError(tc.dbError)
+			} else {
+				expect.WillReturnResult(tc.dbResult)
+			}
 
-			assert.True(t, db.ExecContextCalled)
+			err = m.Delete(tc.context, tc.sensorID)
+
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {
