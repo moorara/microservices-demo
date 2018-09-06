@@ -18,6 +18,7 @@ This demo application covers the following topics:
   * [site-service](./services/site-service)
   * [sensor-service](./services/sensor-service)
   * [switch-service](./services/switch-service)
+  * [asset-service](./services/asset-service)
   * [graphql-server](./services/graphql-server)
 
 ## Up & Running
