@@ -9,7 +9,7 @@ import (
 )
 
 func TestLiveness(t *testing.T) {
-	if Config.ComponentTest {
+	if !Config.ComponentTest {
 		t.SkipNow()
 	}
 

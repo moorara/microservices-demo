@@ -49,7 +49,7 @@ func makeQuery(client *http.Client, query string) (map[string]interface{}, error
 }
 
 func TestAPI(t *testing.T) {
-	if Config.ComponentTest {
+	if !Config.ComponentTest {
 		t.SkipNow()
 	}
 

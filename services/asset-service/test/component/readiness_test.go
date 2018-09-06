@@ -9,7 +9,7 @@ import (
 )
 
 func TestReadiness(t *testing.T) {
-	if Config.ComponentTest {
+	if !Config.ComponentTest {
 		t.SkipNow()
 	}
 
