@@ -34,8 +34,17 @@ func NewMonitorMiddleware(logger *log.Logger, metrics *metrics.Metrics, tracer o
 
 func (m *monitorMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Create a new trace
-		span := m.tracer.StartSpan(spanName)
+		var span opentracing.Span
+
+		// Get parent span if any
+		carrier := opentracing.HTTPHeadersCarrier(r.Header)
+		parentSpanContext, err := m.tracer.Extract(opentracing.HTTPHeaders, carrier)
+		if err != nil {
+			span = m.tracer.StartSpan(spanName)
+		} else {
+			span = m.tracer.StartSpan(spanName, opentracing.ChildOf(parentSpanContext))
+		}
+
 		defer span.Finish()
 		ctx := opentracing.ContextWithSpan(r.Context(), span)
 

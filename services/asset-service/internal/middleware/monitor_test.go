@@ -30,6 +30,7 @@ func getMetric(metrics *metrics.Metrics, name string) (output string) {
 func TestMonitorMiddleware(t *testing.T) {
 	tests := []struct {
 		name                string
+		parentSpan          opentracing.Span
 		reqMethod           string
 		reqURL              string
 		resStatusCode       int
@@ -40,6 +41,7 @@ func TestMonitorMiddleware(t *testing.T) {
 	}{
 		{
 			name:                "200",
+			parentSpan:          mocktracer.New().StartSpan("parent-span"),
 			reqMethod:           "POST",
 			reqURL:              "/graphql",
 			resStatusCode:       200,
@@ -50,6 +52,7 @@ func TestMonitorMiddleware(t *testing.T) {
 		},
 		{
 			name:                "404",
+			parentSpan:          nil,
 			reqMethod:           "POST",
 			reqURL:              "/graphql",
 			resStatusCode:       404,
@@ -60,6 +63,7 @@ func TestMonitorMiddleware(t *testing.T) {
 		},
 		{
 			name:                "500",
+			parentSpan:          nil,
 			reqMethod:           "POST",
 			reqURL:              "/graphql",
 			resStatusCode:       500,
@@ -93,6 +97,14 @@ func TestMonitorMiddleware(t *testing.T) {
 
 			r := httptest.NewRequest(tc.reqMethod, tc.reqURL, nil)
 			w := httptest.NewRecorder()
+
+			// Inject parent span context
+			if tc.parentSpan != nil {
+				carrier := opentracing.HTTPHeadersCarrier(r.Header)
+				err := tracer.Inject(tc.parentSpan.Context(), opentracing.HTTPHeaders, carrier)
+				assert.NoError(t, err)
+			}
+
 			handler(w, r)
 
 			// Verify logging
@@ -114,6 +126,12 @@ func TestMonitorMiddleware(t *testing.T) {
 			assert.Equal(t, tc.expectedMethod, span.Tag("http.method"))
 			assert.Equal(t, tc.expectedURL, span.Tag("http.url"))
 			assert.Equal(t, uint16(tc.expectedStatusCode), span.Tag("http.status_code"))
+
+			if tc.parentSpan != nil {
+				parentSpan, _ := tc.parentSpan.(*mocktracer.MockSpan)
+				assert.Equal(t, parentSpan.SpanContext.SpanID, span.ParentID)
+				assert.Equal(t, parentSpan.SpanContext.TraceID, span.SpanContext.TraceID)
+			}
 		})
 	}
 }
