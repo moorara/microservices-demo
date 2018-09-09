@@ -26,7 +26,7 @@ type (
 	}
 )
 
-// NewArangoService creates a arango service
+// NewArangoService creates an Arango service
 func NewArangoService(endpoints []string, user, password string) (ArangoService, error) {
 	connConfig := arangoHttp.ConnectionConfig{
 		Endpoints: endpoints,

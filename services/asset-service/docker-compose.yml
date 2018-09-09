@@ -1,15 +1,6 @@
 version: "3.4"
 
 services:
-  arango:
-    image: arangodb
-    hostname: arango
-    container_name: arango
-    restart: always
-    ports:
-      - "8529:8529"
-    environment:
-      - ARANGO_ROOT_PASSWORD=password?!
   nats:
     image: nats
     hostname: nats
@@ -23,15 +14,11 @@ services:
     hostname: asset-service
     container_name: asset-service
     depends_on:
-      - arango
       - nats
     ports:
       - "4040:4040"
     environment:
       - LOG_LEVEL=debug
-      - ARANGO_ENDPOINTS=tcp://arango:8529
-      - ARANGO_USER=root
-      - ARANGO_PASSWORD=password?!
       - NATS_SERVERS=nats://nats:4222
       - NATS_USER=nats_client
       - NATS_PASSWORD=password?!
@@ -41,14 +28,9 @@ services:
     hostname: integration-test
     container_name: integration-test
     depends_on:
-      - arango
       - nats
     environment:
       - INTEGRATION_TEST=true
-      - ARANGO_HTTP_ADDR=http://arango:8529
-      - ARANGO_ENDPOINTS=tcp://arango:8529
-      - ARANGO_USER=root
-      - ARANGO_PASSWORD=password?!
       - NATS_SERVERS=nats://nats:4222
       - NATS_USER=nats_client
       - NATS_PASSWORD=password?!

@@ -8,8 +8,6 @@ const (
 	defaultLogLevel        = "info"
 	defaultServiceName     = "asset-service"
 	defaultServicePort     = ":4040"
-	defaultArangoUser      = "root"
-	defaultArangoPassword  = ""
 	defaultNatsUser        = ""
 	defaultNatsPassword    = ""
 	defaultJaegerAgentAddr = "localhost:6831"
@@ -17,8 +15,7 @@ const (
 )
 
 var (
-	defaultArangoEndpoints = []string{"tcp://localhost:8529"}
-	defaultNatsServers     = []string{"nats://localhost:4222"}
+	defaultNatsServers = []string{"nats://localhost:4222"}
 )
 
 // Config defines the configuration values
@@ -26,9 +23,6 @@ var Config = struct {
 	LogLevel        string
 	ServiceName     string
 	ServicePort     string
-	ArangoEndpoints []string
-	ArangoUser      string
-	ArangoPassword  string
 	NatsServers     []string
 	NatsUser        string
 	NatsPassword    string
@@ -38,9 +32,6 @@ var Config = struct {
 	LogLevel:        defaultLogLevel,
 	ServiceName:     defaultServiceName,
 	ServicePort:     defaultServicePort,
-	ArangoEndpoints: defaultArangoEndpoints,
-	ArangoUser:      defaultArangoUser,
-	ArangoPassword:  defaultArangoPassword,
 	NatsServers:     defaultNatsServers,
 	NatsUser:        defaultNatsUser,
 	NatsPassword:    defaultNatsPassword,

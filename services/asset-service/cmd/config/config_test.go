@@ -12,9 +12,6 @@ func TestConfig(t *testing.T) {
 		expectedLogLevel        string
 		expectedServiceName     string
 		expectedServicePort     string
-		expectedArangoEndpoints []string
-		expectedArangoUser      string
-		expectedArangoPassword  string
 		expectedNatsServers     []string
 		expectedNatsUser        string
 		expectedNatsPassword    string
@@ -26,9 +23,6 @@ func TestConfig(t *testing.T) {
 			expectedLogLevel:        defaultLogLevel,
 			expectedServiceName:     defaultServiceName,
 			expectedServicePort:     defaultServicePort,
-			expectedArangoEndpoints: defaultArangoEndpoints,
-			expectedArangoUser:      defaultArangoUser,
-			expectedArangoPassword:  defaultArangoPassword,
 			expectedNatsServers:     defaultNatsServers,
 			expectedNatsUser:        defaultNatsUser,
 			expectedNatsPassword:    defaultNatsPassword,
@@ -42,9 +36,6 @@ func TestConfig(t *testing.T) {
 			assert.Equal(t, tc.expectedLogLevel, Config.LogLevel)
 			assert.Equal(t, tc.expectedServiceName, Config.ServiceName)
 			assert.Equal(t, tc.expectedServicePort, Config.ServicePort)
-			assert.Equal(t, tc.expectedArangoEndpoints, Config.ArangoEndpoints)
-			assert.Equal(t, tc.expectedArangoUser, Config.ArangoUser)
-			assert.Equal(t, tc.expectedArangoPassword, Config.ArangoPassword)
 			assert.Equal(t, tc.expectedNatsServers, Config.NatsServers)
 			assert.Equal(t, tc.expectedNatsUser, Config.NatsUser)
 			assert.Equal(t, tc.expectedNatsPassword, Config.NatsPassword)

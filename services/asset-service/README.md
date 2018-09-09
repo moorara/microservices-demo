@@ -25,28 +25,6 @@
 
   - https://gokit.io
 
-### ArangoDB
-
-  - https://www.arangodb.com
-  - https://www.arangodb.com/documentation
-    - https://docs.arangodb.com/latest/Manual
-      - https://docs.arangodb.com/latest/Manual/Scalability
-      - https://docs.arangodb.com/latest/Manual/DataModeling
-      - https://docs.arangodb.com/latest/Manual/Graphs
-      - https://docs.arangodb.com/latest/Manual/Foxx
-    - https://docs.arangodb.com/latest/AQL
-      - https://docs.arangodb.com/latest/AQL/Fundamentals
-      - https://docs.arangodb.com/latest/AQL/Operations
-      - https://docs.arangodb.com/latest/AQL/DataQueries.html
-      - https://docs.arangodb.com/latest/AQL/Functions
-      - https://docs.arangodb.com/latest/AQL/Graphs
-      - https://docs.arangodb.com/latest/AQL/Examples
-    - https://docs.arangodb.com/latest/HTTP
-  - https://www.arangodb.com/arangodb-training-center
-  - https://github.com/arangodb/go-driver
-    - https://godoc.org/github.com/arangodb/go-driver
-    - https://godoc.org/github.com/arangodb/go-driver/http
-
 ### NATS
 
   - https://www.nats.io/documentation
