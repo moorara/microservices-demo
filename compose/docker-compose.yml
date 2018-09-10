@@ -9,13 +9,14 @@ networks:
         - subnet: 172.20.0.0/24
 
 volumes:
-  redis_data:
-  mongo_data:
-  arango_data:
-  postgres_data:
-  prometheus_data:
-  grafana_data:
-  elasticsearch_data:
+  redis_data: {}
+  mongo_data: {}
+  arango_data: {}
+  postgres_data: {}
+  cockroach_data: {}
+  prometheus_data: {}
+  grafana_data: {}
+  elasticsearch_data: {}
 
 x-labels: &labels
   orchestrator: "docker-compose"
@@ -82,6 +83,19 @@ services:
     volumes:
       - "postgres_data:/var/lib/postgresql/data"
       - "./data/postgres/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
+  cockroach:
+    image: cockroachdb/cockroach:v2.0.5
+    hostname: cockroach
+    container_name: cockroach
+    restart: always
+    ports:
+      - "28080:8080"
+      - "26257:26257"
+    networks:
+      - local
+    volumes:
+      - "cockroach_data:/cockroach/cockroach-data"
+    command: [ "start", "--insecure" ]
 
   # MESSAGING
   nats:
@@ -374,7 +388,7 @@ services:
     hostname: asset-service
     container_name: asset-service
     depends_on:
-      - arango
+      - cockroach
       - nats
       - fluentd
       - jaeger
@@ -384,11 +398,11 @@ services:
       - LOG_LEVEL=debug
       - SERVICE_NAME=asset-service
       - SERVICE_TAGS=monitor
-      - ARANGO_ENDPOINTS=tcp://arango:8529
-      - ARANGO_PASSWORD=pass
       - NATS_SERVERS=nats://nats:4222
       - NATS_USER=nats_client
       - NATS_PASSWORD=pass
+      - COCKROACH_ADDR=cockroach:26257
+      - COCKROACH_USER=service
       - JAEGER_AGENT_ADDR=jaeger:6831
     networks:
       - local
