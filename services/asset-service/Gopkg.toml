@@ -34,6 +34,10 @@
   version = "1.6.2"
 
 [[constraint]]
+  name = "github.com/jinzhu/gorm"
+  version = "1.9.1"
+
+[[constraint]]
   name = "github.com/moorara/goto"
   version = "0.1.3"
 
