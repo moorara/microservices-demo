@@ -9,12 +9,36 @@ services:
     ports:
       - "4222:4222"
     command: [ "--user", "nats_client", "--pass", "password?!" ]
+
+  cockroach:
+    image: cockroachdb/cockroach
+    hostname: cockroach
+    container_name: cockroach
+    restart: always
+    ports:
+      - "8080:8080"
+      - "26257:26257"
+    command: [ "start", "--insecure" ]
+  cockroach-init:
+    image: cockroachdb/cockroach
+    hostname: cockroach-init
+    container_name: cockroach-init
+    depends_on:
+      - cockroach
+    environment:
+      - COCKROACH_HOST=cockroach
+    volumes:
+      - "./scripts/cockroach-entrypoint.sh:/cockroach-entrypoint.sh"
+    entrypoint: /cockroach-entrypoint.sh
+
   asset-service:
     image: moorara/asset-service:${VERSION:-latest}
     hostname: asset-service
     container_name: asset-service
     depends_on:
       - nats
+      - cockroach
+      - cockroach-init
     ports:
       - "4040:4040"
     environment:
@@ -29,6 +53,8 @@ services:
     container_name: integration-test
     depends_on:
       - nats
+      - cockroach
+      - cockroach-init
     environment:
       - INTEGRATION_TEST=true
       - NATS_SERVERS=nats://nats:4222
