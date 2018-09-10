@@ -25,6 +25,24 @@
 
   - https://gokit.io
 
+### CockroachDB
+
+  - https://www.cockroachlabs.com/docs/stable
+    - https://www.cockroachlabs.com/docs/stable/install-cockroachdb.html
+    - https://www.cockroachlabs.com/docs/stable/cockroach-commands.html
+      - https://www.cockroachlabs.com/docs/stable/start-a-node.html
+      - https://www.cockroachlabs.com/docs/stable/create-and-manage-users.html
+    - https://www.cockroachlabs.com/docs/stable/start-a-local-cluster.html
+    - https://www.cockroachlabs.com/docs/stable/secure-a-cluster.html
+    - https://www.cockroachlabs.com/docs/stable/build-a-go-app-with-cockroachdb.html
+    - https://www.cockroachlabs.com/docs/stable/build-a-go-app-with-cockroachdb-gorm.html
+
+### GORM
+
+  - http://gorm.io/docs
+  - https://github.com/jinzhu/gorm
+    - https://godoc.org/github.com/jinzhu/gorm
+
 ### NATS
 
   - https://www.nats.io/documentation

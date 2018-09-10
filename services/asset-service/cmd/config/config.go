@@ -5,13 +5,16 @@ import (
 )
 
 const (
-	defaultLogLevel        = "info"
-	defaultServiceName     = "asset-service"
-	defaultServicePort     = ":4040"
-	defaultNatsUser        = ""
-	defaultNatsPassword    = ""
-	defaultJaegerAgentAddr = "localhost:6831"
-	defaultJaegerLogSpans  = false
+	defaultLogLevel          = "info"
+	defaultServiceName       = "asset-service"
+	defaultServicePort       = ":4040"
+	defaultNatsUser          = ""
+	defaultNatsPassword      = ""
+	defaultCockroachAddr     = "localhost:26257"
+	defaultCockroachUser     = "root"
+	defaultCockroachPassword = ""
+	defaultJaegerAgentAddr   = "localhost:6831"
+	defaultJaegerLogSpans    = false
 )
 
 var (
@@ -20,23 +23,29 @@ var (
 
 // Config defines the configuration values
 var Config = struct {
-	LogLevel        string
-	ServiceName     string
-	ServicePort     string
-	NatsServers     []string
-	NatsUser        string
-	NatsPassword    string
-	JaegerAgentAddr string
-	JaegerLogSpans  bool
+	LogLevel          string
+	ServiceName       string
+	ServicePort       string
+	NatsServers       []string
+	NatsUser          string
+	NatsPassword      string
+	CockroachAddr     string
+	CockroachUser     string
+	CockroachPassword string
+	JaegerAgentAddr   string
+	JaegerLogSpans    bool
 }{
-	LogLevel:        defaultLogLevel,
-	ServiceName:     defaultServiceName,
-	ServicePort:     defaultServicePort,
-	NatsServers:     defaultNatsServers,
-	NatsUser:        defaultNatsUser,
-	NatsPassword:    defaultNatsPassword,
-	JaegerAgentAddr: defaultJaegerAgentAddr,
-	JaegerLogSpans:  defaultJaegerLogSpans,
+	LogLevel:          defaultLogLevel,
+	ServiceName:       defaultServiceName,
+	ServicePort:       defaultServicePort,
+	NatsServers:       defaultNatsServers,
+	NatsUser:          defaultNatsUser,
+	NatsPassword:      defaultNatsPassword,
+	CockroachAddr:     defaultCockroachAddr,
+	CockroachUser:     defaultCockroachUser,
+	CockroachPassword: defaultCockroachPassword,
+	JaegerAgentAddr:   defaultJaegerAgentAddr,
+	JaegerLogSpans:    defaultJaegerLogSpans,
 }
 
 func init() {

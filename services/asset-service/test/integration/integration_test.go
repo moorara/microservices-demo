@@ -6,6 +6,7 @@ import (
 
 var Config = struct {
 	IntegrationTest   bool
+	LogLevel          string
 	NatsServers       []string
 	NatsUser          string
 	NatsPassword      string
@@ -13,6 +14,7 @@ var Config = struct {
 	CockroachUser     string
 	CockroachPassword string
 }{
+	LogLevel:          "debug",
 	NatsServers:       []string{"nats://localhost:4222"},
 	NatsUser:          "nats_client",
 	NatsPassword:      "password?!",

@@ -46,6 +46,8 @@ services:
       - NATS_SERVERS=nats://nats:4222
       - NATS_USER=nats_client
       - NATS_PASSWORD=password?!
+      - COCKROACH_ADDR=cockroach:26257
+      - COCKROACH_USER=service
   
   integration-test:
     image: asset-service-test
@@ -60,6 +62,8 @@ services:
       - NATS_SERVERS=nats://nats:4222
       - NATS_USER=nats_client
       - NATS_PASSWORD=password?!
+      - COCKROACH_ADDR=cockroach:26257
+      - COCKROACH_USER=service
     command: [ "go", "test", "-v", "./test/integration" ]
   component-test:
     image: asset-service-test
