@@ -22,6 +22,10 @@ type Event struct {
 }
 
 func TestNATSConnection(t *testing.T) {
+	if !Config.IntegrationTest {
+		t.SkipNow()
+	}
+
 	tests := []struct {
 		name         string
 		subject      string

@@ -19,6 +19,10 @@ type Asset struct {
 }
 
 func TestCockroachDB(t *testing.T) {
+	if !Config.IntegrationTest {
+		t.SkipNow()
+	}
+
 	tests := []struct {
 		name   string
 		create Asset
