@@ -20,6 +20,7 @@ type (
 		Find(out interface{}, where ...interface{}) *gorm.DB
 		LogMode(enable bool) *gorm.DB
 		Model(value interface{}) *gorm.DB
+		Preload(column string, conditions ...interface{}) *gorm.DB
 		Update(attrs ...interface{}) *gorm.DB
 		Where(query interface{}, args ...interface{}) *gorm.DB
 	}
