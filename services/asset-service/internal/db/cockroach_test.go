@@ -44,28 +44,30 @@ func TestGormLogger(t *testing.T) {
 
 func TestNewCockroachORM(t *testing.T) {
 	tests := []struct {
-		name     string
-		addr     string
-		user     string
-		password string
-		database string
+		name        string
+		addr        string
+		user        string
+		password    string
+		database    string
+		expectError bool
 	}{
-		{"WithoutUser", "localhost:26257", "", "", "things"},
-		{"WithUser", "localhost:26257", "root", "", "things"},
-		{"WithUserPass", "localhost:26257", "service", "password", "things"},
+		{"WithoutUser", "localhost:26257", "", "", "things", true},
+		{"WithUser", "localhost:26257", "root", "", "things", true},
+		{"WithUserPass", "localhost:26257", "service", "password", "things", true},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			defer func() {
-				if r := recover(); r != nil {
-					t.Log("recovered from panic!")
-				}
-			}()
-
 			logger := log.NewNopLogger()
-			db := NewCockroachORM(tc.addr, tc.user, tc.password, tc.database, logger)
-			assert.NotNil(t, db)
+			orm, err := NewCockroachORM(tc.addr, tc.user, tc.password, tc.database, logger)
+
+			if tc.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, orm)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, orm)
+			}
 		})
 	}
 }

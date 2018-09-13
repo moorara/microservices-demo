@@ -47,7 +47,8 @@ func TestCockroachORM(t *testing.T) {
 
 	logger := log.NewLogger("integration-test", "TestCockroachORM", Config.LogLevel)
 
-	orm := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	assert.NoError(t, err)
 	assert.NotNil(t, orm)
 	defer orm.Close()
 
@@ -91,6 +92,10 @@ func TestCockroachORM(t *testing.T) {
 }
 
 func TestAlarmService(t *testing.T) {
+	if !Config.IntegrationTest {
+		t.SkipNow()
+	}
+
 	tests := []struct {
 		name    string
 		alarms  []*model.Alarm
@@ -121,7 +126,8 @@ func TestAlarmService(t *testing.T) {
 	metrics := metrics.New("integration-test")
 	tracer := mocktracer.New()
 
-	orm := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	assert.NoError(t, err)
 	assert.NotNil(t, orm)
 	defer orm.Close()
 
@@ -186,6 +192,10 @@ func TestAlarmService(t *testing.T) {
 }
 
 func TestCameraService(t *testing.T) {
+	if !Config.IntegrationTest {
+		t.SkipNow()
+	}
+
 	tests := []struct {
 		name    string
 		cameras []*model.Camera
@@ -216,7 +226,8 @@ func TestCameraService(t *testing.T) {
 	metrics := metrics.New("integration-test")
 	tracer := mocktracer.New()
 
-	orm := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	assert.NoError(t, err)
 	assert.NotNil(t, orm)
 	defer orm.Close()
 

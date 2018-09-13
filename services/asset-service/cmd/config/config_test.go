@@ -18,6 +18,7 @@ func TestConfig(t *testing.T) {
 		expectedCockroachAddr     string
 		expectedCockroachUser     string
 		expectedCockroachPassword string
+		expectedCockroachDatabase string
 		expectedJaegerAgentAddr   string
 		expectedJaegerLogSpans    bool
 	}{
@@ -32,6 +33,7 @@ func TestConfig(t *testing.T) {
 			expectedCockroachAddr:     defaultCockroachAddr,
 			expectedCockroachUser:     defaultCockroachUser,
 			expectedCockroachPassword: defaultCockroachPassword,
+			expectedCockroachDatabase: defaultCockroachDatabase,
 			expectedJaegerAgentAddr:   defaultJaegerAgentAddr,
 			expectedJaegerLogSpans:    defaultJaegerLogSpans,
 		},
@@ -48,6 +50,7 @@ func TestConfig(t *testing.T) {
 			assert.Equal(t, tc.expectedCockroachAddr, Config.CockroachAddr)
 			assert.Equal(t, tc.expectedCockroachUser, Config.CockroachUser)
 			assert.Equal(t, tc.expectedCockroachPassword, Config.CockroachPassword)
+			assert.Equal(t, tc.expectedCockroachDatabase, Config.CockroachDatabase)
 			assert.Equal(t, tc.expectedJaegerAgentAddr, Config.JaegerAgentAddr)
 			assert.Equal(t, tc.expectedJaegerLogSpans, Config.JaegerLogSpans)
 		})

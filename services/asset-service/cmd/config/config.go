@@ -13,6 +13,7 @@ const (
 	defaultCockroachAddr     = "localhost:26257"
 	defaultCockroachUser     = "root"
 	defaultCockroachPassword = ""
+	defaultCockroachDatabase = "assets"
 	defaultJaegerAgentAddr   = "localhost:6831"
 	defaultJaegerLogSpans    = false
 )
@@ -32,6 +33,7 @@ var Config = struct {
 	CockroachAddr     string
 	CockroachUser     string
 	CockroachPassword string
+	CockroachDatabase string
 	JaegerAgentAddr   string
 	JaegerLogSpans    bool
 }{
@@ -44,6 +46,7 @@ var Config = struct {
 	CockroachAddr:     defaultCockroachAddr,
 	CockroachUser:     defaultCockroachUser,
 	CockroachPassword: defaultCockroachPassword,
+	CockroachDatabase: defaultCockroachDatabase,
 	JaegerAgentAddr:   defaultJaegerAgentAddr,
 	JaegerLogSpans:    defaultJaegerLogSpans,
 }

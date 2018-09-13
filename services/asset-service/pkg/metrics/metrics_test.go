@@ -23,5 +23,7 @@ func TestNew(t *testing.T) {
 		assert.NotNil(t, metrics.ReqCounter)
 		assert.NotNil(t, metrics.OpLatencyHist)
 		assert.NotNil(t, metrics.OpLatencySumm)
+		assert.NotNil(t, metrics.HTTPDurationHist)
+		assert.NotNil(t, metrics.HTTPDurationSumm)
 	}
 }

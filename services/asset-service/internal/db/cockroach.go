@@ -35,7 +35,7 @@ func (l *gormLogger) Print(values ...interface{}) {
 }
 
 // NewCockroachORM creates a new DB for CockroachDB
-func NewCockroachORM(addr, user, password, database string, logger *log.Logger) ORM {
+func NewCockroachORM(addr, user, password, database string, logger *log.Logger) (ORM, error) {
 	var url string
 	if user != "" && password != "" {
 		url = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", user, password, addr, database)
@@ -47,11 +47,11 @@ func NewCockroachORM(addr, user, password, database string, logger *log.Logger) 
 
 	db, err := gorm.Open("postgres", url)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	db.LogMode(false)
 	db.SetLogger(&gormLogger{logger})
 
-	return db
+	return db, nil
 }

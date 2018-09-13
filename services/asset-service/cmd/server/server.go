@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/moorara/microservices-demo/services/asset-service/internal/transport"
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/log"
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/metrics"
 	"github.com/opentracing/opentracing-go"
@@ -24,13 +25,14 @@ type (
 
 	// Server manages a http.Server
 	Server struct {
-		logger     *log.Logger
-		httpServer HTTPServer
+		logger        *log.Logger
+		httpServer    HTTPServer
+		natsTransport transport.NATSTransport
 	}
 )
 
 // New creates a new Server
-func New(port string, logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) *Server {
+func New(port string, natsTransport transport.NATSTransport, logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) *Server {
 	router := mux.NewRouter()
 	server := &Server{
 		logger: logger,
@@ -38,6 +40,7 @@ func New(port string, logger *log.Logger, metrics *metrics.Metrics, tracer opent
 			Addr:    port,
 			Handler: router,
 		},
+		natsTransport: natsTransport,
 	}
 
 	router.NotFoundHandler = http.HandlerFunc(server.notFound)

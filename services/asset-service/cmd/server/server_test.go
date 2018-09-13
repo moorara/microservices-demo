@@ -36,6 +36,16 @@ func (m *mockHTTPServer) Shutdown(ctx context.Context) error {
 	return m.ShutdownOutError
 }
 
+type mockNATSTransport struct {
+	SubscribeCalled   bool
+	SubscribeOutError error
+}
+
+func (m *mockNATSTransport) Subscribe() error {
+	m.SubscribeCalled = true
+	return m.SubscribeOutError
+}
+
 func TestNotFound(t *testing.T) {
 	tests := []struct {
 		port           string
@@ -52,10 +62,11 @@ func TestNotFound(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		natsTransport := &mockNATSTransport{}
 		logger := log.NewNopLogger()
 		metrics := metrics.New("test-service")
 		tracer := mocktracer.New()
-		server := New(tc.port, logger, metrics, tracer)
+		server := New(tc.port, natsTransport, logger, metrics, tracer)
 
 		r := httptest.NewRequest(tc.method, tc.url, nil)
 		w := httptest.NewRecorder()
@@ -81,10 +92,11 @@ func TestLiveness(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		natsTransport := &mockNATSTransport{}
 		logger := log.NewNopLogger()
 		metrics := metrics.New("test-service")
 		tracer := mocktracer.New()
-		server := New(tc.port, logger, metrics, tracer)
+		server := New(tc.port, natsTransport, logger, metrics, tracer)
 
 		r := httptest.NewRequest(tc.method, tc.url, nil)
 		w := httptest.NewRecorder()
@@ -110,10 +122,11 @@ func TestReadiness(t *testing.T) {
 	}
 
 	for _, tc := range tests {
+		natsTransport := &mockNATSTransport{}
 		logger := log.NewNopLogger()
 		metrics := metrics.New("test-service")
 		tracer := mocktracer.New()
-		server := New(tc.port, logger, metrics, tracer)
+		server := New(tc.port, natsTransport, logger, metrics, tracer)
 
 		r := httptest.NewRequest(tc.method, tc.url, nil)
 		w := httptest.NewRecorder()
@@ -128,18 +141,21 @@ func TestStart(t *testing.T) {
 		name          string
 		signal        syscall.Signal
 		httpServer    *mockHTTPServer
+		natsTransport *mockNATSTransport
 		expectedError error
 	}{
 		{
 			"IntSignal",
 			syscall.SIGINT,
 			&mockHTTPServer{},
+			&mockNATSTransport{},
 			errors.New("interrupt"),
 		},
 		{
 			"TermSignal",
 			syscall.SIGTERM,
 			&mockHTTPServer{},
+			&mockNATSTransport{},
 			errors.New("terminated"),
 		},
 		{
@@ -148,6 +164,7 @@ func TestStart(t *testing.T) {
 			&mockHTTPServer{
 				ListenAndServeOutError: errors.New("server error"),
 			},
+			&mockNATSTransport{},
 			errors.New("server error"),
 		},
 	}
@@ -156,8 +173,9 @@ func TestStart(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewNopLogger()
 			server := &Server{
-				logger:     logger,
-				httpServer: tc.httpServer,
+				logger:        logger,
+				httpServer:    tc.httpServer,
+				natsTransport: tc.natsTransport,
 			}
 
 			if tc.signal > 0 {
@@ -176,18 +194,21 @@ func TestStart(t *testing.T) {
 
 func TestStop(t *testing.T) {
 	tests := []struct {
-		name       string
-		httpServer *mockHTTPServer
+		name          string
+		httpServer    *mockHTTPServer
+		natsTransport *mockNATSTransport
 	}{
 		{
 			"HTTPServerError",
 			&mockHTTPServer{
 				ShutdownOutError: errors.New("server error"),
 			},
+			&mockNATSTransport{},
 		},
 		{
 			"NoError",
 			&mockHTTPServer{},
+			&mockNATSTransport{},
 		},
 	}
 
@@ -195,8 +216,9 @@ func TestStop(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := log.NewNopLogger()
 			server := &Server{
-				logger:     logger,
-				httpServer: tc.httpServer,
+				logger:        logger,
+				httpServer:    tc.httpServer,
+				natsTransport: tc.natsTransport,
 			}
 
 			server.Stop()
