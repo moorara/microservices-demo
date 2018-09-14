@@ -89,17 +89,30 @@ services:
     container_name: cockroach
     restart: always
     ports:
-      - "28080:8080"
       - "26257:26257"
+      - "28080:8080"
     networks:
       - local
     volumes:
       - "cockroach_data:/cockroach/cockroach-data"
     command: [ "start", "--insecure" ]
+  cockroach-init:
+    image: cockroachdb/cockroach:v2.0.5
+    hostname: cockroach-init
+    container_name: cockroach-init
+    depends_on:
+      - cockroach
+    environment:
+      - COCKROACH_HOST=cockroach
+    networks:
+      - local
+    volumes:
+      - "./data/cockroach/init-cockroach.sql:/init/init-cockroach.sql"
+    command: [ "shell", "-c", "/cockroach/cockroach.sh sql --insecure < /init/init-cockroach.sql" ]
 
   # MESSAGING
   nats:
-    image: nats:1.2.0
+    image: nats:1.3.0
     hostname: nats
     container_name: nats
     restart: always
@@ -109,7 +122,7 @@ services:
       - "8222:8222"  # HTTP management port for information reporting
     networks:
       - local
-    command: [ "--user", "nats_client", "--pass", "pass" ]
+    command: [ "-m", "8222", "--user", "client", "--pass", "pass" ]
 
   # LOGGING
   elasticsearch:
@@ -294,6 +307,7 @@ services:
     image: moorara/react-client:latest
     hostname: react-client
     container_name: react-client
+    restart: always
     depends_on:
       - fluentd
     ports:
@@ -311,6 +325,7 @@ services:
     image: moorara/site-service:latest
     hostname: site-service
     container_name: site-service
+    restart: always
     depends_on:
       - mongo
       - fluentd
@@ -338,6 +353,7 @@ services:
     image: moorara/sensor-service:latest
     hostname: sensor-service
     container_name: sensor-service
+    restart: always
     depends_on:
       - postgres
       - fluentd
@@ -364,6 +380,7 @@ services:
     image: moorara/switch-service:latest
     hostname: switch-service
     container_name: switch-service
+    restart: always
     depends_on:
       - arango
       - fluentd
@@ -387,9 +404,11 @@ services:
     image: moorara/asset-service:latest
     hostname: asset-service
     container_name: asset-service
+    restart: always
     depends_on:
-      - cockroach
       - nats
+      - cockroach
+      - cockroach-init
       - fluentd
       - jaeger
     ports:
@@ -399,20 +418,21 @@ services:
       - SERVICE_NAME=asset-service
       - SERVICE_TAGS=monitor
       - NATS_SERVERS=nats://nats:4222
-      - NATS_USER=nats_client
+      - NATS_USER=client
       - NATS_PASSWORD=pass
       - COCKROACH_ADDR=cockroach:26257
-      - COCKROACH_USER=service
+      - COCKROACH_USER=cockroach
       - JAEGER_AGENT_ADDR=jaeger:6831
     networks:
       - local
-    labels:
-      <<: *labels
-    <<: *logdriver
+    #labels:
+    #  <<: *labels
+    #<<: *logdriver
   graphql-server:
     image: moorara/graphql-server:latest
     hostname: graphql-server
     container_name: graphql-server
+    restart: always
     depends_on:
       - fluentd
       - jaeger

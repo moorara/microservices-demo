@@ -9,7 +9,7 @@ services:
     ports:
       - "4222:4222"
       - "8222:8222"
-    command: [ "-m", "8222", "--user", "nats_client", "--pass", "password?!" ]
+    command: [ "-m", "8222", "--user", "client", "--pass", "pass" ]
 
   cockroach:
     image: cockroachdb/cockroach
@@ -17,8 +17,8 @@ services:
     container_name: cockroach
     restart: always
     ports:
-      - "8080:8080"
       - "26257:26257"
+      - "8080:8080"
     command: [ "start", "--insecure" ]
   cockroach-init:
     image: cockroachdb/cockroach
@@ -28,9 +28,7 @@ services:
       - cockroach
     environment:
       - COCKROACH_HOST=cockroach
-    volumes:
-      - "./scripts/cockroach-entrypoint.sh:/cockroach-entrypoint.sh"
-    entrypoint: /cockroach-entrypoint.sh
+    command: [ "sql", "--insecure", "--execute", "CREATE DATABASE assets" ]
 
   asset-service:
     image: moorara/asset-service:${VERSION:-latest}
@@ -45,10 +43,10 @@ services:
     environment:
       - LOG_LEVEL=debug
       - NATS_SERVERS=nats://nats:4222
-      - NATS_USER=nats_client
-      - NATS_PASSWORD=password?!
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
       - COCKROACH_ADDR=cockroach:26257
-      - COCKROACH_USER=service
+      - COCKROACH_USER=root
   
   integration-test:
     image: asset-service-test
@@ -61,10 +59,10 @@ services:
     environment:
       - INTEGRATION_TEST=true
       - NATS_SERVERS=nats://nats:4222
-      - NATS_USER=nats_client
-      - NATS_PASSWORD=password?!
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
       - COCKROACH_ADDR=cockroach:26257
-      - COCKROACH_USER=service
+      - COCKROACH_USER=root
     command: [ "go", "test", "-v", "./test/integration" ]
   component-test:
     image: asset-service-test
@@ -75,4 +73,7 @@ services:
     environment:
       - COMPONENT_TEST=true
       - SERVICE_URL=http://asset-service:4040
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
     command: [ "go", "test", "-v", "./test/component" ]

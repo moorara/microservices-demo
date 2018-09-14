@@ -10,17 +10,21 @@ import (
 	"github.com/moorara/microservices-demo/services/asset-service/internal/service"
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/log"
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/metrics"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
-)
-
-const (
-	CockroachDatabase = "assets"
 )
 
 type Entity struct {
 	ID   string `json:"id" gorm:"primary_key"`
 	Name string
+}
+
+func contextWithSpan() context.Context {
+	tracer := mocktracer.New()
+	span := tracer.StartSpan("test-span")
+	ctx := opentracing.ContextWithSpan(context.Background(), span)
+	return ctx
 }
 
 func TestCockroachORM(t *testing.T) {
@@ -47,7 +51,7 @@ func TestCockroachORM(t *testing.T) {
 
 	logger := log.NewLogger("integration-test", "TestCockroachORM", Config.LogLevel)
 
-	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, Config.CockroachDatabase, logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, orm)
 	defer orm.Close()
@@ -126,7 +130,7 @@ func TestAlarmService(t *testing.T) {
 	metrics := metrics.New("integration-test")
 	tracer := mocktracer.New()
 
-	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, Config.CockroachDatabase, logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, orm)
 	defer orm.Close()
@@ -138,7 +142,7 @@ func TestAlarmService(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Run("Create", func(t *testing.T) {
 				for _, input := range tc.creates {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					alarm, err := alarmService.Create(ctx, input)
 					assert.NoError(t, err)
 					assert.NotEmpty(t, alarm.Asset.ID)
@@ -151,7 +155,7 @@ func TestAlarmService(t *testing.T) {
 
 			t.Run("All", func(t *testing.T) {
 				for _, siteID := range tc.siteIDs {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					alarms, err := alarmService.All(ctx, siteID)
 					assert.NoError(t, err)
 					assert.True(t, len(alarms) > 0)
@@ -160,7 +164,7 @@ func TestAlarmService(t *testing.T) {
 
 			t.Run("Get", func(t *testing.T) {
 				for _, alarm := range tc.alarms {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					result, err := alarmService.Get(ctx, alarm.ID)
 					assert.NoError(t, err)
 					assert.Equal(t, alarm.Asset.ID, result.Asset.ID)
@@ -172,7 +176,7 @@ func TestAlarmService(t *testing.T) {
 
 			t.Run("Update", func(t *testing.T) {
 				for i := range tc.alarms {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					result, err := alarmService.Update(ctx, tc.alarms[i].ID, tc.updates[i])
 					assert.NoError(t, err)
 					assert.True(t, result)
@@ -181,7 +185,7 @@ func TestAlarmService(t *testing.T) {
 
 			t.Run("Delete", func(t *testing.T) {
 				for _, alarm := range tc.alarms {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					result, err := alarmService.Delete(ctx, alarm.ID)
 					assert.NoError(t, err)
 					assert.True(t, result)
@@ -226,7 +230,7 @@ func TestCameraService(t *testing.T) {
 	metrics := metrics.New("integration-test")
 	tracer := mocktracer.New()
 
-	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, CockroachDatabase, logger)
+	orm, err := db.NewCockroachORM(Config.CockroachAddr, Config.CockroachUser, Config.CockroachPassword, Config.CockroachDatabase, logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, orm)
 	defer orm.Close()
@@ -238,7 +242,7 @@ func TestCameraService(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Run("Create", func(t *testing.T) {
 				for _, input := range tc.creates {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					camera, err := cameraService.Create(ctx, input)
 					assert.NoError(t, err)
 					assert.NotEmpty(t, camera.Asset.ID)
@@ -251,7 +255,7 @@ func TestCameraService(t *testing.T) {
 
 			t.Run("All", func(t *testing.T) {
 				for _, siteID := range tc.siteIDs {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					cameras, err := cameraService.All(ctx, siteID)
 					assert.NoError(t, err)
 					assert.True(t, len(cameras) > 0)
@@ -260,7 +264,7 @@ func TestCameraService(t *testing.T) {
 
 			t.Run("Get", func(t *testing.T) {
 				for _, camera := range tc.cameras {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					result, err := cameraService.Get(ctx, camera.ID)
 					assert.NoError(t, err)
 					assert.Equal(t, camera.Asset.ID, result.Asset.ID)
@@ -272,7 +276,7 @@ func TestCameraService(t *testing.T) {
 
 			t.Run("Update", func(t *testing.T) {
 				for i := range tc.cameras {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					result, err := cameraService.Update(ctx, tc.cameras[i].ID, tc.updates[i])
 					assert.NoError(t, err)
 					assert.True(t, result)
@@ -281,7 +285,7 @@ func TestCameraService(t *testing.T) {
 
 			t.Run("Delete", func(t *testing.T) {
 				for _, camera := range tc.cameras {
-					ctx := context.Background()
+					ctx := contextWithSpan()
 					result, err := cameraService.Delete(ctx, camera.ID)
 					assert.NoError(t, err)
 					assert.True(t, result)

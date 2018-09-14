@@ -144,9 +144,7 @@ jobs:
             sleep 2
             docker exec postgres psql -c "CREATE DATABASE sensors"
             docker exec postgres psql -d sensors -c "CREATE TABLE sensors (id varchar(256) PRIMARY KEY, site_id varchar(256) NOT NULL, name varchar(256) NOT NULL, unit varchar(256) NOT NULL, min_safe double precision NOT NULL, max_safe double precision NOT NULL)"
-            docker-compose run sensor-service-test make test-component
-            docker container logs sensor-service | grep '^{' | jq . > component-tests.log
-            docker-compose down
+            make test-component-docker
       - store_artifacts:
           path: services/sensor-service/component-tests.log
           destination: component-tests.log

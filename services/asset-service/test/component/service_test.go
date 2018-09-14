@@ -2,6 +2,7 @@ package component
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -44,6 +45,8 @@ func TestAPI(t *testing.T) {
 			msg, err := nats.RequestWithContext(ctx, tc.subject, []byte(tc.request))
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedResponse, string(msg.Data))
+
+			fmt.Println(string(msg.Data))
 		})
 	}
 }

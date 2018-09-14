@@ -8,6 +8,13 @@ import (
 	"github.com/opentracing/opentracing-go/mocktracer"
 )
 
+func contextWithSpan() context.Context {
+	tracer := mocktracer.New()
+	span := tracer.StartSpan("mock-span")
+	ctx := opentracing.ContextWithSpan(context.Background(), span)
+	return ctx
+}
+
 type mockORM struct {
 	AutoMigrateCalled   bool
 	AutoMigrateInValues []interface{}
@@ -114,11 +121,4 @@ func (m *mockORM) Where(query interface{}, args ...interface{}) *gorm.DB {
 	m.WhereInQuery = query
 	m.WhereInArgs = args
 	return m.WhereOutDB
-}
-
-func CreateContextWithSpan() context.Context {
-	tracer := mocktracer.New()
-	span := tracer.StartSpan("mock-span")
-	ctx := opentracing.ContextWithSpan(context.Background(), span)
-	return ctx
 }

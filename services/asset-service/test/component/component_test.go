@@ -13,8 +13,8 @@ var Config = struct {
 }{
 	ServiceURL:   "http://localhost:4040",
 	NatsServers:  []string{"nats://localhost:4222"},
-	NatsUser:     "nats_client",
-	NatsPassword: "password?!",
+	NatsUser:     "client",
+	NatsPassword: "pass",
 }
 
 func init() {

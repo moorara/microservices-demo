@@ -13,14 +13,16 @@ var Config = struct {
 	CockroachAddr     string
 	CockroachUser     string
 	CockroachPassword string
+	CockroachDatabase string
 }{
-	LogLevel:          "debug",
+	LogLevel:          "info",
 	NatsServers:       []string{"nats://localhost:4222"},
-	NatsUser:          "nats_client",
-	NatsPassword:      "password?!",
+	NatsUser:          "client",
+	NatsPassword:      "pass",
 	CockroachAddr:     "localhost:26257",
-	CockroachUser:     "service",
+	CockroachUser:     "root",
 	CockroachPassword: "",
+	CockroachDatabase: "assets",
 }
 
 func init() {
