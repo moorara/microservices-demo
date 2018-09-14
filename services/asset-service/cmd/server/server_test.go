@@ -11,7 +11,6 @@ import (
 
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/log"
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/metrics"
-	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,11 +38,21 @@ func (m *mockHTTPServer) Shutdown(ctx context.Context) error {
 type mockNATSTransport struct {
 	SubscribeCalled   bool
 	SubscribeOutError error
+
+	StopCalled    bool
+	StopInContext context.Context
+	StopOutError  error
 }
 
-func (m *mockNATSTransport) Subscribe() error {
+func (m *mockNATSTransport) Start() error {
 	m.SubscribeCalled = true
 	return m.SubscribeOutError
+}
+
+func (m *mockNATSTransport) Stop(ctx context.Context) error {
+	m.StopCalled = true
+	m.StopInContext = ctx
+	return m.StopOutError
 }
 
 func TestNotFound(t *testing.T) {
@@ -65,8 +74,7 @@ func TestNotFound(t *testing.T) {
 		natsTransport := &mockNATSTransport{}
 		logger := log.NewNopLogger()
 		metrics := metrics.New("test-service")
-		tracer := mocktracer.New()
-		server := New(tc.port, natsTransport, logger, metrics, tracer)
+		server := New(tc.port, natsTransport, logger, metrics)
 
 		r := httptest.NewRequest(tc.method, tc.url, nil)
 		w := httptest.NewRecorder()
@@ -95,8 +103,7 @@ func TestLiveness(t *testing.T) {
 		natsTransport := &mockNATSTransport{}
 		logger := log.NewNopLogger()
 		metrics := metrics.New("test-service")
-		tracer := mocktracer.New()
-		server := New(tc.port, natsTransport, logger, metrics, tracer)
+		server := New(tc.port, natsTransport, logger, metrics)
 
 		r := httptest.NewRequest(tc.method, tc.url, nil)
 		w := httptest.NewRecorder()
@@ -125,8 +132,7 @@ func TestReadiness(t *testing.T) {
 		natsTransport := &mockNATSTransport{}
 		logger := log.NewNopLogger()
 		metrics := metrics.New("test-service")
-		tracer := mocktracer.New()
-		server := New(tc.port, natsTransport, logger, metrics, tracer)
+		server := New(tc.port, natsTransport, logger, metrics)
 
 		r := httptest.NewRequest(tc.method, tc.url, nil)
 		w := httptest.NewRecorder()
@@ -167,6 +173,15 @@ func TestStart(t *testing.T) {
 			&mockNATSTransport{},
 			errors.New("server error"),
 		},
+		{
+			"NATSTransportError",
+			0,
+			&mockHTTPServer{},
+			&mockNATSTransport{
+				SubscribeOutError: errors.New("nats error"),
+			},
+			errors.New("nats error"),
+		},
 	}
 
 	for _, tc := range tests {
@@ -204,6 +219,13 @@ func TestStop(t *testing.T) {
 				ShutdownOutError: errors.New("server error"),
 			},
 			&mockNATSTransport{},
+		},
+		{
+			"NATSTransportError",
+			&mockHTTPServer{},
+			&mockNATSTransport{
+				StopOutError: errors.New("nats error"),
+			},
 		},
 		{
 			"NoError",

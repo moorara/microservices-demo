@@ -7,8 +7,14 @@ import (
 var Config = struct {
 	ComponentTest bool
 	ServiceURL    string
+	NatsServers   []string
+	NatsUser      string
+	NatsPassword  string
 }{
-	ServiceURL: "http://localhost:4040",
+	ServiceURL:   "http://localhost:4040",
+	NatsServers:  []string{"nats://localhost:4222"},
+	NatsUser:     "nats_client",
+	NatsPassword: "password?!",
 }
 
 func init() {

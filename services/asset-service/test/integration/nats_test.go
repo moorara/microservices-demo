@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	NatsClientName = "tester"
+	natsClientName = "tester"
 )
 
 type Event struct {
@@ -71,7 +71,7 @@ func TestNATSConnection(t *testing.T) {
 		},
 	}
 
-	conn, err := queue.NewNATSConnection(Config.NatsServers, NatsClientName, Config.NatsUser, Config.NatsPassword)
+	conn, err := queue.NewNATSConnection(Config.NatsServers, natsClientName, Config.NatsUser, Config.NatsPassword)
 	assert.NoError(t, err)
 	assert.NotNil(t, conn)
 

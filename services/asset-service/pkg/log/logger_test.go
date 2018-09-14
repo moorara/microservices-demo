@@ -30,9 +30,9 @@ func TestNewLogger(t *testing.T) {
 		logLevel    string
 	}{
 		{"LevelDebug", "go-service", "singleton", "debug"},
-		{"LevelInfo", "grpc-service", "singleton", "info"},
-		{"LevelWarn", "graphql-service", "singleton", "warn"},
-		{"LevelError", "auth-service", "singleton", "error"},
+		{"LevelInfo", "go-service", "singleton", "info"},
+		{"LevelWarn", "go-service", "singleton", "warn"},
+		{"LevelError", "go-service", "singleton", "error"},
 	}
 
 	for _, tc := range tests {

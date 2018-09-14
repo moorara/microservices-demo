@@ -13,7 +13,6 @@ import (
 	"github.com/moorara/microservices-demo/services/asset-service/internal/transport"
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/log"
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/metrics"
-	"github.com/opentracing/opentracing-go"
 )
 
 type (
@@ -32,7 +31,7 @@ type (
 )
 
 // New creates a new Server
-func New(port string, natsTransport transport.NATSTransport, logger *log.Logger, metrics *metrics.Metrics, tracer opentracing.Tracer) *Server {
+func New(port string, natsTransport transport.NATSTransport, logger *log.Logger, metrics *metrics.Metrics) *Server {
 	router := mux.NewRouter()
 	server := &Server{
 		logger: logger,
@@ -47,10 +46,6 @@ func New(port string, natsTransport transport.NATSTransport, logger *log.Logger,
 	router.Methods("GET").Path("/liveness").HandlerFunc(server.liveness)
 	router.Methods("GET").Path("/readiness").HandlerFunc(server.readiness)
 	router.Methods("GET").Path("/metrics").Handler(metrics.Handler())
-
-	// monitorMiddleware := middleware.NewMonitorMiddleware(logger, metrics, tracer)
-	// graphql = monitorMiddleware.Wrap(graphql)
-	// router.Path("/graphql").HandlerFunc(graphql)
 
 	return server
 }
@@ -96,6 +91,16 @@ func (s *Server) Start() error {
 		}
 	}()
 
+	// Subscribe to NATS
+	go func() {
+		s.logger.Info("message", "subscribing to nats ...")
+		err := s.natsTransport.Start()
+		if err != nil {
+			s.logger.Error("message", "nats transport errored.", "error", err)
+			errs <- err
+		}
+	}()
+
 	err := <-errs
 	done <- struct{}{}
 	s.Stop()
@@ -110,5 +115,6 @@ func (s *Server) Stop() {
 	defer cancel()
 
 	s.httpServer.Shutdown(ctx)
+	s.natsTransport.Stop(ctx)
 	s.logger.Info("message", "server was gracefully shutdown.")
 }

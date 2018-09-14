@@ -43,7 +43,7 @@ func main() {
 	cameraService := service.NewCameraService(orm, logger, metrics, tracer)
 
 	natsTransport := transport.NewNATSTransport(logger, metrics, tracer, conn, alarmService, cameraService)
-	server := server.New(Config.ServicePort, natsTransport, logger, metrics, tracer)
+	server := server.New(Config.ServicePort, natsTransport, logger, metrics)
 
 	logger.Info(
 		"version", version.Version,

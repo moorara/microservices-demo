@@ -8,7 +8,8 @@ services:
     restart: always
     ports:
       - "4222:4222"
-    command: [ "--user", "nats_client", "--pass", "password?!" ]
+      - "8222:8222"
+    command: [ "-m", "8222", "--user", "nats_client", "--pass", "password?!" ]
 
   cockroach:
     image: cockroachdb/cockroach
