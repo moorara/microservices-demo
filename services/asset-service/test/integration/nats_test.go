@@ -77,9 +77,14 @@ func TestNATSConnection(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			count := len(tc.events)
-			subscriberDone := make(chan bool, count)
-			workerDone := make(chan bool, count)
+			eventCount := len(tc.events)
+			workerCount := tc.workersCount
+
+			clientSubscribed := make(chan bool, 1)
+			clientProcessed := make(chan bool, eventCount)
+
+			workerSubscribed := make(chan bool, workerCount)
+			workerProcessed := make(chan bool, eventCount)
 
 			// Subscribe to the subject
 			go func() {
@@ -87,9 +92,10 @@ func TestNATSConnection(t *testing.T) {
 					var event Event
 					err := json.Unmarshal(msg.Data, &event)
 					assert.NoError(t, err)
-					subscriberDone <- true
+					clientProcessed <- true
 				})
 				assert.NoError(t, err)
+				clientSubscribed <- true
 			}()
 
 			// Subscribe to a working group in the subject
@@ -99,14 +105,20 @@ func TestNATSConnection(t *testing.T) {
 						var event Event
 						err := json.Unmarshal(msg.Data, &event)
 						assert.NoError(t, err)
-						workerDone <- true
+						workerProcessed <- true
 					})
 					assert.NoError(t, err)
+					workerSubscribed <- true
 				}()
 			}
 
 			// Publish to the subject
 			go func() {
+				<-clientSubscribed
+				for i := 0; i < workerCount; i++ {
+					<-workerSubscribed
+				}
+
 				for _, event := range tc.events {
 					data, err := json.Marshal(&event)
 					assert.NoError(t, err)
@@ -115,13 +127,11 @@ func TestNATSConnection(t *testing.T) {
 				}
 			}()
 
-			err := conn.Flush()
-			assert.NoError(t, err)
-
-			for i := 0; i < count; i++ {
-				<-subscriberDone
+			// Wait for all subscribers to finish
+			for i := 0; i < eventCount; i++ {
+				<-clientProcessed
 				if tc.workersCount > 0 {
-					<-workerDone
+					<-workerProcessed
 				}
 			}
 		})
