@@ -30,9 +30,9 @@ func TestNewLogger(t *testing.T) {
 		logLevel    string
 	}{
 		{"LevelDebug", "go-service", "singleton", "debug"},
-		{"LevelInfo", "grpc-service", "singleton", "info"},
-		{"LevelWarn", "graphql-service", "singleton", "warn"},
-		{"LevelError", "auth-service", "singleton", "error"},
+		{"LevelInfo", "go-service", "singleton", "info"},
+		{"LevelWarn", "go-service", "singleton", "warn"},
+		{"LevelError", "go-service", "singleton", "error"},
 	}
 
 	for _, tc := range tests {
@@ -67,32 +67,34 @@ func TestLogger(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		t.Run("Debug"+tc.name, func(t *testing.T) {
-			l := &Logger{Logger: &tc.mockLogger}
-			err := l.Debug(tc.kv)
-			assert.Equal(t, tc.mockLogger.LogError, err)
-			assert.Equal(t, tc.expectedKV, tc.mockLogger.LogPassedKV[2])
-		})
+		t.Run(tc.name, func(t *testing.T) {
+			t.Run("DebugLevel", func(t *testing.T) {
+				l := &Logger{Logger: &tc.mockLogger}
+				err := l.Debug(tc.kv)
+				assert.Equal(t, tc.mockLogger.LogError, err)
+				assert.Equal(t, tc.expectedKV, tc.mockLogger.LogPassedKV[2])
+			})
 
-		t.Run("Info"+tc.name, func(t *testing.T) {
-			l := &Logger{Logger: &tc.mockLogger}
-			err := l.Info(tc.kv)
-			assert.Equal(t, tc.mockLogger.LogError, err)
-			assert.Equal(t, tc.expectedKV, tc.mockLogger.LogPassedKV[2])
-		})
+			t.Run("InfoLevel", func(t *testing.T) {
+				l := &Logger{Logger: &tc.mockLogger}
+				err := l.Info(tc.kv)
+				assert.Equal(t, tc.mockLogger.LogError, err)
+				assert.Equal(t, tc.expectedKV, tc.mockLogger.LogPassedKV[2])
+			})
 
-		t.Run("Warn"+tc.name, func(t *testing.T) {
-			l := &Logger{Logger: &tc.mockLogger}
-			err := l.Warn(tc.kv)
-			assert.Equal(t, tc.mockLogger.LogError, err)
-			assert.Equal(t, tc.expectedKV, tc.mockLogger.LogPassedKV[2])
-		})
+			t.Run("WarnLevel", func(t *testing.T) {
+				l := &Logger{Logger: &tc.mockLogger}
+				err := l.Warn(tc.kv)
+				assert.Equal(t, tc.mockLogger.LogError, err)
+				assert.Equal(t, tc.expectedKV, tc.mockLogger.LogPassedKV[2])
+			})
 
-		t.Run("Error"+tc.name, func(t *testing.T) {
-			l := &Logger{Logger: &tc.mockLogger}
-			err := l.Error(tc.kv)
-			assert.Equal(t, tc.mockLogger.LogError, err)
-			assert.Equal(t, tc.expectedKV, tc.mockLogger.LogPassedKV[2])
+			t.Run("ErrorLevel", func(t *testing.T) {
+				l := &Logger{Logger: &tc.mockLogger}
+				err := l.Error(tc.kv)
+				assert.Equal(t, tc.mockLogger.LogError, err)
+				assert.Equal(t, tc.expectedKV, tc.mockLogger.LogPassedKV[2])
+			})
 		})
 	}
 }

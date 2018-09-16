@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: pass
     volumes:
-      - "./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql"
+      - "./init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
   sensor-service:
     image: moorara/sensor-service:${VERSION:-latest}
     hostname: sensor-service

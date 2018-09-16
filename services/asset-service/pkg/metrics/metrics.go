@@ -30,8 +30,8 @@ func New(service string) *Metrics {
 	ReqCounter := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Namespace: service,
-			Name:      "graphql_requests_total",
-			Help:      "total number of graphql requests",
+			Name:      "requests_total",
+			Help:      "total number of requests",
 		},
 		[]string{"call", "success"},
 	)

@@ -25,27 +25,23 @@
 
   - https://gokit.io
 
-### ArangoDB
+### CockroachDB
 
-  - https://www.arangodb.com
-  - https://www.arangodb.com/documentation
-    - https://docs.arangodb.com/latest/Manual
-      - https://docs.arangodb.com/latest/Manual/Scalability
-      - https://docs.arangodb.com/latest/Manual/DataModeling
-      - https://docs.arangodb.com/latest/Manual/Graphs
-      - https://docs.arangodb.com/latest/Manual/Foxx
-    - https://docs.arangodb.com/latest/AQL
-      - https://docs.arangodb.com/latest/AQL/Fundamentals
-      - https://docs.arangodb.com/latest/AQL/Operations
-      - https://docs.arangodb.com/latest/AQL/DataQueries.html
-      - https://docs.arangodb.com/latest/AQL/Functions
-      - https://docs.arangodb.com/latest/AQL/Graphs
-      - https://docs.arangodb.com/latest/AQL/Examples
-    - https://docs.arangodb.com/latest/HTTP
-  - https://www.arangodb.com/arangodb-training-center
-  - https://github.com/arangodb/go-driver
-    - https://godoc.org/github.com/arangodb/go-driver
-    - https://godoc.org/github.com/arangodb/go-driver/http
+  - https://www.cockroachlabs.com/docs/stable
+    - https://www.cockroachlabs.com/docs/stable/install-cockroachdb.html
+    - https://www.cockroachlabs.com/docs/stable/cockroach-commands.html
+      - https://www.cockroachlabs.com/docs/stable/start-a-node.html
+      - https://www.cockroachlabs.com/docs/stable/create-and-manage-users.html
+    - https://www.cockroachlabs.com/docs/stable/start-a-local-cluster.html
+    - https://www.cockroachlabs.com/docs/stable/secure-a-cluster.html
+    - https://www.cockroachlabs.com/docs/stable/build-a-go-app-with-cockroachdb.html
+    - https://www.cockroachlabs.com/docs/stable/build-a-go-app-with-cockroachdb-gorm.html
+
+### GORM
+
+  - http://gorm.io/docs
+  - https://github.com/jinzhu/gorm
+    - https://godoc.org/github.com/jinzhu/gorm
 
 ### NATS
 
@@ -54,21 +50,17 @@
       - https://www.nats.io/documentation/concepts/nats-pub-sub
       - https://www.nats.io/documentation/concepts/nats-req-rep
       - https://www.nats.io/documentation/concepts/nats-queueing
-    - https://www.nats.io/documentation/internals/nats-protocol-demo
-      - https://www.nats.io/documentation/internals/nats-protocol
-      - https://www.nats.io/documentation/internals/nats-server-protocol
     - https://www.nats.io/documentation/server/gnatsd-intro
       - https://www.nats.io/documentation/server/gnatsd-slow-consumers
     - https://www.nats.io/documentation/streaming/nats-streaming-intro
       - https://www.nats.io/documentation/streaming/nats-streaming-quickstart
-      - https://www.nats.io/documentation/streaming/nats-streaming-protocol
     - https://github.com/nats-io/go-nats/tree/master/examples
       - https://www.nats.io/documentation/tutorials/nats-pub-sub
       - https://www.nats.io/documentation/tutorials/nats-req-rep
       - https://www.nats.io/documentation/tutorials/nats-queueing
       - https://www.nats.io/documentation/tutorials/nats-client-dev
       - https://www.nats.io/documentation/tutorials/nats-benchmarking
-  - https://github.com/pires/kubernetes-nats-cluster
+  - https://github.com/nats-io/nats-operator
   - https://github.com/canhnt/k8s-nats-streaming
 
 ### Metrics & Prometheus

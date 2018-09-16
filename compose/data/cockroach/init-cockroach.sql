@@ -1,0 +1,6 @@
+DROP USER IF EXISTS cockroach;
+DROP DATABASE IF EXISTS assets CASCADE;
+
+CREATE DATABASE IF NOT EXISTS assets;
+CREATE USER cockroach;  -- WITH PASSWORD 'password';
+GRANT ALL ON DATABASE assets TO cockroach;

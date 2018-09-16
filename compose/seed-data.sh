@@ -26,11 +26,12 @@ function ensure_command {
 }
 
 function pull_images {
-  printf "${nocolor}<======================================== Docker Images ========================================>\n"
+  printf "${nocolor}<======================================== Pull Docker Images ========================================>\n"
 
   docker pull arangodb
   docker pull mongo
   docker pull postgres
+  docker pull cockroachdb/cockroach
 
   printf "${nocolor}\n"
 }
@@ -76,7 +77,7 @@ function seed_mongo {
 }
 
 function seed_postgres {
-  printf "${blue}<======================================== PostgreSQL ========================================>\n"
+  printf "${purple}<======================================== PostgreSQL ========================================>\n"
 
   chmod 600 ./data/postgres/pgpass
 
@@ -96,6 +97,19 @@ function seed_postgres {
   printf "${nocolor}\n"
 }
 
+function seed_cockroach {
+  printf "${blue}<======================================== CockroachDB ========================================>\n"
+
+  docker run \
+    --network compose_local --link cockroach \
+    --env COCKROACH_HOST=cockroach \
+    --volume "$(pwd)/data/cockroach/assets.sql:/data/assets.sql" \
+    cockroachdb/cockroach \
+      shell -c "/cockroach/cockroach.sh sql --insecure --database assets < /data/assets.sql"
+
+  printf "${nocolor}\n"
+}
+
 
 ensure_command docker
 echo
@@ -103,3 +117,4 @@ pull_images
 seed_arango
 seed_mongo
 seed_postgres
+seed_cockroach

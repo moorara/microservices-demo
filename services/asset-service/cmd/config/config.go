@@ -5,47 +5,50 @@ import (
 )
 
 const (
-	defaultLogLevel        = "info"
-	defaultServiceName     = "asset-service"
-	defaultServicePort     = ":4040"
-	defaultArangoUser      = "root"
-	defaultArangoPassword  = ""
-	defaultNatsUser        = ""
-	defaultNatsPassword    = ""
-	defaultJaegerAgentAddr = "localhost:6831"
-	defaultJaegerLogSpans  = false
+	defaultLogLevel          = "info"
+	defaultServiceName       = "asset-service"
+	defaultServicePort       = ":4040"
+	defaultNatsUser          = "client"
+	defaultNatsPassword      = "pass"
+	defaultCockroachAddr     = "localhost:26257"
+	defaultCockroachUser     = "root"
+	defaultCockroachPassword = ""
+	defaultCockroachDatabase = "assets"
+	defaultJaegerAgentAddr   = "localhost:6831"
+	defaultJaegerLogSpans    = false
 )
 
 var (
-	defaultArangoEndpoints = []string{"tcp://localhost:8529"}
-	defaultNatsServers     = []string{"nats://localhost:4222"}
+	defaultNatsServers = []string{"nats://localhost:4222"}
 )
 
 // Config defines the configuration values
 var Config = struct {
-	LogLevel        string
-	ServiceName     string
-	ServicePort     string
-	ArangoEndpoints []string
-	ArangoUser      string
-	ArangoPassword  string
-	NatsServers     []string
-	NatsUser        string
-	NatsPassword    string
-	JaegerAgentAddr string
-	JaegerLogSpans  bool
+	LogLevel          string
+	ServiceName       string
+	ServicePort       string
+	NatsServers       []string
+	NatsUser          string
+	NatsPassword      string
+	CockroachAddr     string
+	CockroachUser     string
+	CockroachPassword string
+	CockroachDatabase string
+	JaegerAgentAddr   string
+	JaegerLogSpans    bool
 }{
-	LogLevel:        defaultLogLevel,
-	ServiceName:     defaultServiceName,
-	ServicePort:     defaultServicePort,
-	ArangoEndpoints: defaultArangoEndpoints,
-	ArangoUser:      defaultArangoUser,
-	ArangoPassword:  defaultArangoPassword,
-	NatsServers:     defaultNatsServers,
-	NatsUser:        defaultNatsUser,
-	NatsPassword:    defaultNatsPassword,
-	JaegerAgentAddr: defaultJaegerAgentAddr,
-	JaegerLogSpans:  defaultJaegerLogSpans,
+	LogLevel:          defaultLogLevel,
+	ServiceName:       defaultServiceName,
+	ServicePort:       defaultServicePort,
+	NatsServers:       defaultNatsServers,
+	NatsUser:          defaultNatsUser,
+	NatsPassword:      defaultNatsPassword,
+	CockroachAddr:     defaultCockroachAddr,
+	CockroachUser:     defaultCockroachUser,
+	CockroachPassword: defaultCockroachPassword,
+	CockroachDatabase: defaultCockroachDatabase,
+	JaegerAgentAddr:   defaultJaegerAgentAddr,
+	JaegerLogSpans:    defaultJaegerLogSpans,
 }
 
 func init() {

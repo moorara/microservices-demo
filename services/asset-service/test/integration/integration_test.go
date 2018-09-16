@@ -5,22 +5,24 @@ import (
 )
 
 var Config = struct {
-	IntegrationTest bool
-	ArangoHTTPAddr  string
-	ArangoEndpoints []string
-	ArangoUser      string
-	ArangoPassword  string
-	NatsServers     []string
-	NatsUser        string
-	NatsPassword    string
+	IntegrationTest   bool
+	LogLevel          string
+	NatsServers       []string
+	NatsUser          string
+	NatsPassword      string
+	CockroachAddr     string
+	CockroachUser     string
+	CockroachPassword string
+	CockroachDatabase string
 }{
-	ArangoHTTPAddr:  "http://localhost:8529",
-	ArangoEndpoints: []string{"tcp://localhost:8529"},
-	ArangoUser:      "root",
-	ArangoPassword:  "password?!",
-	NatsServers:     []string{"nats://localhost:4222"},
-	NatsUser:        "nats_client",
-	NatsPassword:    "password?!",
+	LogLevel:          "info",
+	NatsServers:       []string{"nats://localhost:4222"},
+	NatsUser:          "client",
+	NatsPassword:      "pass",
+	CockroachAddr:     "localhost:26257",
+	CockroachUser:     "root",
+	CockroachPassword: "",
+	CockroachDatabase: "assets",
 }
 
 func init() {

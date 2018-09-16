@@ -1,15 +1,6 @@
 version: "3.4"
 
 services:
-  arango:
-    image: arangodb
-    hostname: arango
-    container_name: arango
-    restart: always
-    ports:
-      - "8529:8529"
-    environment:
-      - ARANGO_ROOT_PASSWORD=password?!
   nats:
     image: nats
     hostname: nats
@@ -17,41 +8,61 @@ services:
     restart: always
     ports:
       - "4222:4222"
-    command: [ "--user", "nats_client", "--pass", "password?!" ]
+      - "8222:8222"
+    command: [ "-m", "8222", "--user", "client", "--pass", "pass" ]
+
+  cockroach:
+    image: cockroachdb/cockroach
+    hostname: cockroach
+    container_name: cockroach
+    restart: always
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    command: [ "start", "--insecure" ]
+  cockroach-init:
+    image: cockroachdb/cockroach
+    hostname: cockroach-init
+    container_name: cockroach-init
+    depends_on:
+      - cockroach
+    environment:
+      - COCKROACH_HOST=cockroach
+    command: [ "sql", "--insecure", "--execute", "CREATE DATABASE assets" ]
+
   asset-service:
     image: moorara/asset-service:${VERSION:-latest}
     hostname: asset-service
     container_name: asset-service
     depends_on:
-      - arango
       - nats
+      - cockroach
+      - cockroach-init
     ports:
       - "4040:4040"
     environment:
       - LOG_LEVEL=debug
-      - ARANGO_ENDPOINTS=tcp://arango:8529
-      - ARANGO_USER=root
-      - ARANGO_PASSWORD=password?!
       - NATS_SERVERS=nats://nats:4222
-      - NATS_USER=nats_client
-      - NATS_PASSWORD=password?!
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
+      - COCKROACH_ADDR=cockroach:26257
+      - COCKROACH_USER=root
   
   integration-test:
     image: asset-service-test
     hostname: integration-test
     container_name: integration-test
     depends_on:
-      - arango
       - nats
+      - cockroach
+      - cockroach-init
     environment:
       - INTEGRATION_TEST=true
-      - ARANGO_HTTP_ADDR=http://arango:8529
-      - ARANGO_ENDPOINTS=tcp://arango:8529
-      - ARANGO_USER=root
-      - ARANGO_PASSWORD=password?!
       - NATS_SERVERS=nats://nats:4222
-      - NATS_USER=nats_client
-      - NATS_PASSWORD=password?!
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
+      - COCKROACH_ADDR=cockroach:26257
+      - COCKROACH_USER=root
     command: [ "go", "test", "-v", "./test/integration" ]
   component-test:
     image: asset-service-test
@@ -62,4 +73,7 @@ services:
     environment:
       - COMPONENT_TEST=true
       - SERVICE_URL=http://asset-service:4040
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
     command: [ "go", "test", "-v", "./test/component" ]

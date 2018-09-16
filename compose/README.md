@@ -37,6 +37,7 @@
 | **cAdvisor**      | http://localhost:9800  |          |          |                                  |
 | **Jaeger UI**     | http://localhost:16686 |          |          |                                  |
 | **Træfik**        | http://localhost:1900  |          |          |                                  |
+| **CockroachDB**   | http://localhost:28080 |          |          |                                  |
 
 ## Ports
 
@@ -59,6 +60,11 @@
 | `27017`    | `mongo`          | MongoDB service                                                  |
 | `8529`     | `arango`         | ArangoDB service                                                 |
 | `5432`     | `postgres`       | PostgreSQL service                                               |
+| `26257`    | `cockroach`      | CockroachDB service                                              |
+| `28080`    | `cockroach`      | CockroachDB Admin UI                                             |
+| `4222`     | `nats`           | NATS service                                                     |
+| `6222`     | `nats`           | NATS clustering                                                  |
+| `8222`     | `nats`           | NATS monitoring                                                  |
 | `9200`     | `elasticsearch`  | Elasticsearch RESTful API                                        |
 | `9300`     | `elasticsearch`  | Elasticsearch transport protocol                                 |
 | `5601`     | `kibana`         | Kibana dashboard                                                 |
