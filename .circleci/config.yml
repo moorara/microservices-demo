@@ -426,7 +426,7 @@ jobs:
       - run:
           name: Component Testing
           working_directory: services/graphql-server
-          command: make test-component
+          command: make test-component-docker
       - store_artifacts:
           path: services/graphql-server/component-tests.log
           destination: component-tests.log

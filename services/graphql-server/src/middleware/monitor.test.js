@@ -46,16 +46,16 @@ describe('MonitorMiddleware', () => {
     let reqSpan
 
     const verify = (histogramName, summaryName, httpVersion, method, url, statusCode, spanName) => {
-      logs[0].req.httpVersion.should.equal(httpVersion)
-      logs[0].req.method.should.equal(method)
-      logs[0].res.statusCode.should.equal(statusCode)
-      logs[0].responseTime.should.be.aboveOrEqual(0)
+      logs[0].meta.req.httpVersion.should.equal(httpVersion)
+      logs[0].meta.req.method.should.equal(method)
+      logs[0].meta.res.statusCode.should.equal(statusCode)
+      logs[0].meta.responseTime.should.be.aboveOrEqual(0)
       should.exist(logs[0].level)
       should.exist(logs[0].message)
-      should.exist(logs[0].req.url)
-      should.exist(logs[0].req.query)
-      should.exist(logs[0].req.headers)
-      should.exist(logs[0].req.originalUrl)
+      should.exist(logs[0].meta.req.url)
+      should.exist(logs[0].meta.req.query)
+      should.exist(logs[0].meta.req.headers)
+      should.exist(logs[0].meta.req.originalUrl)
 
       const metrics = register.getMetricsAsJSON()
 

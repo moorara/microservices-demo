@@ -14,36 +14,38 @@
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive src",
     "test:component": "NODE_ENV=test mocha test/component/index.js",
     "mock:rest": "cd test/mock/rest && json-server --config config.json data.json",
-    "mock:grpc": "node test/mock/grpc/index.js"
+    "mock:grpc": "node test/mock/grpc/index.js",
+    "mock:nats": "node test/mock/nats/index.js"
   },
   "dependencies": {
     "@grpc/proto-loader": "^0.3.0",
     "axios": "^0.18.0",
     "express": "^4.16.3",
     "express-graphql": "^0.6.12",
-    "express-winston": "^2.6.0",
+    "express-winston": "^3.0.0",
     "google-protobuf": "^3.6.1",
-    "graphiql": "^0.11.11",
-    "graphql": "^0.13.2",
-    "graphql-tools": "^3.1.1",
-    "grpc": "^1.14.1",
+    "graphiql": "^0.12.0",
+    "graphql": "^14.0.2",
+    "graphql-tools": "^4.0.0",
+    "grpc": "^1.15.1",
     "jaeger-client": "^3.12.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
+    "nats": "^1.0.1",
     "opentracing": "^0.14.3",
-    "prom-client": "^11.1.1",
-    "winston": "^3.0.0"
+    "prom-client": "^11.1.3",
+    "winston": "^3.1.0"
   },
   "devDependencies": {
     "chalk": "^2.4.1",
     "json-server": "^0.14.0",
     "mocha": "^5.2.0",
-    "nock": "^9.6.1",
+    "nock": "^10.0.0",
     "nsp": "^3.2.1",
-    "nyc": "^12.0.2",
+    "nyc": "^13.0.1",
     "should": "^13.2.3",
-    "sinon": "^6.1.5",
-    "standard": "^11.0.1",
-    "supertest": "^3.1.0",
+    "sinon": "^6.3.5",
+    "standard": "^12.0.1",
+    "supertest": "^3.3.0",
     "tmp": "^0.0.33"
   }
 }
