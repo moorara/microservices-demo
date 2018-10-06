@@ -18,7 +18,6 @@
 | REST    | HTTP      | site-service   | http://localhost:4010/v1/sites   |
 | REST    | HTTP      | sensor-service | http://localhost:4020/v1/sensors |
 | gRPC    | TCP       | switch-service | localhost:4030                   |
-| GraphQL | HTTP      | asset-service  | localhost:4040/graphql           |
 | REST    | HTTP      | Træfik         | http://localhost:1080/api/v1/    |
 | REST    | HTTPS     | Træfik         | https://localhost:1443/api/v1/   |
 | REST    | HTTPS     | Caddy          | https://localhost/api/v1/        |
@@ -38,6 +37,7 @@
 | **Jaeger UI**     | http://localhost:16686 |          |          |                                  |
 | **Træfik**        | http://localhost:1900  |          |          |                                  |
 | **CockroachDB**   | http://localhost:28080 |          |          |                                  |
+| **NATS**          | http://localhost:8222  |          |          |                                  |
 
 ## Ports
 
@@ -65,6 +65,7 @@
 | `4222`     | `nats`           | NATS service                                                     |
 | `6222`     | `nats`           | NATS clustering                                                  |
 | `8222`     | `nats`           | NATS monitoring                                                  |
+| `7777`     | `nats-exporter`  | NATS Prometheus exporter                                         |
 | `9200`     | `elasticsearch`  | Elasticsearch RESTful API                                        |
 | `9300`     | `elasticsearch`  | Elasticsearch transport protocol                                 |
 | `5601`     | `kibana`         | Kibana dashboard                                                 |
