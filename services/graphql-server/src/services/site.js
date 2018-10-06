@@ -65,7 +65,7 @@ class SiteService {
   }
 
   create (context, input) {
-    return this.exec(context, 'create-site', (headers) => {
+    return this.exec(context, 'create-site', headers => {
       return this.axios.request({
         headers,
         method: 'post',
@@ -76,7 +76,7 @@ class SiteService {
   }
 
   all (context, query) {
-    return this.exec(context, 'get-sites', (headers) => {
+    return this.exec(context, 'get-sites', headers => {
       return this.axios.request({
         headers,
         method: 'get',
@@ -87,7 +87,7 @@ class SiteService {
   }
 
   get (context, id) {
-    return this.exec(context, 'get-site', (headers) => {
+    return this.exec(context, 'get-site', headers => {
       return this.axios.request({
         headers,
         method: 'get',
@@ -97,7 +97,7 @@ class SiteService {
   }
 
   update (context, id, input) {
-    return this.exec(context, 'update-site', async (headers) => {
+    return this.exec(context, 'update-site', async headers => {
       try {
         await this.axios.request({
           headers,
@@ -121,7 +121,7 @@ class SiteService {
   }
 
   modify (context, id, input) {
-    return this.exec(context, 'modify-site', (headers) => {
+    return this.exec(context, 'modify-site', headers => {
       return this.axios.request({
         headers,
         method: 'patch',
@@ -132,7 +132,7 @@ class SiteService {
   }
 
   delete (context, id) {
-    return this.exec(context, 'delete-site', (headers) => {
+    return this.exec(context, 'delete-site', headers => {
       return this.axios.request({
         headers,
         method: 'delete',

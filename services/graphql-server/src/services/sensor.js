@@ -65,7 +65,7 @@ class SensorService {
   }
 
   create (context, input) {
-    return this.exec(context, 'create-sensor', (headers) => {
+    return this.exec(context, 'create-sensor', headers => {
       return this.axios.request({
         headers,
         method: 'post',
@@ -76,7 +76,7 @@ class SensorService {
   }
 
   all (context, siteId) {
-    return this.exec(context, 'get-sensors', (headers) => {
+    return this.exec(context, 'get-sensors', headers => {
       return this.axios.request({
         headers,
         method: 'get',
@@ -87,7 +87,7 @@ class SensorService {
   }
 
   get (context, id) {
-    return this.exec(context, 'get-sensor', (headers) => {
+    return this.exec(context, 'get-sensor', headers => {
       return this.axios.request({
         headers,
         method: 'get',
@@ -97,7 +97,7 @@ class SensorService {
   }
 
   update (context, id, input) {
-    return this.exec(context, 'update-sensor', async (headers) => {
+    return this.exec(context, 'update-sensor', async headers => {
       try {
         await this.axios.request({
           headers,
@@ -121,7 +121,7 @@ class SensorService {
   }
 
   delete (context, id) {
-    return this.exec(context, 'delete-sensor', (headers) => {
+    return this.exec(context, 'delete-sensor', headers => {
       return this.axios.request({
         headers,
         method: 'delete',

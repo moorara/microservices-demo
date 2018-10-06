@@ -29,14 +29,12 @@ down:
 	@ VERSION=$(docker_tag) \
 	  docker-compose down
 
-test: # docker docker-test
-	@ VERSION=$(docker_tag) \
-	  docker-compose run graphql-server-test npm run test && \
-		docker-compose down
+test-docker: # docker docker-test
+	@ docker run --rm $(docker_test_image) npm run test
 
-test-component: # docker docker-test
+test-component-docker: # docker docker-test
 	@ VERSION=$(docker_tag) \
-	  docker-compose run graphql-server-test npm run test:component && \
+	  docker-compose run component-test && \
 		docker container logs graphql-server | grep '^{' | jq . > component-tests.log && \
 		docker-compose down
 
@@ -44,4 +42,4 @@ test-component: # docker docker-test
 .PHONY: clean
 .PHONY: docker docker-test save-images
 .PHONY: up down
-.PHONY: test test-component
+.PHONY: test-docker test-component-docker
