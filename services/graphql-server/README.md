@@ -49,11 +49,11 @@
 
   **Apollo**
   - https://www.apollographql.com/engine
+  - https://github.com/apollographql/graphql-tools
+    - https://www.apollographql.com/docs/graphql-tools
   - https://github.com/apollographql/apollo-server
     - https://www.apollographql.com/docs/apollo-server
       - https://www.apollographql.com/docs/apollo-server/features/unions-interfaces.html
-  - https://github.com/apollographql/graphql-tools
-    - https://www.apollographql.com/docs/graphql-tools
   - https://github.com/apollographql/apollo-client
     - https://www.apollographql.com/client
 

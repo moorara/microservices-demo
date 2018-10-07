@@ -1,6 +1,7 @@
 ## http://facebook.github.io/graphql
-## https://graphql.org/learn/schema
-## http://graphql.github.io/graphql-js
+## https://graphql.github.io/learn/schema
+## https://github.com/graphql/graphql-js
+## https://github.com/apollographql/graphql-tools
 
 schema {
   query: Query
@@ -61,7 +62,7 @@ type Mutation {
 }
 
 """
-SiteInput can be used for creating or updating a site.
+SiteInput is used for creating or updating a site.
 """
 input SiteInput {
   name: String!
@@ -85,7 +86,7 @@ type Site {
 }
 
 """
-SensorInput can be used for creating or updating a sensor.
+SensorInput is used for creating or updating a sensor.
 """
 input SensorInput {
   siteId: ID!
@@ -109,7 +110,7 @@ type Sensor {
 }
 
 """
-SwitchInput can be used for creating a switch.
+SwitchInput is used for creating a switch.
 """
 input SwitchInput {
   siteId: ID!
@@ -120,7 +121,7 @@ input SwitchInput {
 
 """
 Switch is the type for any kind of device that interacts with a site and alters it.
-Each switch has a set of pre-defined states and can be in one of the state at a time. 
+Each switch has a set of pre-defined states and can be in one of the state at a time.
 """
 type Switch {
   id: ID!

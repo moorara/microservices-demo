@@ -66,7 +66,7 @@ class Server {
       // Create and start a http server
       const server = http.createServer(this.app)
       server.listen(config.servicePort, () => {
-        this.logger.info(`Listening on port ${config.servicePort} ...`)
+        this.logger.info(`🚀 Listening on port ${config.servicePort} ...`)
       })
     } catch (err) {
       this.logger.fatal('Server errored:', err)
