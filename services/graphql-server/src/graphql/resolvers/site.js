@@ -69,6 +69,18 @@ const resolvers = {
     switches: (site, args, context, info) => {
       const ctx = { span: context.span }
       return context.switchService.getSwitches(ctx, site.id)
+    },
+
+    assets: async (site, args, context, info) => {
+      try {
+        const ctx = { span: context.span }
+        const allAlarm = context.assetService.allAlarm(ctx, site.id)
+        const allCamera = context.assetService.allCamera(ctx, site.id)
+        const [ alarms, cameras ] = await Promise.all([ allAlarm, allCamera ])
+        return [].concat(alarms, cameras)
+      } catch (err) {
+        throw err
+      }
     }
   }
 }

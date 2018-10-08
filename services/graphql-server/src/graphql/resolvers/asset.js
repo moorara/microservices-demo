@@ -3,7 +3,10 @@ const resolvers = {
     async asset (_, { id }, context, info) {
       try {
         const ctx = { span: context.span }
-        return await context.assetService.getAsset(ctx, id)
+        const getAlarm = context.assetService.getAlarm(ctx, id)
+        const getCamera = context.assetService.getCamera(ctx, id)
+        const [ alarm, camera ] = await Promise.all([ getAlarm, getCamera ])
+        return alarm || camera
       } catch (err) {
         context.logger.error('Error on asset:', err)
         throw err
@@ -13,7 +16,10 @@ const resolvers = {
     async assets (_, { siteId }, context, info) {
       try {
         const ctx = { span: context.span }
-        return await context.assetService.getAssets(ctx, siteId)
+        const allAlarm = context.assetService.allAlarm(ctx, siteId)
+        const allCamera = context.assetService.allCamera(ctx, siteId)
+        const [ alarms, cameras ] = await Promise.all([ allAlarm, allCamera ])
+        return [].concat(alarms, cameras)
       } catch (err) {
         context.logger.error('Error on assets:', err)
         throw err
@@ -35,7 +41,8 @@ const resolvers = {
     async updateAlarm (_, { id, input }, context, info) {
       try {
         const ctx = { span: context.span }
-        return await context.assetService.updateAlarm(ctx, id, input)
+        const updated = await context.assetService.updateAlarm(ctx, id, input)
+        return updated ? await context.assetService.getAlarm(ctx, id) : null
       } catch (err) {
         context.logger.error('Error on updateAlarm:', err)
         throw err
@@ -55,7 +62,8 @@ const resolvers = {
     async updateCamera (_, { id, input }, context, info) {
       try {
         const ctx = { span: context.span }
-        return await context.assetService.updateCamera(ctx, id, input)
+        const updated = await context.assetService.updateCamera(ctx, id, input)
+        return updated ? await context.assetService.getCamera(ctx, id) : null
       } catch (err) {
         context.logger.error('Error on updateCamera:', err)
         throw err
@@ -65,7 +73,10 @@ const resolvers = {
     async deleteAsset (_, { id }, context, info) {
       try {
         const ctx = { span: context.span }
-        return await context.assetService.deleteAsset(ctx, id)
+        let deleteAlarm = context.assetService.deleteAlarm(ctx, id)
+        let deleteCamera = context.assetService.deleteCamera(ctx, id)
+        const [ alarmDeleted, cameraDeleted ] = await Promise.all([ deleteAlarm, deleteCamera ])
+        return alarmDeleted || cameraDeleted
       } catch (err) {
         context.logger.error('Error on deleteAsset:', err)
         throw err

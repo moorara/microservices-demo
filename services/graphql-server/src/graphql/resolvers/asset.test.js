@@ -1,6 +1,6 @@
 /* eslint-env mocha */
-require('should')
 const sinon = require('sinon')
+const should = require('should')
 
 const resolvers = require('./asset')
 
@@ -21,13 +21,16 @@ describe('assetResolvers', () => {
     }
 
     assetService = {
-      getAsset () {},
-      getAssets () {},
       createAlarm () {},
+      allAlarm () {},
+      getAlarm () {},
       updateAlarm () {},
+      deleteAlarm () {},
       createCamera () {},
+      allCamera () {},
+      getCamera () {},
       updateCamera () {},
-      deleteAsset () {}
+      deleteCamera () {}
     }
     _assetService = sinon.mock(assetService)
 
@@ -43,32 +46,55 @@ describe('assetResolvers', () => {
     let id
 
     describe('asset', () => {
-      it('should reject with an error when service request fails', done => {
+      it('should reject with error when both get requests fail', done => {
         id = 'aaaa-aaaa'
         const err = new Error('get error')
-        _assetService.expects('getAsset').withArgs({ span: context.span }, id).rejects(err)
+        _assetService.expects('getAlarm').withArgs({ span: context.span }, id).rejects(err)
+        _assetService.expects('getCamera').withArgs({ span: context.span }, id).rejects(err)
         resolvers.Query.asset(null, { id }, context, info).catch(e => {
           e.should.eql(err)
           _assetService.verify()
           done()
         })
       })
-      it('should resolve with an alarm when asset is an alarm', done => {
+      it('should reject with error when get alarm request fails', done => {
         id = 'aaaa-aaaa'
-        const asset = { id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'smoke' }
-        _assetService.expects('getAsset').withArgs({ span: context.span }, id).resolves(asset)
+        const err = new Error('get alarm error')
+        _assetService.expects('getAlarm').withArgs({ span: context.span }, id).rejects(err)
+        resolvers.Query.asset(null, { id }, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should reject with error when get camera request fails', done => {
+        id = 'aaaa-aaaa'
+        const err = new Error('get camera error')
+        _assetService.expects('getCamera').withArgs({ span: context.span }, id).rejects(err)
+        resolvers.Query.asset(null, { id }, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should resolve with alarm when asset is alarm', done => {
+        id = 'aaaa-aaaa'
+        const alarm = { id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'co' }
+        _assetService.expects('getAlarm').withArgs({ span: context.span }, id).resolves(alarm)
+        _assetService.expects('getCamera').withArgs({ span: context.span }, id).resolves(null)
         resolvers.Query.asset(null, { id }, context, info).then(result => {
-          result.should.eql(asset)
+          result.should.eql(alarm)
           _assetService.verify()
           done()
         }).catch(done)
       })
-      it('should resolve with a camera when asset is a camera', done => {
+      it('should resolve with camera when asset is camera', done => {
         id = 'bbbb-bbbb'
-        const asset = { id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
-        _assetService.expects('getAsset').withArgs({ span: context.span }, id).resolves(asset)
+        const camera = { id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
+        _assetService.expects('getAlarm').withArgs({ span: context.span }, id).resolves(null)
+        _assetService.expects('getCamera').withArgs({ span: context.span }, id).resolves(camera)
         resolvers.Query.asset(null, { id }, context, info).then(result => {
-          result.should.eql(asset)
+          result.should.eql(camera)
           _assetService.verify()
           done()
         }).catch(done)
@@ -78,25 +104,45 @@ describe('assetResolvers', () => {
     describe('assets', () => {
       let siteId
 
-      it('should reject with an error when service request fails', done => {
+      it('should reject with error when both all requests fail', done => {
         siteId = '1111-1111'
         const err = new Error('all error')
-        _assetService.expects('getAssets').withArgs({ span: context.span }, siteId).rejects(err)
+        _assetService.expects('allAlarm').withArgs({ span: context.span }, siteId).rejects(err)
+        _assetService.expects('allCamera').withArgs({ span: context.span }, siteId).rejects(err)
         resolvers.Query.assets(null, { siteId }, context, info).catch(e => {
           e.should.eql(err)
           _assetService.verify()
           done()
         })
       })
-      it('should resolve with an array of alarms and cameras', done => {
+      it('should reject with error when all alarm request fails', done => {
         siteId = '1111-1111'
-        const assets = [
-          { id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'smoke' },
-          { id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
-        ]
-        _assetService.expects('getAssets').withArgs({ span: context.span }, siteId).resolves(assets)
-        resolvers.Query.assets(null, { siteId }, context, info).then(result => {
-          result.should.eql(assets)
+        const err = new Error('all alarm error')
+        _assetService.expects('allAlarm').withArgs({ span: context.span }, siteId).rejects(err)
+        resolvers.Query.assets(null, { siteId }, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should reject with error when all camera request fails', done => {
+        siteId = '1111-1111'
+        const err = new Error('all camera error')
+        _assetService.expects('allCamera').withArgs({ span: context.span }, siteId).rejects(err)
+        resolvers.Query.assets(null, { siteId }, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should resolve with array of alarms and cameras when both requests succeeds', done => {
+        siteId = '1111-1111'
+        const alarms = [{ id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'co' }]
+        const cameras = [{ id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 }]
+        _assetService.expects('allAlarm').withArgs({ span: context.span }, siteId).resolves(alarms)
+        _assetService.expects('allCamera').withArgs({ span: context.span }, siteId).resolves(cameras)
+        resolvers.Query.assets(null, { siteId }, context, info).then(assets => {
+          assets.should.eql([ alarms[0], cameras[0] ])
           _assetService.verify()
           done()
         }).catch(done)
@@ -108,7 +154,7 @@ describe('assetResolvers', () => {
     describe('createAlarm', () => {
       let input
 
-      it('should reject with an error when service request fails', done => {
+      it('should reject with error when service request fails', done => {
         input = { siteId: '1111-1111', serialNo: '1001', material: 'smoke' }
         const err = new Error('create alarm error')
         _assetService.expects('createAlarm').withArgs({ span: context.span }, input).rejects(err)
@@ -118,7 +164,7 @@ describe('assetResolvers', () => {
           done()
         })
       })
-      it('should resolve with an alarm when service request succeeds', done => {
+      it('should resolve with alarm when service request succeeds', done => {
         input = { siteId: '1111-1111', serialNo: '1001', material: 'smoke' }
         const alarm = { id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'smoke' }
         _assetService.expects('createAlarm').withArgs({ span: context.span }, input).resolves(alarm)
@@ -133,7 +179,7 @@ describe('assetResolvers', () => {
     describe('updateAlarm', () => {
       let id, input
 
-      it('should reject with an error when service request fails', done => {
+      it('should reject with error when update request fails', done => {
         id = 'aaaa-aaaa'
         input = { siteId: '1111-1111', serialNo: '1001', material: 'smoke' }
         const err = new Error('update alarm error')
@@ -144,11 +190,34 @@ describe('assetResolvers', () => {
           done()
         })
       })
-      it('should resolve with an alarm when service request succeeds', done => {
+      it('should reject with error when get request fails', done => {
+        id = 'aaaa-aaaa'
+        input = { siteId: '1111-1111', serialNo: '1001', material: 'smoke' }
+        const err = new Error('get alarm error')
+        _assetService.expects('updateAlarm').withArgs({ span: context.span }, id, input).resolves(true)
+        _assetService.expects('getAlarm').withArgs({ span: context.span }, id).rejects(err)
+        resolvers.Mutation.updateAlarm(null, { id, input }, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should resolve with null when update request resolves with false', done => {
+        id = 'aaaa-aaaa'
+        input = { siteId: '1111-1111', serialNo: '1001', material: 'co' }
+        _assetService.expects('updateAlarm').withArgs({ span: context.span }, id, input).resolves(false)
+        resolvers.Mutation.updateAlarm(null, { id, input }, context, info).then(result => {
+          should.not.exist(result)
+          _assetService.verify()
+          done()
+        }).catch(done)
+      })
+      it('should resolve with alarm when service requests succeeds', done => {
         id = 'aaaa-aaaa'
         input = { siteId: '1111-1111', serialNo: '1001', material: 'co' }
         const alarm = { id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'co' }
-        _assetService.expects('updateAlarm').withArgs({ span: context.span }, id, input).resolves(alarm)
+        _assetService.expects('updateAlarm').withArgs({ span: context.span }, id, input).resolves(true)
+        _assetService.expects('getAlarm').withArgs({ span: context.span }, id).resolves(alarm)
         resolvers.Mutation.updateAlarm(null, { id, input }, context, info).then(result => {
           result.should.eql(alarm)
           _assetService.verify()
@@ -160,7 +229,7 @@ describe('assetResolvers', () => {
     describe('createCamera', () => {
       let input
 
-      it('should reject with an error when service request fails', done => {
+      it('should reject with error when service request fails', done => {
         input = { siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
         const err = new Error('create camera error')
         _assetService.expects('createCamera').withArgs({ span: context.span }, input).rejects(err)
@@ -170,7 +239,7 @@ describe('assetResolvers', () => {
           done()
         })
       })
-      it('should resolve with a camera when service request succeeds', done => {
+      it('should resolve with camera when service request succeeds', done => {
         input = { siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
         const camera = { id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
         _assetService.expects('createCamera').withArgs({ span: context.span }, input).resolves(camera)
@@ -185,7 +254,7 @@ describe('assetResolvers', () => {
     describe('updateCamera', () => {
       let id, input
 
-      it('should reject with an error when service request fails', done => {
+      it('should reject with error when update request fails', done => {
         id = 'bbbb-bbbb'
         input = { siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
         const err = new Error('update camera error')
@@ -196,11 +265,34 @@ describe('assetResolvers', () => {
           done()
         })
       })
-      it('should resolve with a camera when service request succeeds', done => {
+      it('should reject with error when get request fails', done => {
+        id = 'bbbb-bbbb'
+        input = { siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
+        const err = new Error('update camera error')
+        _assetService.expects('updateCamera').withArgs({ span: context.span }, id, input).resolves(true)
+        _assetService.expects('getCamera').withArgs({ span: context.span }, id).rejects(err)
+        resolvers.Mutation.updateCamera(null, { id, input }, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should resolve with null when update request resolves with false', done => {
+        id = 'bbbb-bbbb'
+        input = { siteId: '1111-1111', serialNo: '2001', resolution: 1920000 }
+        _assetService.expects('updateCamera').withArgs({ span: context.span }, id, input).resolves(false)
+        resolvers.Mutation.updateCamera(null, { id, input }, context, info).then(result => {
+          should.not.exist(result)
+          _assetService.verify()
+          done()
+        }).catch(done)
+      })
+      it('should resolve with camera when service request succeeds', done => {
         id = 'bbbb-bbbb'
         input = { siteId: '1111-1111', serialNo: '2001', resolution: 1920000 }
         const camera = { id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 1920000 }
-        _assetService.expects('updateCamera').withArgs({ span: context.span }, id, input).resolves(camera)
+        _assetService.expects('updateCamera').withArgs({ span: context.span }, id, input).resolves(true)
+        _assetService.expects('getCamera').withArgs({ span: context.span }, id).resolves(camera)
         resolvers.Mutation.updateCamera(null, { id, input }, context, info).then(result => {
           result.should.eql(camera)
           _assetService.verify()
@@ -212,19 +304,61 @@ describe('assetResolvers', () => {
     describe('deleteAsset', () => {
       let id
 
-      it('should reject with an error when service request fails', done => {
+      it('should reject with an error when both delete requests fail', done => {
         id = 'aaaa-aaaa'
-        const err = new Error('delete asset error')
-        _assetService.expects('deleteAsset').withArgs({ span: context.span }, id).rejects(err)
+        const err = new Error('delete error')
+        _assetService.expects('deleteAlarm').withArgs({ span: context.span }, id).rejects(err)
+        _assetService.expects('deleteCamera').withArgs({ span: context.span }, id).rejects(err)
         resolvers.Mutation.deleteAsset(null, { id }, context, info).catch(e => {
           e.should.eql(err)
           _assetService.verify()
           done()
         })
       })
-      it('should resolve with true when service request succeeds', done => {
+      it('should reject with an error when alarm delete request fails', done => {
+        id = 'aaaa-aaaa'
+        const err = new Error('delete alarm error')
+        _assetService.expects('deleteAlarm').withArgs({ span: context.span }, id).rejects(err)
+        resolvers.Mutation.deleteAsset(null, { id }, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should reject with an error when camera delete request fails', done => {
+        id = 'aaaa-aaaa'
+        const err = new Error('delete camera error')
+        _assetService.expects('deleteCamera').withArgs({ span: context.span }, id).rejects(err)
+        resolvers.Mutation.deleteAsset(null, { id }, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should resolve with false when both delete requests resolve with false', done => {
+        id = 'aaaa-aaaa'
+        _assetService.expects('deleteAlarm').withArgs({ span: context.span }, id).resolves(false)
+        _assetService.expects('deleteCamera').withArgs({ span: context.span }, id).resolves(false)
+        resolvers.Mutation.deleteAsset(null, { id }, context, info).then(result => {
+          result.should.be.false()
+          _assetService.verify()
+          done()
+        }).catch(done)
+      })
+      it('should resolve with true when delete alarm request resolves with true', done => {
+        id = 'aaaa-aaaa'
+        _assetService.expects('deleteAlarm').withArgs({ span: context.span }, id).resolves(true)
+        _assetService.expects('deleteCamera').withArgs({ span: context.span }, id).resolves(false)
+        resolvers.Mutation.deleteAsset(null, { id }, context, info).then(result => {
+          result.should.be.true()
+          _assetService.verify()
+          done()
+        }).catch(done)
+      })
+      it('should resolve with true when delete camera request resolves with true', done => {
         id = 'bbbb-bbbb'
-        _assetService.expects('deleteAsset').withArgs({ span: context.span }, id).resolves(true)
+        _assetService.expects('deleteAlarm').withArgs({ span: context.span }, id).resolves(false)
+        _assetService.expects('deleteCamera').withArgs({ span: context.span }, id).resolves(true)
         resolvers.Mutation.deleteAsset(null, { id }, context, info).then(result => {
           result.should.be.true()
           _assetService.verify()

@@ -20,8 +20,8 @@ class SwitchService {
   }
 
   async exec (context, name, func) {
-    let result, err
-    let latency
+    let err, result
+    let startTime, latency
 
     // https://opentracing-javascript.surge.sh/interfaces/spanoptions.html
     // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
@@ -38,12 +38,13 @@ class SwitchService {
 
     // Core functionality
     try {
-      const startTime = Date.now()
+      startTime = Date.now()
       result = await func(metadata)
-      latency = (Date.now() - startTime) / 1000
     } catch (e) {
       err = e
       this.logger.error(err)
+    } finally {
+      latency = (Date.now() - startTime) / 1000
     }
 
     // Metrics
@@ -61,7 +62,6 @@ class SwitchService {
     if (err) {
       throw err
     }
-
     return result
   }
 

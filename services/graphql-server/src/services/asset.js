@@ -4,6 +4,9 @@ const opentracing = require('opentracing')
 const Logger = require('../utils/logger')
 const { createTracer } = require('../utils/tracer')
 
+const subject = 'asset_service'
+const timeout = 1000
+
 class AssetService {
   constructor (config, options) {
     options = options || {}
@@ -11,7 +14,7 @@ class AssetService {
     this.histogram = options.histogram || { observe () {} }
     this.summary = options.summary || { observe () {} }
     this.tracer = options.tracer || createTracer({ serviceName: 'AssetService' })
-    this.nats = options.nats || nats.connect({
+    this.conn = options.conn || nats.connect({
       servers: config.natsServers,
       user: config.natsUser,
       pass: config.natsPassword
@@ -19,15 +22,15 @@ class AssetService {
   }
 
   async exec (context, name, func) {
-    let result, err
-    let latency
+    let err, result
+    let startTime, latency
 
     // https://opentracing-javascript.surge.sh/interfaces/spanoptions.html
     // https://github.com/opentracing/specification/blob/master/semantic_conventions.md
     const span = this.tracer.startSpan(name, { childOf: context.span }) // { childOf: context.span.context() }
     span.setTag(opentracing.Tags.SPAN_KIND, 'requester')
     span.setTag(opentracing.Tags.PEER_SERVICE, 'asset-service')
-    span.setTag(opentracing.Tags.PEER_ADDRESS, this.nats.currentServer.url.host)
+    span.setTag(opentracing.Tags.PEER_ADDRESS, this.conn.currentServer.url.host)
 
     const carrier = {}
     this.tracer.inject(span, opentracing.FORMAT_TEXT_MAP, carrier)
@@ -35,12 +38,13 @@ class AssetService {
 
     // Core functionality
     try {
-      const startTime = Date.now()
+      startTime = Date.now()
       result = await func(spanContext)
-      latency = (Date.now() - startTime) / 1000
     } catch (e) {
       err = e
       this.logger.error(err)
+    } finally {
+      latency = (Date.now() - startTime) / 1000
     }
 
     // Metrics
@@ -58,56 +62,188 @@ class AssetService {
     if (err) {
       throw err
     }
-
     return result
   }
 
-  getAsset (context, id) {
-    return this.exec(context, 'get-asset', spanContext => {
-      return Promise.resolve({ id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'smoke' })
-    })
-  }
+  sendRequest (request, callback) {
+    this.conn.requestOne(subject, JSON.stringify(request), {}, timeout, resp => {
+      if (resp instanceof nats.NatsError && resp.code === nats.REQ_TIMEOUT) {
+        return callback(resp)
+      }
 
-  getAssets (context, siteId) {
-    return this.exec(context, 'get-assets', spanContext => {
-      return Promise.resolve([
-        { id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'co' },
-        { id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
-      ])
+      let response
+
+      try {
+        response = JSON.parse(resp)
+      } catch (err) {
+        return callback(err)
+      }
+
+      if (response.kind !== request.kind) {
+        return callback(new Error(`Invalid response ${response.kind}`))
+      }
+
+      callback(null, response)
     })
   }
 
   createAlarm (context, input) {
-    this.logger.info('Received', input)
+    return this.exec(context, 'create-alarm', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'createAlarm'
+        const request = { kind, span, input }
 
-    return this.exec(context, 'create-alarm', spanContext => {
-      return Promise.resolve({ id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'co' })
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.alarm)
+        })
+      })
+    })
+  }
+
+  allAlarm (context, siteId) {
+    return this.exec(context, 'all-alarm', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'allAlarm'
+        const request = { kind, span, siteId }
+
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.alarms)
+        })
+      })
+    })
+  }
+
+  getAlarm (context, id) {
+    return this.exec(context, 'get-alarm', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'getAlarm'
+        const request = { kind, span, id }
+
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.alarm)
+        })
+      })
     })
   }
 
   updateAlarm (context, id, input) {
-    return this.exec(context, 'update-alarm', spanContext => {
-      return Promise.resolve({ id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'smoke' })
+    return this.exec(context, 'update-alarm', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'updateAlarm'
+        const request = { kind, span, id, input }
+
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.updated)
+        })
+      })
+    })
+  }
+
+  deleteAlarm (context, id) {
+    return this.exec(context, 'delete-alarm', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'deleteAlarm'
+        const request = { kind, span, id }
+
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.deleted)
+        })
+      })
     })
   }
 
   createCamera (context, input) {
-    this.logger.info('Received', input)
+    return this.exec(context, 'create-camera', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'createCamera'
+        const request = { kind, span, input }
 
-    return this.exec(context, 'create-camera', spanContext => {
-      return Promise.resolve({ id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 })
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.camera)
+        })
+      })
+    })
+  }
+
+  allCamera (context, siteId) {
+    return this.exec(context, 'all-camera', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'allCamera'
+        const request = { kind, span, siteId }
+
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.cameras)
+        })
+      })
+    })
+  }
+
+  getCamera (context, id) {
+    return this.exec(context, 'get-camera', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'getCamera'
+        const request = { kind, span, id }
+
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.camera)
+        })
+      })
     })
   }
 
   updateCamera (context, id, input) {
-    return this.exec(context, 'update-camera', spanContext => {
-      return Promise.resolve({ id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 2073600 })
+    return this.exec(context, 'update-camera', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'updateCamera'
+        const request = { kind, span, id, input }
+
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.updated)
+        })
+      })
     })
   }
 
-  deleteAsset (context, id) {
-    return this.exec(context, 'delete-asset', spanContext => {
-      return Promise.resolve(true)
+  deleteCamera (context, id) {
+    return this.exec(context, 'delete-camera', span => {
+      return new Promise((resolve, reject) => {
+        const kind = 'deleteCamera'
+        const request = { kind, span, id }
+
+        this.sendRequest(request, (err, response) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(response.deleted)
+        })
+      })
     })
   }
 }
