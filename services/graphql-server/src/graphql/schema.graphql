@@ -36,6 +36,10 @@ type Query {
   switch(id: ID!): Switch
   "Retrieve all switches of a site."
   switches(siteId: ID!): [Switch!]
+  "Retrieve a single asset."
+  asset(id: ID!): Asset
+  "Retrieve all assets of a site."
+  assets(siteId: ID!): [Asset!]
 }
 
 type Mutation {
@@ -59,6 +63,19 @@ type Mutation {
   setSwitch(id: ID!, state: String!): Switch
   "Remove an existing switch."
   removeSwitch(id: ID!): Boolean
+
+  "Create a new alarm."
+  createAlarm(input: AlarmInput!): Alarm!
+  "Update an existing alarm."
+  updateAlarm(id: ID!, input: AlarmInput!): Alarm
+
+  "Create a new camera."
+  createCamera(input: CameraInput!): Camera!
+  "Update an existing camera."
+  updateCamera(id: ID!, input: CameraInput!): Camera
+
+  "Delete an existing asset."
+  deleteAsset(id: ID!): Boolean
 }
 
 """
@@ -129,4 +146,54 @@ type Switch {
   name: String!
   state: String!
   states: [String!]!
+}
+
+"""
+Asset is the generic type for any kind of asset associated with a site.
+Each asset has a unique id and also a unique serial number.
+"""
+interface Asset {
+  id: ID!
+  siteId: ID!
+  serialNo: String!
+}
+
+"""
+AlarmInput is used for creating or updating an alarm.
+"""
+input AlarmInput {
+  siteId: ID!
+  serialNo: String!
+  material: String
+}
+
+"""
+Alarm is the type for any kind of device for altering in a site.
+Each alarm is sensitive to one type of material and can detect changes to it.
+"""
+type Alarm implements Asset {
+  id: ID!
+  siteId: ID!
+  serialNo: String!
+  material: String
+}
+
+"""
+CameraInput is used for creating or updating a camera.
+"""
+input CameraInput {
+  siteId: ID!
+  serialNo: String!
+  resolution: Int
+}
+
+"""
+Camera is the type for any kind of camera for monitoring a site.
+Each camera has a resolution in which it can record the pictures.
+"""
+type Camera implements Asset {
+  id: ID!
+  siteId: ID!
+  serialNo: String!
+  resolution: Int
 }

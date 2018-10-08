@@ -71,17 +71,17 @@ class AssetService {
   getAssets (context, siteId) {
     return this.exec(context, 'get-assets', spanContext => {
       return Promise.resolve([
-        { id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'smoke' },
+        { id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'co' },
         { id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 }
       ])
     })
   }
 
   createAlarm (context, input) {
-    this.logger.debug(`Received ${input}`)
+    this.logger.info('Received', input)
 
     return this.exec(context, 'create-alarm', spanContext => {
-      return Promise.resolve({ id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'smoke' })
+      return Promise.resolve({ id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'co' })
     })
   }
 
@@ -91,14 +91,8 @@ class AssetService {
     })
   }
 
-  deleteAlarm (context, id) {
-    return this.exec(context, 'delete-alarm', spanContext => {
-      return Promise.resolve(true)
-    })
-  }
-
   createCamera (context, input) {
-    this.logger.debug(`Received ${input}`)
+    this.logger.info('Received', input)
 
     return this.exec(context, 'create-camera', spanContext => {
       return Promise.resolve({ id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 })
@@ -107,12 +101,12 @@ class AssetService {
 
   updateCamera (context, id, input) {
     return this.exec(context, 'update-camera', spanContext => {
-      return Promise.resolve({ id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 })
+      return Promise.resolve({ id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 2073600 })
     })
   }
 
-  deleteCamera (context, id) {
-    return this.exec(context, 'delete-camera', spanContext => {
+  deleteAsset (context, id) {
+    return this.exec(context, 'delete-asset', spanContext => {
       return Promise.resolve(true)
     })
   }

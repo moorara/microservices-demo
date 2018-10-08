@@ -11,9 +11,6 @@ describe('GraphQLRouter', () => {
 
     beforeEach(() => {
       config = {
-        siteServiceAddr: 'service:9999',
-        sensorServiceAddr: 'service:9999',
-        switchServiceAddr: 'service:9999',
         graphiQlEnabled: false
       }
 
@@ -31,12 +28,13 @@ describe('GraphQLRouter', () => {
         context: {},
         siteService: {},
         sensorService: {},
-        switchService: {}
+        switchService: {},
+        assetService: {}
       }
     })
 
     it('should create a new graphql router with defaults', () => {
-      const router = new GraphQLRouter(config, { tracer: options.tracer })
+      const router = new GraphQLRouter(config, { tracer: options.tracer, switchService: {}, assetService: {} })
       should.exist(router.router)
     })
     it('should create a new graphql router with provided options', () => {

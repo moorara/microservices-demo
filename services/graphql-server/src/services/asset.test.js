@@ -147,10 +147,6 @@ describe('AssetService', () => {
 
   })
 
-  describe('deleteAlarm', () => {
-
-  })
-
   describe('createCamera', () => {
 
   })
@@ -159,7 +155,7 @@ describe('AssetService', () => {
 
   })
 
-  describe('deleteCamera', () => {
+  describe('deleteAsset', () => {
 
   })
 })
