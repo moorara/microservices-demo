@@ -5,7 +5,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.sensorService.get(ctx, id)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on sensor:', err)
         throw err
       }
     },
@@ -15,7 +15,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.sensorService.all(ctx, siteId)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on sensors:', err)
         throw err
       }
     }
@@ -27,7 +27,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.sensorService.create(ctx, input)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on createSensor:', err)
         throw err
       }
     },
@@ -37,7 +37,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.sensorService.update(ctx, id, input)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on updateSensor:', err)
         throw err
       }
     },
@@ -48,7 +48,7 @@ const resolvers = {
         await context.sensorService.delete(ctx, id)
         return true
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on deleteSensor:', err)
         throw err
       }
     }

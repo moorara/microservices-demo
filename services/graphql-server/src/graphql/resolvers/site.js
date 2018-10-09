@@ -5,7 +5,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.siteService.get(ctx, id)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on site:', err)
         throw err
       }
     },
@@ -15,7 +15,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.siteService.all(ctx, args)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on sites:', err)
         throw err
       }
     }
@@ -27,7 +27,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.siteService.create(ctx, input)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on createSite:', err)
         throw err
       }
     },
@@ -37,7 +37,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.siteService.update(ctx, id, input)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on updateSite:', err)
         throw err
       }
     },
@@ -48,7 +48,7 @@ const resolvers = {
         await context.siteService.delete(ctx, id)
         return true
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on deleteSite:', err)
         throw err
       }
     }
@@ -69,6 +69,18 @@ const resolvers = {
     switches: (site, args, context, info) => {
       const ctx = { span: context.span }
       return context.switchService.getSwitches(ctx, site.id)
+    },
+
+    assets: async (site, args, context, info) => {
+      try {
+        const ctx = { span: context.span }
+        const allAlarm = context.assetService.allAlarm(ctx, site.id)
+        const allCamera = context.assetService.allCamera(ctx, site.id)
+        const [ alarms, cameras ] = await Promise.all([ allAlarm, allCamera ])
+        return [].concat(alarms, cameras)
+      } catch (err) {
+        throw err
+      }
     }
   }
 }

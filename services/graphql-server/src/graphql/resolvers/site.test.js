@@ -9,6 +9,7 @@ describe('siteResolvers', () => {
   let siteService, _siteService
   let sensorService, _sensorService
   let switchService, _switchService
+  let assetService, _assetService
   let context, info
 
   beforeEach(() => {
@@ -41,7 +42,13 @@ describe('siteResolvers', () => {
     }
     _switchService = sinon.mock(switchService)
 
-    context = { span, logger, siteService, sensorService, switchService }
+    assetService = {
+      allAlarm () {},
+      allCamera () {}
+    }
+    _assetService = sinon.mock(assetService)
+
+    context = { span, logger, siteService, sensorService, switchService, assetService }
     info = {}
   })
 
@@ -49,6 +56,7 @@ describe('siteResolvers', () => {
     _siteService.restore()
     _sensorService.restore()
     _switchService.restore()
+    _assetService.restore()
   })
 
   describe('Query', () => {
@@ -254,6 +262,48 @@ describe('siteResolvers', () => {
         resolvers.Site.switches(site, {}, context, info).then(s => {
           s.should.eql(switches)
           _switchService.verify()
+          done()
+        }).catch(done)
+      })
+    })
+
+    describe('assets', () => {
+      it('should reject with error when both all requests fail', done => {
+        const err = new Error('all error')
+        _assetService.expects('allAlarm').withArgs({ span: context.span }, site.id).rejects(err)
+        _assetService.expects('allCamera').withArgs({ span: context.span }, site.id).rejects(err)
+        resolvers.Site.assets(site, {}, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should reject with error when all alarm request fails', done => {
+        const err = new Error('all alarm error')
+        _assetService.expects('allAlarm').withArgs({ span: context.span }, site.id).rejects(err)
+        resolvers.Site.assets(site, {}, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should reject with error when all camera request fails', done => {
+        const err = new Error('all camera error')
+        _assetService.expects('allCamera').withArgs({ span: context.span }, site.id).rejects(err)
+        resolvers.Site.assets(site, {}, context, info).catch(e => {
+          e.should.eql(err)
+          _assetService.verify()
+          done()
+        })
+      })
+      it('should resolve with array of alarms and cameras when both requests succeeds', done => {
+        const alarms = [{ id: 'aaaa-aaaa', siteId: '1111-1111', serialNo: '1001', material: 'co' }]
+        const cameras = [{ id: 'bbbb-bbbb', siteId: '1111-1111', serialNo: '2001', resolution: 921600 }]
+        _assetService.expects('allAlarm').withArgs({ span: context.span }, site.id).resolves(alarms)
+        _assetService.expects('allCamera').withArgs({ span: context.span }, site.id).resolves(cameras)
+        resolvers.Site.assets(site, {}, context, info).then(assets => {
+          assets.should.eql([ alarms[0], cameras[0] ])
+          _assetService.verify()
           done()
         }).catch(done)
       })

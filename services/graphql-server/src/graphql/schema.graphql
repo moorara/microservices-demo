@@ -1,6 +1,7 @@
 ## http://facebook.github.io/graphql
-## https://graphql.org/learn/schema
-## http://graphql.github.io/graphql-js
+## https://graphql.github.io/learn/schema
+## https://github.com/graphql/graphql-js
+## https://github.com/apollographql/graphql-tools
 
 schema {
   query: Query
@@ -35,6 +36,10 @@ type Query {
   switch(id: ID!): Switch
   "Retrieve all switches of a site."
   switches(siteId: ID!): [Switch!]
+  "Retrieve a single asset."
+  asset(id: ID!): Asset
+  "Retrieve all assets of a site."
+  assets(siteId: ID!): [Asset!]
 }
 
 type Mutation {
@@ -58,10 +63,23 @@ type Mutation {
   setSwitch(id: ID!, state: String!): Switch
   "Remove an existing switch."
   removeSwitch(id: ID!): Boolean
+
+  "Create a new alarm."
+  createAlarm(input: AlarmInput!): Alarm!
+  "Update an existing alarm."
+  updateAlarm(id: ID!, input: AlarmInput!): Alarm
+
+  "Create a new camera."
+  createCamera(input: CameraInput!): Camera!
+  "Update an existing camera."
+  updateCamera(id: ID!, input: CameraInput!): Camera
+
+  "Delete an existing asset."
+  deleteAsset(id: ID!): Boolean
 }
 
 """
-SiteInput can be used for creating or updating a site.
+SiteInput is used for creating or updating a site.
 """
 input SiteInput {
   name: String!
@@ -82,10 +100,11 @@ type Site {
   tags: [String!]!
   sensors: [Sensor!]!
   switches: [Switch!]!
+  assets: [Asset!]!
 }
 
 """
-SensorInput can be used for creating or updating a sensor.
+SensorInput is used for creating or updating a sensor.
 """
 input SensorInput {
   siteId: ID!
@@ -109,7 +128,7 @@ type Sensor {
 }
 
 """
-SwitchInput can be used for creating a switch.
+SwitchInput is used for creating a switch.
 """
 input SwitchInput {
   siteId: ID!
@@ -120,7 +139,7 @@ input SwitchInput {
 
 """
 Switch is the type for any kind of device that interacts with a site and alters it.
-Each switch has a set of pre-defined states and can be in one of the state at a time. 
+Each switch has a set of pre-defined states and can be in one of the state at a time.
 """
 type Switch {
   id: ID!
@@ -128,4 +147,54 @@ type Switch {
   name: String!
   state: String!
   states: [String!]!
+}
+
+"""
+Asset is the generic type for any kind of asset associated with a site.
+Each asset has a unique id and also a unique serial number.
+"""
+interface Asset {
+  id: ID!
+  siteId: ID!
+  serialNo: String!
+}
+
+"""
+AlarmInput is used for creating or updating an alarm.
+"""
+input AlarmInput {
+  siteId: ID!
+  serialNo: String!
+  material: String
+}
+
+"""
+Alarm is the type for any kind of device for altering in a site.
+Each alarm is sensitive to one type of material and can detect changes to it.
+"""
+type Alarm implements Asset {
+  id: ID!
+  siteId: ID!
+  serialNo: String!
+  material: String
+}
+
+"""
+CameraInput is used for creating or updating a camera.
+"""
+input CameraInput {
+  siteId: ID!
+  serialNo: String!
+  resolution: Int
+}
+
+"""
+Camera is the type for any kind of camera for monitoring a site.
+Each camera has a resolution in which it can record the pictures.
+"""
+type Camera implements Asset {
+  id: ID!
+  siteId: ID!
+  serialNo: String!
+  resolution: Int
 }

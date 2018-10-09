@@ -5,7 +5,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.switchService.getSwitch(ctx, id)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on switch:', err)
         throw err
       }
     },
@@ -15,7 +15,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.switchService.getSwitches(ctx, siteId)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on switches:', err)
         throw err
       }
     }
@@ -27,7 +27,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.switchService.installSwitch(ctx, input)
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on installSwitch:', err)
         throw err
       }
     },
@@ -37,7 +37,7 @@ const resolvers = {
         const ctx = { span: context.span }
         return await context.switchService.setSwitch(ctx, id, { state })
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on setSwitch:', err)
         throw err
       }
     },
@@ -48,7 +48,7 @@ const resolvers = {
         await context.switchService.removeSwitch(ctx, id)
         return true
       } catch (err) {
-        context.logger.error(err)
+        context.logger.error('Error on removeSwitch:', err)
         throw err
       }
     }

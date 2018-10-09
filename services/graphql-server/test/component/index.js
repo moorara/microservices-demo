@@ -60,7 +60,9 @@ describe('GraphQL Server', function () {
     const store = {
       sites: [],
       sensors: [],
-      switches: []
+      switches: [],
+      alarms: [],
+      cameras: []
     }
 
     const client = axios.create({
@@ -192,6 +194,76 @@ describe('GraphQL Server', function () {
       }
     })
 
+    it('createAlarm', async () => {
+      const inputs = [
+        { serialNo: '1001', material: 'co' },
+        { serialNo: '1002', material: 'co' },
+        { serialNo: '1003', material: 'co' },
+        { serialNo: '1004', material: 'co' }
+      ]
+
+      for (let i in inputs) {
+        const siteId = store.sites[i].id
+        const { serialNo, material } = inputs[i]
+
+        const res = await query(`
+          mutation {
+            createAlarm (input: { siteId: "${siteId}", serialNo: "${serialNo}", material: "${material}" }) {
+              id
+              siteId
+              serialNo
+              material
+            }
+          }
+        `)
+
+        res.status.should.equal(200)
+        const alarm = res.data.data.createAlarm
+
+        should.exist(alarm.id)
+        alarm.siteId.should.equal(siteId)
+        alarm.serialNo.should.equal(serialNo)
+        alarm.material.should.equal(material)
+
+        store.alarms.push(alarm)
+      }
+    })
+
+    it('createCamera', async () => {
+      const inputs = [
+        { serialNo: '2001', resolution: 921600 },
+        { serialNo: '2002', resolution: 921600 },
+        { serialNo: '2003', resolution: 921600 },
+        { serialNo: '2004', resolution: 921600 }
+      ]
+
+      for (let i in inputs) {
+        const siteId = store.sites[i].id
+        const { serialNo, resolution } = inputs[i]
+
+        const res = await query(`
+          mutation {
+            createCamera (input: { siteId: "${siteId}", serialNo: "${serialNo}", resolution: ${resolution} }) {
+              id
+              siteId
+              serialNo
+              resolution
+            }
+          }
+        `)
+
+        res.status.should.equal(200)
+        const camera = res.data.data.createCamera
+
+        should.exist(camera.id)
+        camera.siteId.should.equal(siteId)
+        camera.serialNo.should.equal(serialNo)
+        camera.resolution.should.equal(resolution)
+
+        store.cameras.push(camera)
+      }
+    })
+
     // GET ALL
 
     it('sites', async () => {
@@ -218,6 +290,17 @@ describe('GraphQL Server', function () {
               state
               states
             }
+            assets {
+              id
+              siteId
+              serialNo
+              ... on Alarm {
+                material
+              }
+              ... on Camera {
+                resolution
+              }
+            }
           }
         }
       `)
@@ -239,6 +322,11 @@ describe('GraphQL Server', function () {
 
         s.sensors.should.eql(sensors)
         s.switches.should.eql(switches)
+
+        const alarms = store.alarms.filter(a => a.siteId === site.id)
+        const cameras = store.cameras.filter(c => c.siteId === site.id)
+        const assets = [].concat(alarms, cameras)
+        s.assets.should.eql(assets)
       }
     })
 
@@ -284,6 +372,34 @@ describe('GraphQL Server', function () {
 
         const switches = store.switches.filter(s => s.siteId === siteId)
         results.should.eql(switches)
+      }
+    })
+
+    it('assets', async () => {
+      for (let { id: siteId } of store.sites) {
+        const res = await query(`
+          query {
+            assets (siteId: "${siteId}") {
+              id
+              siteId
+              serialNo
+              ... on Alarm {
+                material
+              }
+              ... on Camera {
+                resolution
+              }
+            }
+          }
+        `)
+
+        res.status.should.equal(200)
+        const results = res.data.data.assets
+
+        const alarms = store.alarms.filter(a => a.siteId === siteId)
+        const cameras = store.cameras.filter(c => c.siteId === siteId)
+        const assets = [].concat(alarms, cameras)
+        results.should.eql(assets)
       }
     })
 
@@ -402,6 +518,76 @@ describe('GraphQL Server', function () {
       }
     })
 
+    it('updateAlarm', async () => {
+      const inputs = [
+        { serialNo: '1001', material: 'smoke' },
+        { serialNo: '1002', material: 'smoke' },
+        { serialNo: '1003', material: 'smoke' },
+        { serialNo: '1004', material: 'smoke' }
+      ]
+
+      for (let i in inputs) {
+        const { id, siteId } = store.alarms[i]
+        const { serialNo, material } = inputs[i]
+
+        const res = await query(`
+          mutation {
+            updateAlarm (id: "${id}", input: { siteId: "${siteId}", serialNo: "${serialNo}", material: "${material}" }) {
+              id
+              siteId
+              serialNo
+              material
+            }
+          }
+        `)
+
+        res.status.should.equal(200)
+        const alarm = res.data.data.updateAlarm
+
+        alarm.id.should.equal(id)
+        alarm.siteId.should.equal(siteId)
+        alarm.serialNo.should.equal(serialNo)
+        alarm.material.should.equal(material)
+
+        store.alarms[i] = alarm
+      }
+    })
+
+    it('updateCamera', async () => {
+      const inputs = [
+        { serialNo: '2001', resolution: 2073600 },
+        { serialNo: '2002', resolution: 2073600 },
+        { serialNo: '2003', resolution: 2073600 },
+        { serialNo: '2004', resolution: 2073600 }
+      ]
+
+      for (let i in inputs) {
+        const { id, siteId } = store.cameras[i]
+        const { serialNo, resolution } = inputs[i]
+
+        const res = await query(`
+          mutation {
+            updateCamera (id: "${id}", input: { siteId: "${siteId}", serialNo: "${serialNo}", resolution: ${resolution} }) {
+              id
+              siteId
+              serialNo
+              resolution
+            }
+          }
+        `)
+
+        res.status.should.equal(200)
+        const camera = res.data.data.updateCamera
+
+        camera.id.should.equal(id)
+        camera.siteId.should.equal(siteId)
+        camera.serialNo.should.equal(serialNo)
+        camera.resolution.should.equal(resolution)
+
+        store.cameras[i] = camera
+      }
+    })
+
     // GET
 
     it('site', async () => {
@@ -481,7 +667,83 @@ describe('GraphQL Server', function () {
       }
     })
 
+    it('asset', async () => {
+      for (let { id, siteId, serialNo, material } of store.alarms) {
+        const res = await query(`
+          query {
+            asset (id: "${id}") {
+              id
+              siteId
+              serialNo
+              ... on Alarm {
+                material
+              }
+            }
+          }
+        `)
+
+        res.status.should.equal(200)
+        const alarm = res.data.data.asset
+
+        alarm.id.should.equal(id)
+        alarm.siteId.should.equal(siteId)
+        alarm.serialNo.should.equal(serialNo)
+        alarm.material.should.equal(material)
+      }
+
+      for (let { id, siteId, serialNo, resolution } of store.cameras) {
+        const res = await query(`
+          query {
+            asset (id: "${id}") {
+              id
+              siteId
+              serialNo
+              ... on Camera {
+                resolution
+              }
+            }
+          }
+        `)
+
+        res.status.should.equal(200)
+        const camera = res.data.data.asset
+
+        camera.id.should.equal(id)
+        camera.siteId.should.equal(siteId)
+        camera.serialNo.should.equal(serialNo)
+        camera.resolution.should.equal(resolution)
+      }
+    })
+
     // DELETE
+
+    it('deleteAsset', async () => {
+      for (let { id } of store.alarms) {
+        const res = await query(`
+          mutation {
+            deleteAsset (id: "${id}")
+          }
+        `)
+
+        res.status.should.equal(200)
+        const result = res.data.data.deleteAsset
+
+        result.should.be.true()
+      }
+
+      for (let { id } of store.cameras) {
+        const res = await query(`
+          mutation {
+            deleteAsset (id: "${id}")
+          }
+        `)
+
+        res.status.should.equal(200)
+        const result = res.data.data.deleteAsset
+
+        result.should.be.true()
+      }
+    })
 
     it('removeSwitch', async () => {
       for (let { id } of store.switches) {

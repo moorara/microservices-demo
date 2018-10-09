@@ -11,6 +11,7 @@ const Logger = require('../utils/logger')
 const SiteService = require('../services/site')
 const SensorService = require('../services/sensor')
 const SwitchService = require('../services/switch')
+const AssetService = require('../services/asset')
 
 const histogramName = 'graphql_operations_latency_seconds'
 const histogramHelp = 'latency histogram of graphql operations'
@@ -32,6 +33,7 @@ class GraphQLRouter {
    * @param {object}  options.siteService     An instance of SiteService
    * @param {object}  options.sensorService   An instance of SensorService
    * @param {object}  options.switchService   An instance of SwitchService
+   * @param {object}  options.assetService    An instance of AssetService
    */
   constructor (config, options) {
     options = options || {}
@@ -58,10 +60,11 @@ class GraphQLRouter {
 
     // Context for resolver functions
     const context = Object.assign({}, options.context, {
-      logger: options.logger || new Logger('GraphQL'),
+      logger: options.logger || new Logger('Resolvers'),
       siteService: options.siteService || new SiteService(config, options),
       sensorService: options.sensorService || new SensorService(config, options),
-      switchService: options.switchService || new SwitchService(config, options)
+      switchService: options.switchService || new SwitchService(config, options),
+      assetService: options.assetService || new AssetService(config, options)
     })
 
     // GraphQL schema
