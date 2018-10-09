@@ -39,9 +39,9 @@
   
   **JavaScript**
   - https://graphql.org/graphql-js
-  - https://github.com/graphql/graphql-js
-  - https://github.com/graphql/express-graphql
-  - https://github.com/graphql/graphiql
+    - https://github.com/graphql/graphql-js
+    - https://github.com/graphql/express-graphql
+    - https://github.com/graphql/graphiql
 
   **Go**
   - https://github.com/graphql-go/graphql
@@ -51,12 +51,18 @@
   - https://www.apollographql.com/engine
   - https://github.com/apollographql/graphql-tools
     - https://www.apollographql.com/docs/graphql-tools
+      - https://www.apollographql.com/docs/graphql-tools/schema-stitching.html
   - https://github.com/apollographql/apollo-server
     - https://www.apollographql.com/docs/apollo-server
       - https://www.apollographql.com/docs/apollo-server/features/unions-interfaces.html
   - https://github.com/apollographql/apollo-client
     - https://www.apollographql.com/client
 
-  **Graphcool**
-  - https://github.com/prismagraphql/prisma
-  - https://github.com/prismagraphql/graphcool-framework
+  **Prisma**
+  - https://www.prisma.io
+    - https://github.com/prisma/prisma
+    - https://github.com/prisma/graphql-yoga
+    - https://github.com/prisma/graphql-playground
+    - https://github.com/prisma/graphcool-framework
+    - https://github.com/prisma/graphql-middleware
+    - https://github.com/prisma/graphql-request
