@@ -5,27 +5,19 @@
 This demo application shows how a microservices architecture can be implemented and applied!
 This demo application covers the following topics:
 
-  * front-end client
-  * back-end services
-  * REST, gRPC, and GraphQL
-  * logging, metrics, and tracing
-  * api gateway and web gateway
-  * containerization and orchestration
-
-## Services
-
-  * [react-client](./services/react-client)
-  * [site-service](./services/site-service)
-  * [sensor-service](./services/sensor-service)
-  * [switch-service](./services/switch-service)
-  * [asset-service](./services/asset-service)
-  * [graphql-server](./services/graphql-server)
+  * Front-end client
+  * Back-end services
+  * REST, gRPC, GraphQL, and Messaging
+  * Logging, Metrics, Tracing, and Dashboards
+  * API Gateway and Web Gateway
+  * Containerization and Orchestration
 
 ## Up & Running
 
   * [docker-compose](./compose)
-  * [docker swarm](./swarm)
-  * [kubernetes](./kubernetes)
+  * [Docker Swarm](./swarm)
+  * [Nomad](./nomad)
+  * [Kubernetes](./kubernetes)
 
 ## Architecture
 
