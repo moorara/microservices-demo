@@ -1839,6 +1839,17 @@ graphiql@^0.12.0:
     codemirror-graphql "^0.7.1"
     markdown-it "^8.4.0"
 
+graphql-config@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/graphql-config/-/graphql-config-2.0.0.tgz#daf69091055c6f675d63893a2d14c48f3fec3327"
+  integrity sha512-//hZmROEk79zzPlH6SVTQeXd8NVV65rquz1zxZeO6oEuX5KNnii8+oznLu7d897EfJ+NShTZtsY9FMmxxkWmJw==
+  dependencies:
+    graphql-import "^0.4.0"
+    graphql-request "^1.4.0"
+    js-yaml "^3.10.0"
+    lodash "^4.17.4"
+    minimatch "^3.0.4"
+
 graphql-config@2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/graphql-config/-/graphql-config-2.0.1.tgz#d34a9bdf1d7360af7b01db9b20260a342ddc7390"
@@ -1850,7 +1861,7 @@ graphql-config@2.0.1:
     lodash "^4.17.4"
     minimatch "^3.0.4"
 
-graphql-import@^0.4.4:
+graphql-import@^0.4.0, graphql-import@^0.4.4:
   version "0.4.5"
   resolved "https://registry.yarnpkg.com/graphql-import/-/graphql-import-0.4.5.tgz#e2f18c28d335733f46df8e0733d8deb1c6e2a645"
   integrity sha512-G/+I08Qp6/QGTb9qapknCm3yPHV0ZL7wbaalWFpxsfR8ZhZoTBe//LsbsCKlbALQpcMegchpJhpTSKiJjhaVqQ==
@@ -1890,7 +1901,21 @@ graphql-language-service-utils@^1.2.2:
     graphql-config "2.0.1"
     graphql-language-service-types "^1.2.2"
 
-graphql-request@^1.5.0:
+graphql-playground-html@1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/graphql-playground-html/-/graphql-playground-html-1.6.0.tgz#6ec4d54325ab2e5352506fdb89eb37c3fc718bf8"
+  integrity sha512-et3huQFEuAZgAiUfs9a+1Wo/JDX94k7XqNRc8LhpGT8k2NwIhMAbZKqudVF/Ww4+XDoEB4LUTSFGRPBYvKrcKQ==
+  dependencies:
+    graphql-config "2.0.0"
+
+graphql-playground-middleware-express@^1.7.3:
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/graphql-playground-middleware-express/-/graphql-playground-middleware-express-1.7.3.tgz#3e8c0cb678270e290b4d4f163245b10d7c0a2a22"
+  integrity sha512-hyUPTlAZ276pVeP61afUnc1Q3gbQGzVb+I0jbqhHLL8gxEJCv0GbNEVaV0cvfL3syqqANnVv5cAZ8B8ElMo9vA==
+  dependencies:
+    graphql-playground-html "1.6.0"
+
+graphql-request@^1.4.0, graphql-request@^1.5.0:
   version "1.8.2"
   resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-1.8.2.tgz#398d10ae15c585676741bde3fc01d5ca948f8fbe"
   integrity sha512-dDX2M+VMsxXFCmUX0Vo0TopIZIX4ggzOtiCsThgtrKR4niiaagsGTDIHj3fsOMFETpa064vzovI+4YV4QnMbcg==
