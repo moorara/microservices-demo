@@ -24,20 +24,21 @@
 | GraphQL | HTTPS     | Caddy          | https://localhost/graphql        |
 
 
-## Dashboards
+## Web Interfaces
 
-| Dashboard         | URL                    | Username | Password | Required Information             |
-|-------------------|------------------------|----------|----------|----------------------------------|
-| **GraphiQL**      | http://localhost:5000  |          |          |                                  |
-| **Kibana**        | http://localhost:5601  |          |          | Index Pattern: `fluentd`         |
-| **Grafana**       | http://localhost:3000  | `admin`  | `pass`   | Source: `http://prometheus:9090` |
-| **Prometheus**    | http://localhost:9090  |          |          |                                  |
-| **Alert Manager** | http://localhost:9093  |          |          |                                  |
-| **cAdvisor**      | http://localhost:9800  |          |          |                                  |
-| **Jaeger UI**     | http://localhost:16686 |          |          |                                  |
-| **Træfik**        | http://localhost:1900  |          |          |                                  |
-| **CockroachDB**   | http://localhost:28080 |          |          |                                  |
-| **NATS**          | http://localhost:8222  |          |          |                                  |
+| Service                | URL                              | Username | Password | Required Information             |
+|------------------------|----------------------------------|----------|----------|----------------------------------|
+| **Kibana**             | http://localhost:5601            |          |          | Index Pattern: `fluentd`         |
+| **Grafana**            | http://localhost:3000            | `admin`  | `pass`   | Source: `http://prometheus:9090` |
+| **Prometheus**         | http://localhost:9090            |          |          |                                  |
+| **Alert Manager**      | http://localhost:9093            |          |          |                                  |
+| **cAdvisor**           | http://localhost:9800            |          |          |                                  |
+| **Jaeger UI**          | http://localhost:16686           |          |          |                                  |
+| **Træfik**             | http://localhost:1900            |          |          |                                  |
+| **CockroachDB**        | http://localhost:28080           |          |          |                                  |
+| **NATS**               | http://localhost:8222            |          |          |                                  |
+| **GraphiQL**           | http://localhost:5000/graphql    |          |          |                                  |
+| **GraphQL Playground** | http://localhost:5000/playground |          |          |                                  |
 
 ## Ports
 

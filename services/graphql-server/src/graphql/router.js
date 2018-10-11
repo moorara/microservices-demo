@@ -5,6 +5,7 @@ const promClient = require('prom-client')
 // const { buildSchema } = require('graphql')
 const graphqlHTTP = require('express-graphql')
 const { makeExecutableSchema } = require('graphql-tools')
+const { default: expressPlayground } = require('graphql-playground-middleware-express')
 
 const resolvers = require('./resolvers')
 const Logger = require('../utils/logger')
@@ -79,6 +80,13 @@ class GraphQLRouter {
     this.router.use('/graphql', graphqlHTTP(async (req, res, graphQlParams) => {
       Object.assign(context, req.context)
       return { schema, context, graphiql }
+    }))
+    this.router.use('/playground', expressPlayground({
+      endpoint: '/graphql',
+      settings: {
+        'editor.fontSize': 12,
+        'editor.theme': 'dark' // light
+      }
     }))
   }
 }

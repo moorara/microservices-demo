@@ -12,6 +12,7 @@ http://localhost, https://localhost {
 
   proxy /api https://traefik
   proxy /graphql graphql-server:5000
+  proxy /playground graphql-server:5000
   proxy / react-client:4000
 
   log / stdout "\{\"timestamp\":\"{when_iso}\", \"host\":\"{host}\", \"req.method\":\"{method}\", \"req.endpoint\":\"{uri}\", \"res.statusCode\":\"{status}\", \"res.size\":\"{size}\", \"responseTime\":\"{latency_ms}\", \"message\":\"{proto} {scheme} {method} {uri}\"\}"
