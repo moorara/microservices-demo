@@ -5,10 +5,6 @@ const Logger = require('./logger')
 
 describe('Logger', () => {
   describe('addMetadata', () => {
-    afterEach(() => {
-      Logger.metadata = {}
-    })
-
     it('should add properties to metadata', () => {
       Logger.addMetadata({ account: 'dev', environment: 'test' })
       Logger.metadata.account.should.equal('dev')
@@ -69,7 +65,6 @@ describe('Logger', () => {
 
   describe('constructor', () => {
     afterEach(() => {
-      Logger.metadata = {}
       Logger.winston = null
     })
 
@@ -101,7 +96,6 @@ describe('Logger', () => {
     const origLogLevel = process.env.LOG_LEVEL
 
     afterEach(() => {
-      Logger.metadata = {}
       Logger.winston = null
       delete process.env.LOG_LEVEL
     })

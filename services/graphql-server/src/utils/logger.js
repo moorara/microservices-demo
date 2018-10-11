@@ -1,3 +1,4 @@
+const os = require('os')
 const winston = require('winston')
 
 const levels = { fatal: 0, error: 1, warn: 2, info: 3, debug: 4, trace: 5 }
@@ -55,26 +56,25 @@ class Logger {
   constructor (module, options) {
     options = options || {}
     this.winston = options.winston || Logger.getWinstonLogger()
-    this.metadata = Object.assign({ pid: process.pid }, Logger.metadata, options.metadata, module ? { module } : {})
+    this.metadata = Object.assign({}, Logger.metadata, options.metadata, module ? { module } : {})
   }
 
   _log (level, args) {
     let values = []
-    let metadata = Object.assign({}, this.metadata)
+    let meta = Object.assign({}, this.metadata)
 
-    // Make sure all objects are logged as metadata
     for (let arg of args) {
       if (arg instanceof Error) {
         values.push(arg.message)
-        Object.assign(metadata, { error: arg })
+        Object.assign(meta, { error: arg })
       } else if (typeof arg === 'object') {
-        Object.assign(metadata, arg)
+        Object.assign(meta, arg)
       } else {
         values.push(arg)
       }
     }
 
-    this.winston.log(level, values.join(' '), metadata)
+    this.winston.log({ level, meta, message: values.join(' ') })
   }
 
   trace () {
@@ -102,6 +102,9 @@ class Logger {
   }
 }
 
-Logger.metadata = {}
+Logger.metadata = {
+  pid: process.pid,
+  platform: os.platform()
+}
 
 module.exports = Logger
