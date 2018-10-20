@@ -4,15 +4,11 @@ const should = require('should')
 const Logger = require('../../../util/logger')
 
 describe('Logger', () => {
-  describe('addContext', () => {
-    afterEach(() => {
-      Logger.context = {}
-    })
-
-    it('should add properties to context', () => {
-      Logger.addContext({ account: 'dev', environment: 'test' })
-      Logger.context.account.should.equal('dev')
-      Logger.context.environment.should.equal('test')
+  describe('addMetadata', () => {
+    it('should add properties to metadata', () => {
+      Logger.addMetadata({ account: 'dev', environment: 'test' })
+      Logger.metadata.account.should.equal('dev')
+      Logger.metadata.environment.should.equal('test')
     })
   })
 
@@ -69,29 +65,28 @@ describe('Logger', () => {
 
   describe('constructor', () => {
     afterEach(() => {
-      Logger.context = {}
       Logger.winston = null
     })
 
     it('should create a new logger with defaults', () => {
       const logger = new Logger()
-      should.exist(logger.context)
+      should.exist(logger.metadata)
       should.exist(logger.winston)
-      logger.context.should.have.property('pid')
+      logger.metadata.should.have.property('pid')
     })
     it('should create a new logger with provided options', () => {
       const winston = { log () {} }
       const logger = new Logger('server', {
         winston,
-        context: {
+        metadata: {
           environment: 'test'
         }
       })
-      should.exist(logger.context)
+      should.exist(logger.metadata)
       should.exist(logger.winston)
-      logger.context.should.have.property('pid')
-      logger.context.module.should.equal('server')
-      logger.context.environment.should.equal('test')
+      logger.metadata.should.have.property('pid')
+      logger.metadata.module.should.equal('server')
+      logger.metadata.environment.should.equal('test')
       logger.winston.should.eql(winston)
     })
   })
@@ -101,7 +96,6 @@ describe('Logger', () => {
     const origLogLevel = process.env.LOG_LEVEL
 
     afterEach(() => {
-      Logger.context = {}
       Logger.winston = null
       delete process.env.LOG_LEVEL
     })
@@ -113,156 +107,156 @@ describe('Logger', () => {
     describe('trace', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'trace'
-        Logger.addContext({ environment: 'test' })
+        Logger.addMetadata({ environment: 'test' })
         logger = new Logger('logger')
       })
 
-      it('should log string and context in trace level', () => {
+      it('should log string and metadata in trace level', () => {
         logger.trace('hello, world!')
       })
-      it('should log strings and context in trace level', () => {
+      it('should log strings and metadata in trace level', () => {
         logger.trace('hello,', 'world')
       })
-      it('should log strings with interpolation and context in trace level', () => {
-        logger.trace('hello, %s!', 'world')
+      it('should log strings with interpolation and metadata in trace level', () => {
+        const str = 'world'
+        logger.trace(`hello, ${str}!`)
       })
-      it('should log string, error, and context in trace level', () => {
+      it('should log string, error, and metadata in trace level', () => {
         const err = new Error('mock error!')
         logger.trace('error occurred:', err)
       })
-      it('should log string and context in trace level', () => {
-        const context = { framework: 'mocha' }
-        logger.trace('hello, world!', context)
+      it('should log string and metadata in trace level', () => {
+        const metadata = { framework: 'mocha' }
+        logger.trace('hello, world!', metadata)
       })
     })
 
     describe('debug', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'debug'
-        Logger.addContext({ environment: 'test' })
+        Logger.addMetadata({ environment: 'test' })
         logger = new Logger('logger')
       })
 
-      it('should log string and context in debug level', () => {
+      it('should log string and metadata in debug level', () => {
         logger.debug('hello, world!')
       })
-      it('should log strings and context in debug level', () => {
+      it('should log strings and metadata in debug level', () => {
         logger.debug('hello,', 'world')
       })
-      it('should log strings with interpolation and context in debug level', () => {
+      it('should log strings with interpolation and metadata in debug level', () => {
         logger.debug('hello, %s!', 'world')
       })
-      it('should log string, error, and context in debug level', () => {
+      it('should log string, error, and metadata in debug level', () => {
         const err = new Error('mock error!')
         logger.debug('error occurred:', err)
       })
-      it('should log string and context in debug level', () => {
-        const context = { framework: 'mocha' }
-        logger.debug('hello, world!', context)
+      it('should log string and metadata in debug level', () => {
+        const metadata = { framework: 'mocha' }
+        logger.debug('hello, world!', metadata)
       })
     })
 
     describe('info', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'info'
-        Logger.addContext({ environment: 'test' })
         logger = new Logger('logger')
       })
 
-      it('should log string and context in info level', () => {
+      it('should log string and metadata in info level', () => {
         logger.info('hello, world!')
       })
-      it('should log strings and context in info level', () => {
+      it('should log strings and metadata in info level', () => {
         logger.info('hello,', 'world')
       })
-      it('should log strings with interpolation and context in info level', () => {
+      it('should log strings with interpolation and metadata in info level', () => {
         logger.info('hello, %s!', 'world')
       })
-      it('should log string, error, and context in info level', () => {
+      it('should log string, error, and metadata in info level', () => {
         const err = new Error('mock error!')
         logger.info('error occurred:', err)
       })
-      it('should log string and context in info level', () => {
-        const context = { framework: 'mocha' }
-        logger.info('hello, world!', context)
+      it('should log string and metadata in info level', () => {
+        const metadata = { framework: 'mocha' }
+        logger.info('hello, world!', metadata)
       })
     })
 
     describe('warn', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'warn'
-        Logger.addContext({ environment: 'test' })
+        Logger.addMetadata({ environment: 'test' })
         logger = new Logger('logger')
       })
 
-      it('should log string and context in warn level', () => {
+      it('should log string and metadata in warn level', () => {
         logger.warn('hello, world!')
       })
-      it('should log strings and context in warn level', () => {
+      it('should log strings and metadata in warn level', () => {
         logger.warn('hello,', 'world')
       })
-      it('should log strings with interpolation and context in warn level', () => {
+      it('should log strings with interpolation and metadata in warn level', () => {
         logger.warn('hello, %s!', 'world')
       })
-      it('should log string, error, and context in warn level', () => {
+      it('should log string, error, and metadata in warn level', () => {
         const err = new Error('mock error!')
         logger.warn('error occurred:', err)
       })
-      it('should log string and context in warn level', () => {
-        const context = { framework: 'mocha' }
-        logger.warn('hello, world!', context)
+      it('should log string and metadata in warn level', () => {
+        const metadata = { framework: 'mocha' }
+        logger.warn('hello, world!', metadata)
       })
     })
 
     describe('error', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'error'
-        Logger.addContext({ environment: 'test' })
+        Logger.addMetadata({ environment: 'test' })
         logger = new Logger('logger')
       })
 
-      it('should log string and context in error level', () => {
+      it('should log string and metadata in error level', () => {
         logger.error('hello, world!')
       })
-      it('should log strings and context in error level', () => {
+      it('should log strings and metadata in error level', () => {
         logger.error('hello,', 'world')
       })
-      it('should log strings with interpolation and context in error level', () => {
+      it('should log strings with interpolation and metadata in error level', () => {
         logger.error('hello, %s!', 'world')
       })
-      it('should log string, error, and context in error level', () => {
+      it('should log string, error, and metadata in error level', () => {
         const err = new Error('mock error!')
         logger.error('error occurred:', err)
       })
-      it('should log string and context in error level', () => {
-        const context = { framework: 'mocha' }
-        logger.error('hello, world!', context)
+      it('should log string and metadata in error level', () => {
+        const metadata = { framework: 'mocha' }
+        logger.error('hello, world!', metadata)
       })
     })
 
     describe('fatal', () => {
       beforeEach(() => {
         process.env.LOG_LEVEL = 'fatal'
-        Logger.addContext({ environment: 'test' })
+        Logger.addMetadata({ environment: 'test' })
         logger = new Logger('logger')
       })
 
-      it('should log string and context in fatal level', () => {
+      it('should log string and metadata in fatal level', () => {
         logger.fatal('hello, world!')
       })
-      it('should log strings and context in fatal level', () => {
+      it('should log strings and metadata in fatal level', () => {
         logger.fatal('hello,', 'world')
       })
-      it('should log strings with interpolation and context in fatal level', () => {
+      it('should log strings with interpolation and metadata in fatal level', () => {
         logger.fatal('hello, %s!', 'world')
       })
-      it('should log string, error, and context in fatal level', () => {
+      it('should log string, error, and metadata in fatal level', () => {
         const err = new Error('mock error!')
         logger.fatal('error occurred:', err)
       })
-      it('should log string and context in fatal level', () => {
-        const context = { framework: 'mocha' }
-        logger.fatal('hello, world!', context)
+      it('should log string and metadata in fatal level', () => {
+        const metadata = { framework: 'mocha' }
+        logger.fatal('hello, world!', metadata)
       })
     })
   })

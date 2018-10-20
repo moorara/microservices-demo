@@ -50,20 +50,22 @@ curl \
 
 ## Commands
 
-| Command                   | Description                                |
-|---------------------------|--------------------------------------------|
-| `yarn start`              | Runs the service locally                   |
-| `yarn run nsp`            | Identifies known vulneberities in service  |
-| `yarn run lint`           | Runs standard linter                       |
-| `yarn run test`           | Runs the unit tests                        |
-| `yarn run test:component` | Runs the component tests                   |
-| `make docker`             | Builds Docker image                        |
-| `make docker-test`        | Builds Docker image for testing            |
-| `make save-images`        | Saves built Docker images                  |
-| `make up`                 | Runs the service locally in containers     |
-| `make down`               | Stops and removes local containers         |
-| `make test`               | Runs the unit tests in containers          |
-| `make test-component`     | Runs the component tests in containers     |
+| Command                      | Description                             |
+|------------------------------|-----------------------------------------|
+| `yarn start`                 | Run the service locally                 |
+| `yarn run nsp`               | Identify known vulneberities in service |
+| `yarn run lint`              | Run standard linter                     |
+| `yarn run lint:fix`          | Fix linting issues                      |
+| `yarn run test`              | Run the unit tests                      |
+| `yarn run test:component`    | Run the component tests                 |
+| `make docker`                | Build Docker image                      |
+| `make docker-test`           | Build Docker image for testing          |
+| `make up`                    | Run the service locally in containers   |
+| `make down`                  | Stop and removes local containers       |
+| `make test-docker`           | Run the unit tests in containers        |
+| `make test-component-docker` | Run the component tests in containers   |
+| `make push`                  | Push built images to registry           |
+| `make save-images`           | Save built images to disk               |
 
 ## Documentation
 

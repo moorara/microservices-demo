@@ -77,7 +77,7 @@ jobs:
       - run:
           name: Component Testing
           working_directory: services/site-service
-          command: make test-component
+          command: make test-component-docker
       - store_artifacts:
           path: services/site-service/component-tests.log
           destination: component-tests.log
