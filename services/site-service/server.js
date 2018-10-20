@@ -15,7 +15,7 @@ const SiteRouter = require('./routes/site')
 
 class Server {
   constructor (options) {
-    Logger.addContext({
+    Logger.addMetadata({
       service: process.env.SERVICE_NAME || 'site-service'
     })
 
