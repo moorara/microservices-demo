@@ -1,5 +1,5 @@
 # BUILD STAGE
-FROM golang:1.10-alpine as builder
+FROM golang:1.11-alpine as builder
 RUN apk add --no-cache make git
 WORKDIR /go/src/github.com/moorara/microservices-demo/services/asset-service/
 COPY . .
