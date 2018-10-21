@@ -4,23 +4,25 @@
 
 ## Commands
 
-| Command                        | Description                                          |
-|--------------------------------|------------------------------------------------------|
-| `make dep`                     | Installs and updates dependencies                    |
-| `make proto`                   | Generates gRPC code from protocol buffers definition |
-| `make run`                     | Runs the service locally                             |
-| `make build`                   | Builds the service binary locally                    |
-| `make docker`                  | Builds Docker image                                  |
-| `make docker-test`             | Builds Docker image for testing                      |
-| `make save-images`             | Saves built Docker images                            |
-| `make up`                      | Runs the service locally in containers               |
-| `make down`                    | Stops and removes local containers                   |
-| `make test`                    | Runs the unit tests                                  |
-| `make coverage`                | Runs the unit tests with coverage report             |
-| `make test-integration`        | Runs the integration tests                           |
-| `make test-integration-docker` | Runs the integration tests completely in containers  |
-| `make test-component`          | Runs the component tests                             |
-| `make test-component-docker`   | Runs the component tests completely in containers    |
+| Command                        | Description                                         |
+|--------------------------------|-----------------------------------------------------|
+| `make dep`                     | Install and updates dependencies                    |
+| `make proto`                   | Generate gRPC code from protocol buffers definition |
+| `make run`                     | Run the service locally                             |
+| `make build`                   | Build the service binary locally                    |
+| `make docker`                  | Build Docker image                                  |
+| `make docker-test`             | Build Docker image for testing                      |
+| `make save-images`             | Save built Docker images                            |
+| `make up`                      | Run the service locally in containers               |
+| `make down`                    | Stop and removes local containers                   |
+| `make test`                    | Run the unit tests                                  |
+| `make coverage`                | Run the unit tests with coverage report             |
+| `make test-integration`        | Run the integration tests                           |
+| `make test-integration-docker` | Run the integration tests in containers             |
+| `make test-component`          | Run the component tests                             |
+| `make test-component-docker`   | Run the component tests in containers               |
+| `make push`                    | Push built images to registry                       |
+| `make save-images`             | Save built images to disk                           |
 
 ## Documentation
 
