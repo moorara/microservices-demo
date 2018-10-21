@@ -1,5 +1,4 @@
 # TEST IMAGE
-FROM golang:1.10-alpine
-RUN apk add --no-cache ca-certificates make
+FROM golang:1.11
 WORKDIR /go/src/github.com/moorara/microservices-demo/services/switch-service/
 COPY . .

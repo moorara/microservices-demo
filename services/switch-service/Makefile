@@ -32,11 +32,6 @@ docker-test:
 		--file Dockerfile.test \
 		--tag $(docker_test_image) .
 
-save-images:
-	@ mkdir -p $(docker_dir)
-	@ docker image save -o $(docker_dir)/docker.tar $(docker_image):$(docker_tag)
-	@ docker image save -o $(docker_dir)/docker-test.tar $(docker_test_image)
-
 up:
 	@ VERSION=$(docker_tag) \
 	  docker-compose up -d switch-service
@@ -68,9 +63,18 @@ test-component-docker: # docker docker-test
 		docker container logs switch-service | grep '^{' | jq . > component-tests.log && \
 		docker-compose down
 
+push:
+	@ docker push $(docker_image):$(docker_tag)
+
+save-images:
+	@ mkdir -p $(docker_dir)
+	@ docker image save -o $(docker_dir)/docker.tar $(docker_image):$(docker_tag)
+	@ docker image save -o $(docker_dir)/docker-test.tar $(docker_test_image)
+
 
 .PHONY: clean dep
 .PHONY: proto run build
-.PHONY: docker docker-test save-images
+.PHONY: docker docker-test
 .PHONY: up down
 .PHONY: test coverage test-integration test-component test-integration-docker test-component-docker
+.PHONY: push save-images
