@@ -17,12 +17,12 @@ describe('ConfigProvider', () => {
     delete process.env.SERVICE_NAME_FILE
     delete process.env.SERVICE_PORT
     delete process.env.SERVICE_PORT_FILE
-    delete process.env.MONGO_URL
-    delete process.env.MONGO_URL_FILE
-    delete process.env.MONGO_USER
-    delete process.env.MONGO_USER_FILE
-    delete process.env.MONGO_PASS
-    delete process.env.MONGO_PASS_FILE
+    delete process.env.MONGO_URI
+    delete process.env.MONGO_URI_FILE
+    delete process.env.MONGO_USERNAME
+    delete process.env.MONGO_USERNAME_FILE
+    delete process.env.MONGO_PASSWORD
+    delete process.env.MONGO_PASSWORD_FILE
     delete process.env.JAEGER_AGENT_HOST
     delete process.env.JAEGER_AGENT_HOST_FILE
     delete process.env.JAEGER_AGENT_PORT
@@ -36,9 +36,9 @@ describe('ConfigProvider', () => {
       config.getConfig().then(c => {
         c.serviceName.should.equal('site-service')
         c.servicePort.should.equal(4010)
-        c.mongoUrl.should.equal('mongodb://localhost:27017/sites')
-        should.equal(c.mongoUser, null)
-        should.equal(c.mongoPass, null)
+        c.mongoUri.should.equal('mongodb://localhost:27017/sites')
+        should.equal(c.mongoUsername, null)
+        should.equal(c.mongoPassword, null)
         c.jaegerAgentHost.should.equal('localhost')
         c.jaegerAgentPort.should.equal(6832)
         c.jaegerLogSpans.should.equal(false)
@@ -49,9 +49,9 @@ describe('ConfigProvider', () => {
     it('should return values from environment variables', done => {
       process.env.SERVICE_NAME = 'my-service'
       process.env.SERVICE_PORT = '10000'
-      process.env.MONGO_URL = 'mongodb://mongo.mlab.com:27017'
-      process.env.MONGO_USER = 'user'
-      process.env.MONGO_PASS = 'pass'
+      process.env.MONGO_URI = 'mongodb://mongo.mlab.com:27017'
+      process.env.MONGO_USERNAME = 'user'
+      process.env.MONGO_PASSWORD = 'pass'
       process.env.JAEGER_AGENT_HOST = 'jaeger-agent'
       process.env.JAEGER_AGENT_PORT = '6832'
       process.env.JAEGER_LOG_SPANS = true
@@ -59,9 +59,9 @@ describe('ConfigProvider', () => {
       config.getConfig().then(c => {
         c.serviceName.should.equal('my-service')
         c.servicePort.should.equal(10000)
-        c.mongoUrl.should.equal('mongodb://mongo.mlab.com:27017/sites')
-        c.mongoUser.should.equal('user')
-        c.mongoPass.should.equal('pass')
+        c.mongoUri.should.equal('mongodb://mongo.mlab.com:27017/sites')
+        c.mongoUsername.should.equal('user')
+        c.mongoPassword.should.equal('pass')
         c.jaegerAgentHost.should.equal('jaeger-agent')
         c.jaegerAgentPort.should.equal(6832)
         c.jaegerLogSpans.should.equal(true)
@@ -83,9 +83,9 @@ describe('ConfigProvider', () => {
 
       process.env.SERVICE_NAME_FILE = nameFile.name
       process.env.SERVICE_PORT_FILE = portFile.name
-      process.env.MONGO_URL_FILE = urlFile.name
-      process.env.MONGO_USER_FILE = userFile.name
-      process.env.MONGO_PASS_FILE = passFile.name
+      process.env.MONGO_URI_FILE = urlFile.name
+      process.env.MONGO_USERNAME_FILE = userFile.name
+      process.env.MONGO_PASSWORD_FILE = passFile.name
       process.env.JAEGER_AGENT_HOST_FILE = agentHostFile.name
       process.env.JAEGER_AGENT_PORT_FILE = agentPortFile.name
       process.env.JAEGER_LOG_SPANS_FILE = logSpansFile.name
@@ -102,9 +102,9 @@ describe('ConfigProvider', () => {
       config.getConfig().then(c => {
         c.serviceName.should.equal('new-service')
         c.servicePort.should.equal(20000)
-        c.mongoUrl.should.equal('mongodb://user:pass@mongo1:27017,mongo2:27017,mongo3:27017/sites')
-        c.mongoUser.should.equal('root')
-        c.mongoPass.should.equal('toor')
+        c.mongoUri.should.equal('mongodb://user:pass@mongo1:27017,mongo2:27017,mongo3:27017/sites')
+        c.mongoUsername.should.equal('root')
+        c.mongoPassword.should.equal('toor')
         c.jaegerAgentHost.should.equal('jaeger-agent')
         c.jaegerAgentPort.should.equal(6832)
         c.jaegerLogSpans.should.equal(true)

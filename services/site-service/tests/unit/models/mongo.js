@@ -22,9 +22,9 @@ describe('Mongo', () => {
 
   beforeEach(() => {
     config = {
-      mongoUrl: 'mongodb://mongo',
-      mongoUser: 'user',
-      mongoPass: 'pass'
+      mongoUri: 'mongodb://mongo',
+      mongoUsername: 'service',
+      mongoPassword: 'password'
     }
     logger = {
       trace () {},
@@ -65,14 +65,14 @@ describe('Mongo', () => {
         useNewUrlParser: true,
         autoReconnect: true,
         auth: {
-          user: config.mongoUser,
-          pass: config.mongoPass
+          user: config.mongoUsername,
+          password: config.mongoPassword
         }
       }
     })
 
     it('should error when mongoose connect fails', done => {
-      _mongoose.expects('connect').withArgs(config.mongoUrl, opts).rejects(new Error('error'))
+      _mongoose.expects('connect').withArgs(config.mongoUri, opts).rejects(new Error('error'))
       mongo.connect().catch(err => {
         _mongoose.verify()
         should.exist(err)
@@ -82,7 +82,7 @@ describe('Mongo', () => {
     })
 
     it('should error when mongoose conenction fails', done => {
-      _mongoose.expects('connect').withArgs(config.mongoUrl, opts).resolves()
+      _mongoose.expects('connect').withArgs(config.mongoUri, opts).resolves()
       process.nextTick(() => mongoose.connection.emit('error', new Error('error')))
       mongo.connect().catch(err => {
         _mongoose.verify()
@@ -93,7 +93,7 @@ describe('Mongo', () => {
     })
 
     it('should catch close event after connection open event', done => {
-      _mongoose.expects('connect').withArgs(config.mongoUrl, opts).resolves()
+      _mongoose.expects('connect').withArgs(config.mongoUri, opts).resolves()
       process.nextTick(() => emitEvents(mongoose.connection, [ 'open', 'close' ]))
       mongo.connect().then(conn => {
         _mongoose.verify()
@@ -103,7 +103,7 @@ describe('Mongo', () => {
     })
 
     it('should succeed when mongoose connects to Mongo', done => {
-      _mongoose.expects('connect').withArgs(config.mongoUrl, opts).resolves()
+      _mongoose.expects('connect').withArgs(config.mongoUri, opts).resolves()
       process.nextTick(() => emitEvents(mongoose.connection, [ 'connected', 'open' ]))
       mongo.connect().then(conn => {
         _mongoose.verify()
@@ -113,7 +113,7 @@ describe('Mongo', () => {
     })
 
     it('should succeed when mongoose reconnects to Mongo after a disconnection', done => {
-      _mongoose.expects('connect').withArgs(config.mongoUrl, opts).resolves()
+      _mongoose.expects('connect').withArgs(config.mongoUri, opts).resolves()
       process.nextTick(() => emitEvents(mongoose.connection, [ 'disconnected', 'connected', 'reconnected', 'open' ]))
       mongo.connect().then(conn => {
         _mongoose.verify()

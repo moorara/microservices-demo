@@ -17,7 +17,7 @@ services:
       - "4010:4010"
     environment:
       - LOG_LEVEL=debug
-      - MONGO_URL=mongodb://mongo:27017
+      - MONGO_URI=mongodb://mongo:27017
   site-service-test:
     image: site-service-test
     hostname: site-service-test

@@ -6,9 +6,9 @@ const Logger = require('../util/logger')
 class Mongo {
   constructor (config, options) {
     options = options || {}
-    this.mongoUrl = config.mongoUrl
-    this.mongoUser = config.mongoUser
-    this.mongoPass = config.mongoPass
+    this.mongoUri = config.mongoUri
+    this.mongoUsername = config.mongoUsername
+    this.mongoPassword = config.mongoPassword
     this.logger = options.logger || new Logger('MongoProvider')
     this.mongoose = options.mongoose || mongoose
     this.mongoose.Promise = global.Promise
@@ -23,14 +23,14 @@ class Mongo {
         autoReconnect: true
       }
 
-      if (this.mongoUser && this.mongoPass) {
+      if (this.mongoUsername && this.mongoPassword) {
         opts.auth = {
-          user: this.mongoUser,
-          pass: this.mongoPass
+          user: this.mongoUsername,
+          password: this.mongoPassword
         }
       }
 
-      this.mongoose.connect(this.mongoUrl, opts).catch(err => {
+      this.mongoose.connect(this.mongoUri, opts).catch(err => {
         this.logger.error('Error connecting to Mongo.', err)
         reject(err)
       })
