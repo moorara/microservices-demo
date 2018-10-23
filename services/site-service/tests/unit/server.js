@@ -77,9 +77,9 @@ describe('Server', () => {
 
       config = {
         servicePort: '10000',
-        mongoUrl: 'mongodb://mongo:27017',
-        mongoUser: 'user',
-        mongoPass: 'pass',
+        mongoUri: 'mongodb://mongo:27017',
+        mongoUsername: 'user',
+        mongoPassword: 'pass',
         jaegerAgentHost: 'jaeger-agent',
         jaegerAgentPort: 6832,
         jaegerLogSpans: true
