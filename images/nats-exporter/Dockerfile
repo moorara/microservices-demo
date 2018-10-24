@@ -1,10 +1,10 @@
-ARG nats_exporter_version
+ARG version
 
 FROM golang:1.11.0-alpine AS builder
 RUN apk add --no-cache git && \
     go get -d github.com/nats-io/prometheus-nats-exporter && \
     cd /go/src/github.com/nats-io/prometheus-nats-exporter && \
-    git checkout $nats_exporter_version && \
+    git checkout $version && \
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -tags netgo -installsuffix netgo -ldflags "-s -w"
 
 FROM alpine:3.8

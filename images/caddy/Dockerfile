@@ -1,4 +1,4 @@
-ARG caddy_version
+ARG version
 
 # BUILD STAGE
 FROM golang:1.11.0-alpine as builder
@@ -7,7 +7,7 @@ RUN apk add --no-cache ca-certificates git && \
     go get -d github.com/caddyserver/builds && \
     go get -d github.com/mholt/caddy && \
     cd /go/src/github.com/mholt/caddy && \
-    git checkout $caddy_version
+    git checkout $version
 
 WORKDIR /go/src/github.com/mholt/caddy/caddy
 
