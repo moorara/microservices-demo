@@ -1,14 +1,15 @@
+## This is a YAML-formatted file
 ##
-
-node-job-init: &node-job-init
-  working_directory: ~/repo
-  docker:
-    - image: circleci/node:10
 
 go-job-init: &go-job-init
   working_directory: /go/src/github.com/moorara/microservices-demo
   docker:
-    - image: circleci/golang:1.10
+    - image: circleci/golang:1.11
+
+node-job-init: &node-job-init
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:10.12
 
 version: 2
 jobs:
@@ -18,7 +19,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Build Docker Image
           working_directory: services/site-service
@@ -68,7 +69,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Load Docker Images
           command: |
@@ -87,7 +88,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Build Docker Image
           working_directory: services/sensor-service
@@ -129,7 +130,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Load Docker Images
           command: |
@@ -154,7 +155,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Build Docker Image
           working_directory: services/switch-service
@@ -196,7 +197,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Load Docker Images
           command: |
@@ -214,7 +215,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Load Docker Images
           command: |
@@ -233,7 +234,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Build Docker Image
           working_directory: services/asset-service
@@ -275,7 +276,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Load Docker Images
           command: |
@@ -293,7 +294,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Load Docker Images
           command: |
@@ -312,7 +313,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Build Docker Image
           working_directory: services/react-client
@@ -367,7 +368,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Build Docker Image
           working_directory: services/graphql-server
@@ -417,7 +418,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - setup_remote_docker:
-          version: 17.11.0-ce
+          version: 18.06.0-ce
       - run:
           name: Load Docker Images
           command: |
