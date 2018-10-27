@@ -2,6 +2,10 @@ go_version ?= 1.11-alpine
 node_version ?= 10-alpine
 alpine_version ?= 3.8
 
+circleci_go_image := moorara/circleci-go:$(go_version)
+circleci_node_image := moorara/circleci-node:$(node_version)
+circleci_tools_image := moorara/circleci-tools:alpine-$(alpine_version)
+
 fluentd_version ?= v1.2.5
 kibana_version ?= 6.4.0
 caddy_version ?= v0.11.0
@@ -13,27 +17,27 @@ push-circleci: push-circleci-go push-circleci-node push-circleci-tools
 
 circleci-go:
 	@ cd circleci-go && \
-	  docker build --build-arg version=$(go_version) --tag moorara/circleci-go:$(go_version) .
+	  docker build --build-arg version=$(go_version) --tag $(circleci_go_image) .
 
 push-circleci-go:
 	@ cd circleci-go && \
-	  docker push moorara/circleci-go:$(go_version)
+	  docker push $(circleci_go_image)
 
 circleci-node:
 	@ cd circleci-node && \
-	  docker build --build-arg version=$(node_version) --tag moorara/circleci-node:$(node_version) .
+	  docker build --build-arg version=$(node_version) --tag $(circleci_node_image) .
 
 push-circleci-node:
 	@ cd circleci-node && \
-	  docker push moorara/circleci-node:$(node_version)
+	  docker push $(circleci_node_image)
 
 circleci-tools:
 	@ cd circleci-tools && \
-	  docker build --build-arg version=$(alpine_version) --tag moorara/circleci-tools:$(alpine_version) .
+	  docker build --build-arg version=$(alpine_version) --tag $(circleci_tools_image) .
 
 push-circleci-tools:
 	@ cd circleci-tools && \
-	  docker push moorara/circleci-node:$(alpine_version)
+	  docker push $(circleci_tools_image)
 
 
 all: caddy fluentd kibana nats-exporter

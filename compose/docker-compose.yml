@@ -346,7 +346,7 @@ services:
       - LOG_LEVEL=debug
       - SERVICE_NAME=site-service
       - SERVICE_TAGS=monitor
-      - MONGO_URL=mongodb://mongo:27017
+      - MONGO_URI=mongodb://mongo:27017
       - JAEGER_AGENT_HOST=jaeger
       - JAEGER_AGENT_PORT=6832
     networks:
