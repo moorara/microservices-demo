@@ -11,6 +11,12 @@ node-job-init: &node-job-init
   docker:
     - image: circleci/node:10.12
 
+kube-job-init: &kube-job-init
+  working_directory: ~/repo
+  docker:
+    - image: moorara/circleci-tools:alpine-3.8
+
+
 version: 2
 jobs:
 
@@ -432,6 +438,16 @@ jobs:
           path: services/graphql-server/component-tests.log
           destination: component-tests.log
 
+  site-chart-tests:
+    <<: *kube-job-init
+    steps:
+      - checkout
+      - run:
+          name: Linting
+          working_directory: charts/site
+          command: helm lint .
+
+
 workflows:
   version: 2
   site-service:
@@ -480,3 +496,6 @@ workflows:
       - graphql-server-component-tests:
           requires:
             - graphql-server-build-images
+  site-chart:
+    jobs:
+      - site-chart-tests
