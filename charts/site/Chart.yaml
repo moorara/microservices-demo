@@ -1,0 +1,18 @@
+apiVersion: v1
+engine: gotpl
+name: site
+version: 0.1.0
+appVersion: 0.1.0
+description: site-service creates, retrieves, updates, and deletes sites.
+# home:
+icon: https://raw.githubusercontent.com/moorara/microservices-demo/master/charts/site/icon.png
+keywords:
+  - backend
+  - service
+  - rest
+  - javascript
+  - mongodb
+sources:
+  - https://github.com/moorara/microservices-demo/tree/master/services/site-service
+maintainers:
+  - name: Milad Irannejad

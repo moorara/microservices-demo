@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "site.fullname" . }}
+  labels:
+    app: {{ template "site.name" . }}
+    chart: {{ template "site.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- with .Values.deployment.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "site.name" . }}
+      release: {{ .Release.Name }}
+  strategy:
+    type: {{ .Values.deployment.strategy }}
+    {{- if ne .Values.deployment.strategy "RollingUpdate" }}
+    rollingUpdate: null
+    {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "site.name" . }}
+        release: {{ .Release.Name }}
+{{- with .Values.pod.annotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      containers:
+        - name: {{ template "site.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: {{ .Values.config.port }}
+          env:
+            - name: SERVICE_NAME
+              value: site-service
+            - name: SERVICE_PORT
+              value: {{ .Values.config.port | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            - name: JAEGER_LOG_SPANS
+              value: {{ .Values.config.logSpans | quote }}
+            {{- if .Values.mongodb.enabled }}
+            - name: MONGO_URI
+              value: {{ printf "mongodb://%s-mongodb.%s.svc.cluster.local:27017" .Release.Name .Release.Namespace | quote }}
+            {{- if .Values.mongodb.mongodbUsername }}
+            - name: MONGO_USERNAME
+              value: {{ .Values.mongodb.mongodbUsername | quote }}
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mongodb
+                  key: mongodb-password
+            {{- end }}
+            {{- else if .Values.mongodb.external.uri }}
+            - name: MONGO_URI
+              value: {{ .Values.mongodb.external.uri | quote }}
+            {{- if .Values.mongodb.external.username }}
+            - name: MONGO_USERNAME
+              value: {{ .Values.mongodb.external.username | quote }}
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mongodb.external.secret }}
+                  key: mongodb-password
+            {{- end }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.config.port }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.config.port }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}

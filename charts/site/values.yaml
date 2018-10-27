@@ -1,0 +1,104 @@
+## Default values for site-service Helm chart.
+## This is a YAML-formatted file.
+
+## Override the name of the Chart.
+##
+# nameOverride:
+# fullnameOverride:
+
+## Optionally specify an array of imagePullSecrets.
+## Secrets must be manually created in the namespace.
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry
+##
+# imagePullSecrets:
+#   - myRegistryKeySecretName
+
+## Service image
+##
+image:
+  repository: moorara/site-service
+  tag: 0.1.0
+  ## Specify imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+
+## site-service configurations
+##
+config:
+  port: 4010
+  logLevel: info
+  logSpans: false
+
+## Kubernetes pod
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod
+##
+pod:
+  ## Specify pod annotations
+  ##
+  annotations: {}
+
+## Kubernetes deployment
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment
+##
+deployment:
+  ## Specify pod replicas
+  ##
+  replicaCount: 1
+  ## Specify a deployment strategy
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  ##
+  strategy: RollingUpdate
+  ## Specify deployment annotations
+  ##
+  annotations: {}
+
+## Kubernetes service
+## ref: https://kubernetes.io/docs/concepts/services-networking/service
+##
+service:
+  type: ClusterIP
+  port: 4010
+  nodePort:
+  clusterIP:
+  loadBalancerIP:
+  externalIPs: []
+  ## Specify service annotations
+  ##
+  annotations: {}
+
+## Kubernetes ingress
+## ref: https://kubernetes.io/docs/concepts/services-networking/ingress
+##
+ingress:
+  ## Specify ingress annotations
+  ##
+  annotations: {}
+
+## Configure resource requests and limits for container
+## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
+##
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+
+## mongodb helm chart values
+## ref: https://github.com/helm/charts/tree/master/stable/mongodb
+##
+mongodb:
+  enabled: true
+  mongodbDatabase: sites
+  mongodbUsername: site-service
+  ## This is for using an external MongoDB cluster.
+  ## uri should be the form of mongodb://<FQDN>:<PORT>
+  ## secret is the name of a Kubernetes secret with mongodb-password key
+  ##
+  # external:
+  #   uri:
+  #   username:
+  #   secret:

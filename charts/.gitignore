@@ -1,0 +1,6 @@
+# Chart dependencies
+**/charts/*.tgz
+
+# Misc files
+*.log
+.DS_Store
