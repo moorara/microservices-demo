@@ -32,6 +32,7 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+      serviceAccountName: {{ template "site.serviceAccountName" . }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{- range .Values.imagePullSecrets }}
@@ -90,3 +91,24 @@ spec:
               port: {{ .Values.config.port }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
+        {{- if .Values.jaeger.enabled }}
+        - name: jaeger-agent
+          image: "{{ .Values.jaeger.agent.image }}:{{ .Values.jaeger.agent.tag }}"
+          imagePullPolicy: {{ .Values.jaeger.agent.pullPolicy }}
+          ports:
+            ## accept zipkin.thrift over compact thrift protocol
+            - containerPort: 5775
+              protocol: UDP
+            ## accept jaeger.thrift over compact thrift protocol
+            - containerPort: 6831
+              protocol: UDP
+            ## accept jaeger.thrift over binary thrift protocol
+            - containerPort: 6832
+              protocol: UDP
+            ## serve configs, sampling strategies
+            - containerPort: 5778
+              protocol: TCP
+          args:
+            - --collector.host-port
+            - {{ .Values.jaeger.collector.address | quote }}
+        {{- end }}

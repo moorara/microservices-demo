@@ -4,6 +4,9 @@
 {{- if .Values.mongodb.enabled }}
 mongodb is also installed as a dependency chart.
 {{- end }}
+{{- if .Values.jaeger.enabled }}
+jaeger-agent is also runnung as a sidecar.
+{{- end }}
 
 {{ $name }} can be accessed within your cluster on the following address:
 

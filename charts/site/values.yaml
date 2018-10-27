@@ -31,10 +31,22 @@ config:
   logLevel: info
   logSpans: false
 
+## Kubernetes service account
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account
+## ref: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin
+##
+serviceAccount:
+  create: false
+  name:
+
 ## Kubernetes pod
 ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod
 ##
 pod:
+  ##
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context
+  ##
+  securityContext:
   ## Specify pod annotations
   ##
   annotations: {}
@@ -102,3 +114,17 @@ mongodb:
   #   uri:
   #   username:
   #   secret:
+
+## jaeger sidecar
+## ref: https://www.jaegertracing.io/docs/1.7/deployment
+## ref: https://github.com/jaegertracing/jaeger-kubernetes
+## ref: https://github.com/helm/charts/tree/master/incubator/jaeger
+##
+jaeger:
+  enabled: false
+  collector:
+    address:
+  agent:
+    image: jaegertracing/jaeger-agent
+    tag: latest
+    pullPolicy: Always
