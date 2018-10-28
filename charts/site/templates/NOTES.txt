@@ -1,0 +1,41 @@
+{{- $name := "site-service" -}}
+
+{{ template "site.fullname" . }} chart is installed successfully.
+{{- if .Values.mongodb.enabled }}
+mongodb is also installed as a dependency chart.
+{{- end }}
+{{- if .Values.jaeger.enabled }}
+jaeger-agent is also runnung as a sidecar.
+{{- end }}
+
+{{ $name }} can be accessed within your cluster on the following address:
+
+  {{ template "site.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.config.port }}
+
+{{- if eq .Values.service.type "NodePort" }}
+
+{{ $name }} is exposed via port {{ .Values.service.nodePort }} on every node in the cluster. To get the node ip and port run:
+
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "site.fullname" . }})
+
+{{- else if eq .Values.service.type "ClusterIP" }}
+
+To forward requests from your local node to {{ $name }} run:
+
+  kubectl port-forward --namespace {{ .Release.Namespace }} service/{{ template "site.fullname" . }} {{ .Values.config.port }}
+
+{{- else if eq .Values.service.type "LoadBalancer" }}
+
+It may take a few minutes for the LoadBalancer IP to be available.
+
+{{- end }}
+
+To learn more about the release run:
+
+  helm status {{ .Release.Name }}
+  helm get {{ .Release.Name }}
+
+To delete this release run:
+
+  helm delete --purge {{ .Release.Name }} 

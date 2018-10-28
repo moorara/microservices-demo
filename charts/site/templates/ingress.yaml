@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "site.fullname" . }}
+  labels:
+    app: {{ template "site.name" . }}
+    chart: {{ template "site.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- with .Values.ingress.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /v1/sites
+            backend:
+              serviceName: {{ template "site.fullname" . }}
+              servicePort: http
