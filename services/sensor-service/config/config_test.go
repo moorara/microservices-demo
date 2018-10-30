@@ -11,25 +11,12 @@ func TestNew(t *testing.T) {
 
 	assert.Equal(t, defaultServiceName, config.ServiceName)
 	assert.Equal(t, defaultServicePort, config.ServicePort)
-	assert.Equal(t, defaultPostgresURL, config.PostgresURL)
 	assert.Equal(t, defaultLogLevel, config.LogLevel)
+	assert.Equal(t, defaultPostgresHost, config.PostgresHost)
+	assert.Equal(t, defaultPostgresPort, config.PostgresPort)
+	assert.Equal(t, defaultPostgresDatabase, config.PostgresDatabase)
+	assert.Equal(t, defaultPostgresUsername, config.PostgresUsername)
+	assert.Equal(t, defaultPostgresPassword, config.PostgresPassword)
 	assert.Equal(t, defaultJaegerAgentAddr, config.JaegerAgentAddr)
 	assert.Equal(t, defaultJaegerLogSpans, config.JaegerLogSpans)
-}
-
-func TestGetFullPostgresURL(t *testing.T) {
-	tests := []struct {
-		postgresURL             string
-		expectedFullPostgresURL string
-	}{
-		{"postgres://root@localhost", "postgres://root@localhost" + "/" + dbName + dbOpts},
-		{"postgres://root@postgres", "postgres://root@postgres" + "/" + dbName + dbOpts},
-	}
-
-	for _, tc := range tests {
-		config := Config{
-			PostgresURL: tc.postgresURL,
-		}
-		assert.Equal(t, tc.expectedFullPostgresURL, config.GetFullPostgresURL())
-	}
 }

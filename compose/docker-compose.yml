@@ -374,7 +374,9 @@ services:
       - LOG_LEVEL=debug
       - SERVICE_NAME=sensor-service
       - SERVICE_TAGS=monitor
-      - POSTGRES_URL=postgres://root:pass@postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USERNAME=root
+      - POSTGRES_PASSWORD=pass
       - JAEGER_AGENT_ADDR=jaeger:6831
     networks:
       - local

@@ -22,11 +22,13 @@ services:
       - "4020:4020"
     environment:
       - LOG_LEVEL=debug
-      - POSTGRES_URL=postgres://root:pass@postgres
-  sensor-service-test:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USERNAME=root
+      - POSTGRES_PASSWORD=pass
+  component-test:
     image: sensor-service-test
-    hostname: sensor-service-test
-    container_name: sensor-service-test
+    hostname: component-test
+    container_name: component-test
     depends_on:
       - sensor-service
     environment:

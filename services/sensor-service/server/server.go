@@ -40,7 +40,7 @@ func New(config config.Config) *HTTPServer {
 	loggerMiddleware := middleware.NewLoggerMiddleware(logger)
 	tracerMiddleware := middleware.NewTracerMiddleware(tracer)
 
-	postgresDB := service.NewPostgresDB(config.GetFullPostgresURL())
+	postgresDB := service.NewPostgresDB(config.PostgresHost, config.PostgresPort, config.PostgresDatabase, config.PostgresUsername, config.PostgresPassword)
 	sensorHandler := handler.NewSensorHandler(postgresDB, logger, tracer)
 	postSensorHandler := middleware.WrapAll(sensorHandler.PostSensor, metricsMiddleware, loggerMiddleware, tracerMiddleware)
 	getSensorsHandler := middleware.WrapAll(sensorHandler.GetSensors, metricsMiddleware, loggerMiddleware, tracerMiddleware)

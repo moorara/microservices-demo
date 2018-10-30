@@ -64,22 +64,39 @@ func (m *mockSensorManager) Delete(ctx context.Context, id string) error {
 
 func TestNewSensorHandler(t *testing.T) {
 	tests := []struct {
-		name        string
-		postgresURL string
+		name     string
+		host     string
+		port     string
+		database string
+		username string
+		password string
 	}{
 		{
-			"WithoutUserPass",
-			"postgres://localhost",
+			name:     "Simple",
+			host:     "localhost",
+			port:     "5432",
+			database: "store",
 		},
 		{
-			"WithUserPass",
-			"postgres://root:pass@localhost",
+			name:     "WithUsername",
+			host:     "localhost",
+			port:     "5432",
+			database: "store",
+			username: "root",
+		},
+		{
+			name:     "WithPassword",
+			host:     "localhost",
+			port:     "5432",
+			database: "store",
+			username: "root",
+			password: "pass",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			db := service.NewPostgresDB(tc.postgresURL)
+			db := service.NewPostgresDB(tc.host, tc.port, tc.database, tc.username, tc.password)
 			logger := log.NewNopLogger()
 			tracer := mocktracer.New()
 			h := NewSensorHandler(db, logger, tracer)

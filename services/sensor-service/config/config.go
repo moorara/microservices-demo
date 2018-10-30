@@ -1,39 +1,44 @@
 package config
 
 const (
-	dbName                 = "sensors"
-	dbOpts                 = "?sslmode=disable"
-	defaultServiceName     = "sensor-service"
-	defaultServicePort     = ":4020"
-	defaultPostgresURL     = "postgres://root@localhost"
-	defaultLogLevel        = "info"
-	defaultJaegerAgentAddr = "localhost:6831"
-	defaultJaegerLogSpans  = false
+	defaultServiceName      = "sensor-service"
+	defaultServicePort      = ":4020"
+	defaultLogLevel         = "info"
+	defaultPostgresHost     = "localhost"
+	defaultPostgresPort     = "5432"
+	defaultPostgresDatabase = "sensors"
+	defaultPostgresUsername = "root"
+	defaultPostgresPassword = ""
+	defaultJaegerAgentAddr  = "localhost:6831"
+	defaultJaegerLogSpans   = false
 )
 
 // Config defines the schema for configurations
 type Config struct {
-	ServiceName     string
-	ServicePort     string
-	PostgresURL     string
-	LogLevel        string
-	JaegerAgentAddr string
-	JaegerLogSpans  bool
-}
-
-// GetFullPostgresURL return the full Postgres URL including database name and options
-func (c *Config) GetFullPostgresURL() string {
-	return c.PostgresURL + "/" + dbName + dbOpts
+	ServiceName      string
+	ServicePort      string
+	LogLevel         string
+	PostgresHost     string
+	PostgresPort     string
+	PostgresDatabase string
+	PostgresUsername string
+	PostgresPassword string
+	JaegerAgentAddr  string
+	JaegerLogSpans   bool
 }
 
 // New creates a new configuration object
 func New() Config {
 	return Config{
-		ServiceName:     defaultServiceName,
-		ServicePort:     defaultServicePort,
-		PostgresURL:     defaultPostgresURL,
-		LogLevel:        defaultLogLevel,
-		JaegerAgentAddr: defaultJaegerAgentAddr,
-		JaegerLogSpans:  defaultJaegerLogSpans,
+		ServiceName:      defaultServiceName,
+		ServicePort:      defaultServicePort,
+		LogLevel:         defaultLogLevel,
+		PostgresHost:     defaultPostgresHost,
+		PostgresPort:     defaultPostgresPort,
+		PostgresDatabase: defaultPostgresDatabase,
+		PostgresUsername: defaultPostgresUsername,
+		PostgresPassword: defaultPostgresPassword,
+		JaegerAgentAddr:  defaultJaegerAgentAddr,
+		JaegerLogSpans:   defaultJaegerLogSpans,
 	}
 }

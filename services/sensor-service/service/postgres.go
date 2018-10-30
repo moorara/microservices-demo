@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
-	// Required for initialization
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // Required for initialization
 )
 
 type (
@@ -18,9 +18,10 @@ type (
 	}
 )
 
-// NewPostgresDB creates a new DB for Postgres
-func NewPostgresDB(postgresURL string) DB {
-	db, err := sql.Open("postgres", postgresURL)
+// NewPostgresDB creates a new DB for PostgreSQL
+func NewPostgresDB(host, port, database, username, password string) DB {
+	connStr := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable", host, port, database, username, password)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		panic(err)
 	}

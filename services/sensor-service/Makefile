@@ -53,7 +53,7 @@ test-component: # docker up
 
 test-component-docker: # docker docker-test
 	@ VERSION=$(docker_tag) \
-	  docker-compose run sensor-service-test make test-component && \
+	  docker-compose run component-test make test-component && \
 		docker container logs sensor-service | grep '^{' | jq . > component-tests.log && \
 		docker-compose down
 
