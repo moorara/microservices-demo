@@ -31,6 +31,10 @@ It may take a few minutes for the LoadBalancer IP to be available.
 
 {{- end }}
 
+To test this release run:
+
+  helm test --cleanup {{ .Release.Name }}
+
 To learn more about the release run:
 
   helm status {{ .Release.Name }}

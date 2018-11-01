@@ -59,7 +59,8 @@ The following table lists the configurable parameters of the **site** chart and 
 | `config.logLevel`           | Service logging level                                       | `info`                       |
 | `config.logSpans`           | Whether to log Jaeger spans                                 | `false`                      |
 | `serviceAccount.create`     | Create Kubernetes service account for pod                   | `false`                      |
-| `serviceAccount.name`       | The name of Kubernetes service account                      | `nil`                        | 
+| `serviceAccount.name`       | The name of Kubernetes service account                      | `nil`                        |
+| `pod.securityContext`       | The Kubernetes security context for pod                     | `{}`                         | 
 | `pod.annotations`           | Kubernetes pod annotations                                  | `{}`                         |
 | `deployment.replicaCount`   | Number of service replicas (pods)                           | `1`                          |
 | `deployment.strategy`       | Deployment strategy for updating pods                       | `RollingUpdate`              |
@@ -88,13 +89,13 @@ The following table lists the configurable parameters of the **site** chart and 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```bash
-$ helm install --name my-release --set service.type=NodePort,service.nodePort=8080 repo/site-service
+$ helm install --name my-release --set service.type=NodePort,service.nodePort=8080 repo/site
 ```
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```bash
-$ helm install --name my-release -f values.yaml repo/site-service
+$ helm install --name my-release -f values.yaml repo/site
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)

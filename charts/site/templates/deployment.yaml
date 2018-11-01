@@ -27,10 +27,10 @@ spec:
       labels:
         app: {{ template "site.name" . }}
         release: {{ .Release.Name }}
-{{- with .Values.pod.annotations }}
+      {{- with .Values.pod.annotations }}
       annotations:
 {{ toYaml . | indent 8 }}
-{{- end }}
+      {{- end }}
     spec:
       serviceAccountName: {{ template "site.serviceAccountName" . }}
       {{- if .Values.imagePullSecrets }}
@@ -38,6 +38,10 @@ spec:
       {{- range .Values.imagePullSecrets }}
         - name: {{ . }}
       {{- end }}
+      {{- end }}
+      {{- with .Values.pod.securityContext }}
+      securityContext:
+{{ toYaml . | indent 8 }}
       {{- end }}
       containers:
         - name: {{ template "site.name" . }}
@@ -74,6 +78,8 @@ spec:
             {{- if .Values.mongodb.external.username }}
             - name: MONGO_USERNAME
               value: {{ .Values.mongodb.external.username | quote }}
+            {{- end }}
+            {{- if .Values.mongodb.external.secret }}
             - name: MONGO_PASSWORD
               valueFrom:
                 secretKeyRef:

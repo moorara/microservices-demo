@@ -43,10 +43,12 @@ serviceAccount:
 ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod
 ##
 pod:
-  ##
+  ## Pod security context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context
   ##
-  securityContext:
+  securityContext: {}
+    # runAsUser:
+    # fsGroup:
   ## Specify pod annotations
   ##
   annotations: {}
