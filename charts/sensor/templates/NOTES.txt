@@ -1,0 +1,45 @@
+{{- $name := "sensor-service" -}}
+
+{{ template "sensor.fullname" . }} chart is installed successfully.
+{{- if .Values.postgresql.enabled }}
+postgresql is also installed as a dependency chart.
+{{- end }}
+{{- if .Values.jaeger.enabled }}
+jaeger-agent is also runnung as a sidecar.
+{{- end }}
+
+{{ $name }} can be accessed within your cluster on the following address:
+
+  {{ template "sensor.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.config.port }}
+
+{{- if eq .Values.service.type "NodePort" }}
+
+{{ $name }} is exposed via port {{ .Values.service.nodePort }} on every node in the cluster. To get the node ip and port run:
+
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "sensor.fullname" . }})
+
+{{- else if eq .Values.service.type "ClusterIP" }}
+
+To forward requests from your local node to {{ $name }} run:
+
+  kubectl port-forward --namespace {{ .Release.Namespace }} service/{{ template "sensor.fullname" . }} {{ .Values.config.port }}
+
+{{- else if eq .Values.service.type "LoadBalancer" }}
+
+It may take a few minutes for the LoadBalancer IP to be available.
+
+{{- end }}
+
+To test this release run:
+
+  helm test --cleanup {{ .Release.Name }}
+
+To learn more about the release run:
+
+  helm status {{ .Release.Name }}
+  helm get {{ .Release.Name }}
+
+To delete this release run:
+
+  helm delete --purge {{ .Release.Name }} 
