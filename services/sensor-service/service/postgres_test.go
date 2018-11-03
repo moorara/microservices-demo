@@ -3,6 +3,7 @@ package service
 import (
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,7 +41,8 @@ func TestNewPostgresDB(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			db := NewPostgresDB(tc.host, tc.port, tc.database, tc.username, tc.password)
+			logger := log.NewNopLogger()
+			db := NewPostgresDB(logger, tc.host, tc.port, tc.database, tc.username, tc.password)
 			assert.NotNil(t, db)
 		})
 	}

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
 	"github.com/moorara/microservices-demo/services/sensor-service/config"
 	"github.com/moorara/microservices-demo/services/sensor-service/handler"
@@ -33,14 +34,14 @@ type (
 // New creates a new http server
 func New(config config.Config) *HTTPServer {
 	metrics := util.NewMetrics("sensor_service")
-	logger := util.NewLogger(config.LogLevel, config.ServiceName, "global")
+	logger := util.NewLogger(config.LogLevel, config.ServiceName, "singleton")
 	tracer, tracerCloser := util.NewTracer(config, logger, metrics.Registry)
 
 	metricsMiddleware := middleware.NewMetricsMiddleware(metrics)
 	loggerMiddleware := middleware.NewLoggerMiddleware(logger)
 	tracerMiddleware := middleware.NewTracerMiddleware(tracer)
 
-	postgresDB := service.NewPostgresDB(config.PostgresHost, config.PostgresPort, config.PostgresDatabase, config.PostgresUsername, config.PostgresPassword)
+	postgresDB := service.NewPostgresDB(logger, config.PostgresHost, config.PostgresPort, config.PostgresDatabase, config.PostgresUsername, config.PostgresPassword)
 	sensorHandler := handler.NewSensorHandler(postgresDB, logger, tracer)
 	postSensorHandler := middleware.WrapAll(sensorHandler.PostSensor, metricsMiddleware, loggerMiddleware, tracerMiddleware)
 	getSensorsHandler := middleware.WrapAll(sensorHandler.GetSensors, metricsMiddleware, loggerMiddleware, tracerMiddleware)
@@ -72,6 +73,17 @@ func New(config config.Config) *HTTPServer {
 // Start starts the server
 func (s *HTTPServer) Start() error {
 	s.logger.Log("message", "Listening on port "+s.config.ServicePort+" ...")
+	level.Debug(s.logger).Log(
+		"message", "configuration values",
+		"config.postgresHost", s.config.PostgresHost,
+		"config.postgresPort", s.config.PostgresPort,
+		"config.postgresDatabase", s.config.PostgresDatabase,
+		"config.postgresUsername", s.config.PostgresUsername,
+		"config.postgresPassword", s.config.PostgresPassword,
+		"config.jaegerAgentAddr", s.config.JaegerAgentAddr,
+		"config.jaegerLogSpans", s.config.JaegerLogSpans,
+	)
+
 	return s.server.ListenAndServe()
 }
 
