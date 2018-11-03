@@ -60,32 +60,28 @@ spec:
               value: {{ .Values.config.logLevel | quote }}
             - name: JAEGER_LOG_SPANS
               value: {{ .Values.config.logSpans | quote }}
-            {{- if .Values.mongodb.enabled }}
             - name: MONGO_URI
-              value: {{ printf "mongodb://%s-mongodb.%s.svc.cluster.local:27017" .Release.Name .Release.Namespace | quote }}
-            {{- if .Values.mongodb.mongodbUsername }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "site.fullname" . }}
+                  key: mongo-uri
             - name: MONGO_USERNAME
-              value: {{ .Values.mongodb.mongodbUsername | quote }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "site.fullname" . }}
+                  key: mongo-username
+            {{- if (.Values.mongodb.enabled) and (.Values.mongodb.mongodbUsername) }}
             - name: MONGO_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-mongodb
                   key: mongodb-password
-            {{- end }}
-            {{- else if .Values.mongodb.external.uri }}
-            - name: MONGO_URI
-              value: {{ .Values.mongodb.external.uri | quote }}
-            {{- if .Values.mongodb.external.username }}
-            - name: MONGO_USERNAME
-              value: {{ .Values.mongodb.external.username | quote }}
-            {{- end }}
-            {{- if .Values.mongodb.external.secret }}
+            {{- else if (.Values.mongodb.external.uri) and (.Values.mongodb.external.secret) }}
             - name: MONGO_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.mongodb.external.secret }}
                   key: mongodb-password
-            {{- end }}
             {{- end }}
           livenessProbe:
             httpGet:

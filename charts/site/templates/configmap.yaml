@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "site.fullname" . }}
+  labels:
+    app: {{ template "site.name" . }}
+    chart: {{ template "site.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  {{- if .Values.mongodb.enabled }}
+  mongo-uri: {{ printf "mongodb://%s-mongodb.%s.svc.cluster.local:27017" .Release.Name .Release.Namespace | quote }}
+  {{- if .Values.mongodb.mongodbUsername }}
+  mongo-username: {{ .Values.mongodb.mongodbUsername | quote }}
+  {{- end }}
+  {{- else if .Values.mongodb.external.uri }}
+  mongo-uri: {{ .Values.mongodb.external.uri | quote }}
+  {{- if .Values.mongodb.external.username }}
+  mongo-username: {{ .Values.mongodb.external.username | quote }}
+  {{- end }}
+  {{- end }}
