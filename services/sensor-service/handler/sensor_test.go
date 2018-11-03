@@ -96,9 +96,9 @@ func TestNewSensorHandler(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			db := service.NewPostgresDB(tc.host, tc.port, tc.database, tc.username, tc.password)
 			logger := log.NewNopLogger()
 			tracer := mocktracer.New()
+			db := service.NewPostgresDB(logger, tc.host, tc.port, tc.database, tc.username, tc.password)
 			h := NewSensorHandler(db, logger, tracer)
 
 			assert.NotNil(t, h)

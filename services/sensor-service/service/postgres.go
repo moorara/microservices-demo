@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	_ "github.com/lib/pq" // Required for initialization
 )
 
@@ -19,8 +21,10 @@ type (
 )
 
 // NewPostgresDB creates a new DB for PostgreSQL
-func NewPostgresDB(host, port, database, username, password string) DB {
+func NewPostgresDB(logger log.Logger, host, port, database, username, password string) DB {
 	connStr := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=disable", host, port, database, username, password)
+	level.Debug(logger).Log("message", "postgres connection string", "connStr", connStr)
+
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		panic(err)
