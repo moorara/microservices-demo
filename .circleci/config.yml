@@ -447,6 +447,15 @@ jobs:
           working_directory: charts/site
           command: helm lint .
 
+  sensor-chart-tests:
+    <<: *kube-job-init
+    steps:
+      - checkout
+      - run:
+          name: Linting
+          working_directory: charts/sensor
+          command: helm lint .
+
 
 workflows:
   version: 2
@@ -499,3 +508,6 @@ workflows:
   site-chart:
     jobs:
       - site-chart-tests
+  sensor-chart:
+    jobs:
+      - sensor-chart-tests

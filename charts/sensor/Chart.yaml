@@ -1,0 +1,18 @@
+apiVersion: v1
+engine: gotpl
+name: sensor
+version: 0.1.0
+appVersion: 0.1.0
+description: sensor-service creates, retrieves, updates, and deletes sensors.
+# home:
+icon: https://raw.githubusercontent.com/moorara/microservices-demo/master/charts/sensor/icon.png
+keywords:
+  - backend
+  - service
+  - rest
+  - golang
+  - postgres
+sources:
+  - https://github.com/moorara/microservices-demo/tree/master/services/sensor-service
+maintainers:
+  - name: Milad Irannejad
