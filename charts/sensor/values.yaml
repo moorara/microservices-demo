@@ -74,10 +74,10 @@ deployment:
 service:
   type: ClusterIP
   port: 4020
-  nodePort:
-  clusterIP:
-  loadBalancerIP:
-  externalIPs: []
+  # nodePort:
+  # clusterIP:
+  # loadBalancerIP:
+  # externalIPs: []
   ## Specify service annotations
   ##
   annotations: {}
