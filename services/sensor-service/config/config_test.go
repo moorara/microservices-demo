@@ -9,9 +9,9 @@ import (
 func TestNew(t *testing.T) {
 	config := New()
 
+	assert.Equal(t, defaultLogLevel, config.LogLevel)
 	assert.Equal(t, defaultServiceName, config.ServiceName)
 	assert.Equal(t, defaultServicePort, config.ServicePort)
-	assert.Equal(t, defaultLogLevel, config.LogLevel)
 	assert.Equal(t, defaultPostgresHost, config.PostgresHost)
 	assert.Equal(t, defaultPostgresPort, config.PostgresPort)
 	assert.Equal(t, defaultPostgresDatabase, config.PostgresDatabase)

@@ -1,9 +1,9 @@
 package config
 
 const (
+	defaultLogLevel         = "info"
 	defaultServiceName      = "sensor-service"
 	defaultServicePort      = ":4020"
-	defaultLogLevel         = "info"
 	defaultPostgresHost     = "localhost"
 	defaultPostgresPort     = "5432"
 	defaultPostgresDatabase = "sensors"
@@ -15,9 +15,9 @@ const (
 
 // Config defines the schema for configurations
 type Config struct {
+	LogLevel         string
 	ServiceName      string
 	ServicePort      string
-	LogLevel         string
 	PostgresHost     string
 	PostgresPort     string
 	PostgresDatabase string
@@ -30,9 +30,9 @@ type Config struct {
 // New creates a new configuration object
 func New() Config {
 	return Config{
+		LogLevel:         defaultLogLevel,
 		ServiceName:      defaultServiceName,
 		ServicePort:      defaultServicePort,
-		LogLevel:         defaultLogLevel,
 		PostgresHost:     defaultPostgresHost,
 		PostgresPort:     defaultPostgresPort,
 		PostgresDatabase: defaultPostgresDatabase,
