@@ -5,19 +5,19 @@
 This demo application shows how a microservices architecture can be implemented and applied!
 This demo application covers the following topics:
 
-  * Front-end client
-  * Back-end services
+  * Front-end client (React, Redux, etc.)
+  * Back-end services (Go and JavaScript)
   * REST, gRPC, GraphQL, and Messaging
   * Logging, Metrics, Tracing, and Dashboards
-  * API Gateway and Web Gateway
+  * Web Gateway, API Gateway, and TLS
   * Containerization and Orchestration
 
 ## Up & Running
 
-  * [docker-compose](./compose)
-  * [Docker Swarm](./swarm)
-  * [Nomad](./nomad)
-  * [Kubernetes](./kubernetes)
+  * [docker-compose](./up/compose)
+  * [Docker Swarm](./up/swarm)
+  * [Kubernetes](./up/kubernetes)
+  * [Nomad](./up/nomad)
 
 ## Architecture
 
