@@ -18,7 +18,6 @@
 | `yarn run mock:nats`         | Run the mock nats API service            |
 | `make docker`                | Build Docker image                       |
 | `make docker-test`           | Build Docker image for testing           |
-| `make save-images`           | Save built Docker images                 |
 | `make up`                    | Run the service locally in containers    |
 | `make down`                  | Stop and removes local containers        |
 | `make test-docker`           | Run the unit tests in containers         |
