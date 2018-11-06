@@ -13,10 +13,6 @@ clean:
 docker:
 	@ docker build -t $(docker_image):$(docker_tag) .
 
-save-images:
-	@ mkdir -p $(docker_dir)
-	@ docker image save -o $(docker_dir)/docker.tar $(docker_image):$(docker_tag)
-
 up:
 	@ VERSION=$(docker_tag) \
 	  docker-compose up -d react-client
@@ -25,7 +21,15 @@ down:
 	@ VERSION=$(docker_tag) \
 	  docker-compose down
 
+push:
+	@ docker push $(docker_image):$(docker_tag)
+
+save-images:
+	@ mkdir -p $(docker_dir)
+	@ docker image save -o $(docker_dir)/docker.tar $(docker_image):$(docker_tag)
+
 
 .PHONY: clean
-.PHONY: docker save-images
+.PHONY: docker
 .PHONY: up down
+.PHONY: push save-images

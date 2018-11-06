@@ -50,7 +50,6 @@ curl \
 | `make build`                 | Build the service binary locally        |
 | `make docker`                | Build Docker image                      |
 | `make docker-test`           | Build Docker image for testing          |
-| `make save-images`           | Save built Docker images                |
 | `make up`                    | Run the service locally in containers   |
 | `make down`                  | Stop and removes local containers       |
 | `make test`                  | Run the unit tests                      |
