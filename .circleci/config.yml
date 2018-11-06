@@ -456,6 +456,41 @@ jobs:
           working_directory: charts/sensor
           command: helm lint .
 
+  api-test-build-images:
+    <<: *go-job-init
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 18.06.0-ce
+      - run:
+          name: Build Docker Image
+          working_directory: tests/api-test
+          command: make docker
+      - run:
+          name: Save Docker Images
+          working_directory: tests/api-test
+          command: make save-images
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker.tar
+
+  api-test-unit-tests:
+    <<: *go-job-init
+    steps:
+      - checkout
+      - run:
+          name: Unit Testing
+          working_directory: tests/api-test
+          command: make test
+      - run:
+          name: Unit Testing + Coverage
+          working_directory: tests/api-test
+          command: make coverage
+      - store_artifacts:
+          path: tests/api-test/coverage/
+          prefix: coverage/
+
 
 workflows:
   version: 2
@@ -511,3 +546,7 @@ workflows:
   sensor-chart:
     jobs:
       - sensor-chart-tests
+  api-test:
+    jobs:
+      - api-test-build-images
+      - api-test-unit-tests
