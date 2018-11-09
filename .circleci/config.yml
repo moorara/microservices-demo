@@ -456,6 +456,15 @@ jobs:
           working_directory: charts/sensor
           command: helm lint .
 
+  asset-chart-tests:
+    <<: *kube-job-init
+    steps:
+      - checkout
+      - run:
+          name: Linting
+          working_directory: charts/asset
+          command: helm lint .
+
   api-test-build-images:
     <<: *go-job-init
     steps:
@@ -546,6 +555,9 @@ workflows:
   sensor-chart:
     jobs:
       - sensor-chart-tests
+  asset-chart:
+    jobs:
+      - asset-chart-tests
   api-test:
     jobs:
       - api-test-build-images

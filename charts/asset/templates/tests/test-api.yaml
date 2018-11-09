@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Release.Name }}-api-test
+  labels:
+    app: {{ template "asset.name" . }}
+    chart: {{ template "asset.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  restartPolicy: Never
+  imagePullSecrets:
+    {{- if .Values.imagePullSecrets }}
+    {{- range .Values.imagePullSecrets }}
+      - name: {{ . }}
+    {{- end }}
+    {{- end }}
+  containers:
+    - name: {{ .Release.Name }}-api-test
+      image: alpine:3.8
+      imagePullPolicy: IfNotPresent
+      command: [ "sh", "-c", "echo placeholder" ]

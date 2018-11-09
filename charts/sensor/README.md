@@ -90,7 +90,7 @@ The following table lists the configurable parameters of the **sensor** chart an
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```bash
-$ helm install --name my-release --set service.type=NodePort,service.nodePort=8080 repo/sesnor
+$ helm install --name my-release --set image.tag=latest,image.pullPolicy=Always repo/sesnor
 ```
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,

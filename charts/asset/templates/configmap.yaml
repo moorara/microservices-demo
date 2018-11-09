@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "asset.fullname" . }}
+  labels:
+    app: {{ template "asset.name" . }}
+    chart: {{ template "asset.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  {{- if .Values.nats.enabled }}
+  nats-servers: {{ printf "nats://%s-nats-client.%s.svc.cluster.local:4222" .Release.Name .Release.Namespace | quote }}
+  {{- if .Values.nats.auth.user }}
+  nats-user: {{ .Values.nats.auth.user | quote }}
+  {{- end }}
+  {{- else if .Values.nats.external.servers }}
+  nats-servers: {{ .Values.nats.external.servers | quote }}
+  {{- if .Values.nats.external.user }}
+  nats-user: {{ .Values.nats.external.user | quote }}
+  {{- end }}
+  {{- end }}
+
+  {{- if .Values.cockroachdb.enabled }}
+  cockroach-addr: {{ printf "%s-cockroachdb-public.%s.svc.cluster.local:26257" .Release.Name .Release.Namespace | quote }}
+  {{- if .Values.cockroachdb.database }}
+  cockroach-database: {{ .Values.cockroachdb.database | quote }}
+  {{- end }}
+  {{- if .Values.cockroachdb.user }}
+  cockroach-user: {{ .Values.cockroachdb.user | quote }}
+  {{- end }}
+  {{- else if .Values.cockroachdb.external.addr }}
+  cockroach-addr: {{ .Values.cockroachdb.external.addr | quote }}
+  {{- if .Values.cockroachdb.external.database }}
+  cockroach-database: {{ .Values.cockroachdb.external.database | quote }}
+  {{- end }}
+  {{- if .Values.cockroachdb.external.user }}
+  cockroach-user: {{ .Values.cockroachdb.external.user | quote }}
+  {{- end }}
+  {{- end }}
