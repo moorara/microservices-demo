@@ -1,0 +1,128 @@
+## Default values for asset-service Helm chart.
+## This is a YAML-formatted file.
+
+## Override the name of the Chart.
+##
+# nameOverride:
+# fullnameOverride:
+
+## Optionally specify an array of imagePullSecrets.
+## Secrets must be manually created in the namespace.
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry
+##
+# imagePullSecrets:
+#   - myRegistryKeySecretName
+
+## Service image
+##
+image:
+  repository: moorara/asset-service
+  tag: 0.1.0
+  ## Specify imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+
+## asset-service configurations
+##
+config:
+  port: 4040
+  logLevel: info
+  logSpans: false
+
+## Kubernetes service account
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account
+## ref: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin
+##
+serviceAccount:
+  create: false
+  name:
+
+## Kubernetes pod
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod
+##
+pod:
+  ## Pod security context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context
+  ##
+  securityContext: {}
+    # runAsUser:
+    # fsGroup:
+  ## Specify pod annotations
+  ##
+  annotations: {}
+
+## Kubernetes deployment
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment
+##
+deployment:
+  ## Specify pod replicas
+  ##
+  replicaCount: 1
+  ## Specify a deployment strategy
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  ##
+  strategy: RollingUpdate
+  ## Specify deployment annotations
+  ##
+  annotations: {}
+
+## Configure resource requests and limits for container
+## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
+##
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+
+## nats helm chart values
+## ref: https://github.com/helm/charts/tree/master/stable/nats
+##
+nats:
+  enabled: true
+  replicaCount: 1
+  auth:
+    enabled: true
+    user: asset-service
+    password: password!
+  ## This is for using an external NATS cluster.
+  ##
+  # external:
+  #   servers:
+  #   user:
+  #   password:
+
+## cockroachdb helm chart values
+## ref: https://github.com/helm/charts/tree/master/stable/cockroachdb
+##
+cockroachdb:
+  enabled: true
+  Replicas: 1
+  database: assets
+  user: asset-service
+  password: password!
+  ## This is for using an external CockroachDB cluster.
+  ##
+  # external:
+  #   addr:
+  #   database:
+  #   user:
+  #   password:
+
+## jaeger sidecar
+## ref: https://www.jaegertracing.io/docs/1.7/deployment
+## ref: https://github.com/jaegertracing/jaeger-kubernetes
+## ref: https://github.com/helm/charts/tree/master/incubator/jaeger
+##
+jaeger:
+  enabled: false
+  collector:
+    address:
+  agent:
+    image: jaegertracing/jaeger-agent
+    tag: latest
+    pullPolicy: Always

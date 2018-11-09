@@ -1,0 +1,25 @@
+{{- $name := "asset-service" -}}
+
+{{ template "asset.fullname" . }} chart is installed successfully.
+{{- if .Values.nats.enabled }}
+nats is also installed as a dependency chart.
+{{- end }}
+{{- if .Values.cockroachdb.enabled }}
+cockroachdb is also installed as a dependency chart.
+{{- end }}
+{{- if .Values.jaeger.enabled }}
+jaeger-agent is also runnung as a sidecar.
+{{- end }}
+
+To test this release run:
+
+  helm test --cleanup {{ .Release.Name }}
+
+To learn more about the release run:
+
+  helm status {{ .Release.Name }}
+  helm get {{ .Release.Name }}
+
+To delete this release run:
+
+  helm delete --purge {{ .Release.Name }} 

@@ -1,0 +1,19 @@
+apiVersion: v1
+engine: gotpl
+name: asset
+version: 0.1.0
+appVersion: 0.1.0
+description: asset-service creates, retrieves, updates, and deletes assets (alarms, cameras, etc.).
+# home:
+icon: https://raw.githubusercontent.com/moorara/microservices-demo/master/charts/asset/icon.png
+keywords:
+  - backend
+  - service
+  - messaging
+  - golang
+  - cockroachdb
+  - nats
+sources:
+  - https://github.com/moorara/microservices-demo/tree/master/services/asset-service
+maintainers:
+  - name: Milad Irannejad

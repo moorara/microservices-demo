@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "asset.fullname" . }}
+  labels:
+    app: {{ template "asset.name" . }}
+    chart: {{ template "asset.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- with .Values.deployment.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "asset.name" . }}
+      release: {{ .Release.Name }}
+  strategy:
+    type: {{ .Values.deployment.strategy }}
+    {{- if ne .Values.deployment.strategy "RollingUpdate" }}
+    rollingUpdate: null
+    {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "asset.name" . }}
+        release: {{ .Release.Name }}
+      {{- with .Values.pod.annotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "asset.serviceAccountName" . }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.pod.securityContext }}
+      securityContext:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ template "asset.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              protocol: TCP
+              containerPort: {{ .Values.config.port }}
+          env:
+            - name: SERVICE_NAME
+              value: asset-service
+            - name: SERVICE_PORT
+              value: {{ .Values.config.port | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            - name: JAEGER_LOG_SPANS
+              value: {{ .Values.config.logSpans | quote }}
+            - name: NATS_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "asset.fullname" . }}
+                  key: nats-servers
+            - name: NATS_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "asset.fullname" . }}
+                  key: nats-user
+            - name: NATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "asset.fullname" . }}
+                  key: nats-password
+            - name: COCKROACH_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "asset.fullname" . }}
+                  key: cockroach-addr
+            - name: COCKROACH_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "asset.fullname" . }}
+                  key: cockroach-database
+            - name: COCKROACH_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "asset.fullname" . }}
+                  key: cockroach-user
+            - name: COCKROACH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "asset.fullname" . }}
+                  key: cockroach-password
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: {{ .Values.config.port }}
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: {{ .Values.config.port }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+        {{- if .Values.jaeger.enabled }}
+        - name: jaeger-agent
+          image: "{{ .Values.jaeger.agent.image }}:{{ .Values.jaeger.agent.tag }}"
+          imagePullPolicy: {{ .Values.jaeger.agent.pullPolicy }}
+          ports:
+            ## accept zipkin.thrift over compact thrift protocol
+            - containerPort: 5775
+              protocol: UDP
+            ## accept jaeger.thrift over compact thrift protocol
+            - containerPort: 6831
+              protocol: UDP
+            ## accept jaeger.thrift over binary thrift protocol
+            - containerPort: 6832
+              protocol: UDP
+            ## serve configs, sampling strategies
+            - containerPort: 5778
+              protocol: TCP
+          args:
+            - --collector.host-port
+            - {{ .Values.jaeger.collector.address | quote }}
+        {{- end }}
