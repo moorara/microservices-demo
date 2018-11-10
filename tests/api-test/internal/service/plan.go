@@ -10,10 +10,10 @@ type (
 	// TestPlan defines all tests to be run
 	TestPlan struct {
 		Name         string        `yaml:"name"`
-		RESTTests    []RESTTest    `yaml:"rest_tests"`
-		GRPCTests    []GRPCTest    `yaml:"grpc_tests"`
-		NATSTests    []NATSTest    `yaml:"nats_tests"`
-		GraphQLTests []GraphQLTest `yaml:"graphql_tests"`
+		RESTPlans    []RESTPlan    `yaml:"rest"`
+		GRPCPlans    []GRPCPlan    `yaml:"grpc"`
+		NATSPlans    []NATSPlan    `yaml:"nats"`
+		GraphQLPlans []GraphQLPlan `yaml:"graphql"`
 	}
 )
 

@@ -1,19 +1,41 @@
 name: Full
-rest_tests:
+
+rest:
+
   - name: site-service
-    service_address: site-service:4010
-    api_base: /v1
-  - name: sensor-service
-    service_address: sensor-service:4020
-    api_base: /v1
-grpc_tests:
+    address: site-service:4010
+    base: /v1
+    headers:
+      Is-Test: "True"
+    tests:
+      - name: CheckHealth
+        method: GET
+        endpoint: /health
+        headers:
+          Test-Name: Check-Health
+        expect:
+          status_code: 200
+      - name: GetSites
+        method: GET
+        endpoint: /sites
+        headers:
+          Test-Name: Get-Sites
+        expect:
+          status_code: 200
+
+grpc:
+
   - name: switch-service
-    service_address: switch-service:4030
-nats_tests:
+    address: switch-service:4030
+
+nats:
+
   - name: asset-service
     nats_servers: [ "nats-0:4222", "nats-1:4222", "nats-2:4222" ]
-    user: api-test
-    password: password
-graphql_tests:
+    nats_user: api-test
+    nats_password: password
+
+graphql:
+
   - name: graphql-server
-    service_address: graphql-server:5000
+    address: graphql-server:5000

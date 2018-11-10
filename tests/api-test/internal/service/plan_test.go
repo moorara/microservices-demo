@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -37,7 +36,11 @@ func TestRead(t *testing.T) {
 			file:          "./test/plan_simple.yaml",
 			expectedError: "",
 			expectedPlan: &TestPlan{
-				Name: "Simple",
+				Name:         "Simple",
+				RESTPlans:    []RESTPlan{},
+				GRPCPlans:    []GRPCPlan{},
+				NATSPlans:    []NATSPlan{},
+				GraphQLPlans: []GraphQLPlan{},
 			},
 		},
 		{
@@ -45,35 +48,59 @@ func TestRead(t *testing.T) {
 			file:          "./test/plan_full.yaml",
 			expectedError: "",
 			expectedPlan: &TestPlan{
-				Name: "Simple",
-				RESTTests: []RESTTest{
-					RESTTest{
-						Name:           "site-service",
-						ServiceAddress: "site-service:4010",
-					},
-					RESTTest{
-						Name:           "sensor-service",
-						ServiceAddress: "sensor-service:4020",
+				Name: "Full",
+				RESTPlans: []RESTPlan{
+					RESTPlan{
+						Name:    "site-service",
+						Address: "site-service:4010",
+						Base:    "/v1",
+						Headers: map[string]string{
+							"Is-Test": "True",
+						},
+						Tests: []RESTTest{
+							RESTTest{
+								Name:     "CheckHealth",
+								Method:   "GET",
+								Endpoint: "/health",
+								Headers: map[string]string{
+									"Test-Name": "Check-Health",
+								},
+								Expect: RESTExpect{
+									StatusCode: 200,
+								},
+							},
+							RESTTest{
+								Name:     "GetSites",
+								Method:   "GET",
+								Endpoint: "/sites",
+								Headers: map[string]string{
+									"Test-Name": "Get-Sites",
+								},
+								Expect: RESTExpect{
+									StatusCode: 200,
+								},
+							},
+						},
 					},
 				},
-				GRPCTests: []GRPCTest{
-					GRPCTest{
-						Name:           "switch-service",
-						ServiceAddress: "switch-service:4030",
+				GRPCPlans: []GRPCPlan{
+					GRPCPlan{
+						Name:    "switch-service",
+						Address: "switch-service:4030",
 					},
 				},
-				NATSTests: []NATSTest{
-					NATSTest{
+				NATSPlans: []NATSPlan{
+					NATSPlan{
 						Name:         "asset-service",
 						NATSServers:  []string{"nats-0:4222", "nats-1:4222", "nats-2:4222"},
 						NATSUser:     "api-test",
 						NATSPassword: "password",
 					},
 				},
-				GraphQLTests: []GraphQLTest{
-					GraphQLTest{
-						Name:           "graphql-server",
-						ServiceAddress: "graphql-server:5000",
+				GraphQLPlans: []GraphQLPlan{
+					GraphQLPlan{
+						Name:    "graphql-server",
+						Address: "graphql-server:5000",
 					},
 				},
 			},
@@ -86,12 +113,11 @@ func TestRead(t *testing.T) {
 
 			if tc.expectedError == "" {
 				assert.NoError(t, err)
-				assert.NotNil(t, plan)
-				fmt.Printf("%+v\n", plan)
 			} else {
 				assert.Contains(t, err.Error(), tc.expectedError)
-				assert.Nil(t, plan)
 			}
+
+			assert.Equal(t, tc.expectedPlan, plan)
 		})
 	}
 }

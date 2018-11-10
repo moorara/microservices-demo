@@ -1,9 +1,14 @@
 package service
 
 type (
-	// GraphQLTest is for testing a service with GraphQL API
+	// GraphQLPlan is for testing a service with GraphQL API
+	GraphQLPlan struct {
+		Name    string        `yaml:"name"`
+		Address string        `yaml:"address"`
+		Tests   []GraphQLTest `yaml:"tests"`
+	}
+
+	// GraphQLTest defines test spec for a GraphQL service
 	GraphQLTest struct {
-		Name           string `yaml:"name"`
-		ServiceAddress string `yaml:"service_address"`
 	}
 )
