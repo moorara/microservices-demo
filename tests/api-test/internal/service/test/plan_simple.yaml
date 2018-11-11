@@ -1,5 +1,0 @@
-name: Simple
-rest_tests: []
-grpc_tests: []
-nats_tests: []
-graphql_tests: []
