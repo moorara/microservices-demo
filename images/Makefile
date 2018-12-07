@@ -1,14 +1,13 @@
-go_version ?= 1.11-alpine
-node_version ?= 10-alpine
+go_version ?= 1.11.2-alpine
+node_version ?= 11.3.0-alpine
 alpine_version ?= 3.8
 
 circleci_go_image := moorara/circleci-go:$(go_version)
 circleci_node_image := moorara/circleci-node:$(node_version)
 circleci_tools_image := moorara/circleci-tools:alpine-$(alpine_version)
 
-fluentd_version ?= v1.2.5
-kibana_version ?= 6.4.0
-caddy_version ?= v0.11.0
+fluentd_version ?= v1.3.1
+caddy_version ?= v0.11.1
 nats_exporter_version ?= v0.1.0
 
 
@@ -40,8 +39,8 @@ push-circleci-tools:
 	  docker push $(circleci_tools_image)
 
 
-all: caddy fluentd kibana nats-exporter
-push-all: push-caddy push-fluentd push-kibana push-nats-exporter
+all: caddy fluentd nats-exporter
+push-all: push-caddy push-fluentd push-nats-exporter
 
 caddy:
 	@ cd caddy && \
@@ -59,14 +58,6 @@ push-fluentd:
 	@ cd fluentd && \
 	  docker push moorara/fluentd:$(fluentd_version)
 
-kibana:
-	@ cd kibana && \
-	  docker build --build-arg version=$(kibana_version) --tag moorara/kibana:$(kibana_version) .
-
-push-kibana:
-	@ cd kibana && \
-	  docker push moorara/kibana:$(kibana_version)
-
 nats-exporter:
 	@ cd nats-exporter && \
 	  docker build --build-arg version=$(nats_exporter_version) --tag moorara/nats-exporter:$(nats_exporter_version) .
@@ -77,4 +68,4 @@ push-nats-exporter:
 
 
 .PHONY: circleci push-circleci circleci-go push-circleci-go circleci-node push-circleci-node circleci-tools push-circleci-tools
-.PHONY: all push-all caddy push-caddy fluentd push-fluentd kibana push-kibana nats-exporter push-nats-exporter
+.PHONY: all push-all caddy push-caddy fluentd push-fluentd nats-exporter push-nats-exporter

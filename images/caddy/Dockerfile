@@ -1,7 +1,7 @@
 ARG version
 
 # BUILD STAGE
-FROM golang:1.11.0-alpine as builder
+FROM golang:1.11.2-alpine as builder
 
 RUN apk add --no-cache ca-certificates git && \
     go get -d github.com/caddyserver/builds && \
