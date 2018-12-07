@@ -5,13 +5,13 @@ set -euo pipefail
 
 function process_args {
   while [[ $# > 0 ]]; do
-    key="$1"
+    key=$1
     case $key in
       -d|--docker)
       docker=true
       ;;
       -v|--version)
-      version="$2"
+      version=$2
       shift
       ;;
     esac

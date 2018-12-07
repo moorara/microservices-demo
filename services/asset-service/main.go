@@ -49,6 +49,8 @@ func main() {
 		"version", version.Version,
 		"revision", version.Revision,
 		"branch", version.Branch,
+		"goVersion", version.GoVersion,
+		"buildTool", version.BuildTool,
 		"buildTime", version.BuildTime,
 		"message", fmt.Sprintf("%s started.", Config.ServiceName),
 	)

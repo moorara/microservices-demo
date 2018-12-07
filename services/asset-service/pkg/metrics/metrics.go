@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -25,7 +24,9 @@ func New(service string) *Metrics {
 
 	registry := prometheus.NewRegistry()
 	registry.MustRegister(prometheus.NewGoCollector())
-	registry.MustRegister(prometheus.NewProcessCollector(os.Getpid(), service))
+	registry.MustRegister(prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{
+		Namespace: service,
+	}))
 
 	ReqCounter := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
