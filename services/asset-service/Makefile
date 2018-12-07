@@ -1,20 +1,18 @@
+name := asset-service
 docker_tag ?= latest
-docker_image ?= moorara/asset-service
-docker_test_image ?= asset-service-test
+docker_image ?= moorara/$(name)
+docker_test_image ?= $(name)-test
 docker_dir := /tmp/workspace
 
 
 clean:
 	@ rm -rf *.log coverage
 
-dep:
-	@ dep ensure -update
-
 run:
-	@ go run cmd/main.go
+	@ go run main.go
 
 build:
-	@ ./scripts/build.sh ./cmd/main.go ./asset-service
+	@ ./scripts/build.sh --main main.go --binary $(name)
 
 docker:
 	@ cp -r ../../.git .git
@@ -27,13 +25,13 @@ docker-test:
 	    --tag $(docker_test_image) .
 
 up:
-	@ VERSION=$(docker_tag) docker-compose up -d asset-service
+	@ VERSION=$(docker_tag) docker-compose up -d $(name)
 
 down:
 	@ VERSION=$(docker_tag) docker-compose down
 
 test:
-	@ go test -v -race ./...
+	@ go test -race ./...
 
 coverage:
 	@ ./scripts/test-unit-cover.sh
@@ -59,8 +57,8 @@ save-images:
 	@ docker image save -o $(docker_dir)/docker-test.tar $(docker_test_image)
 
 
-.PHONY: clean dep run build
-.PHONY: docker docker-test
-.PHONY: up down
+.PHONY: clean 
+.PHONY: run build
+.PHONY: docker docker-test up down
 .PHONY: test coverage test-integration test-integration-docker test-component test-component-docker
 .PHONY: push save-images

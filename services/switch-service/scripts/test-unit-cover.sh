@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#
+# USAGE:
+#   ./test-unit-cover.sh
+#
+
 set -euo pipefail
 
 

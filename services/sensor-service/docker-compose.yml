@@ -12,6 +12,7 @@ services:
       POSTGRES_PASSWORD: pass
     volumes:
       - "./init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
+
   sensor-service:
     image: moorara/sensor-service:${VERSION:-latest}
     hostname: sensor-service
@@ -25,6 +26,7 @@ services:
       - POSTGRES_HOST=postgres
       - POSTGRES_USERNAME=root
       - POSTGRES_PASSWORD=pass
+
   component-test:
     image: sensor-service-test
     hostname: component-test
@@ -33,3 +35,4 @@ services:
       - sensor-service
     environment:
       - SERVICE_URL=http://sensor-service:4020
+    command: [ "go", "test", "-v", "./test/component" ]

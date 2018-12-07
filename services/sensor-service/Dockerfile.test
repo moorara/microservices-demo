@@ -1,4 +1,5 @@
 # TEST IMAGE
 FROM golang:1.11
-WORKDIR /go/src/github.com/moorara/microservices-demo/services/sensor-service/
+WORKDIR /workspace
 COPY . .
+RUN go mod tidy

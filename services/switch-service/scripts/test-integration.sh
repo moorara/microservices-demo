@@ -29,7 +29,6 @@ function test_integration {
 
 function test_integration_docker {
   export VERSION=$version
-  docker-compose up -d nats
 	docker-compose run integration-test
 	docker-compose down
 }

@@ -2,14 +2,14 @@
 ##
 
 go-job-init: &go-job-init
-  working_directory: /go/src/github.com/moorara/microservices-demo
+  working_directory: ~/repo
   docker:
     - image: circleci/golang:1.11
 
 node-job-init: &node-job-init
   working_directory: ~/repo
   docker:
-    - image: circleci/node:10.12
+    - image: circleci/node:10.3
 
 kube-job-init: &kube-job-init
   working_directory: ~/repo

@@ -22,15 +22,15 @@ function process_args {
   version=${version:-"latest"}
 }
 
-function test_integration {
-  export INTEGRATION_TEST=true
-  go test -v ./test/integration
+function test_component {
+  export COMPONENT_TEST=true
+  go test -v ./test/component
 }
 
-function test_integration_docker {
+function test_component_docker {
   export VERSION=$version
-  docker-compose up -d nats
-	docker-compose run integration-test
+  docker-compose run component-test
+	docker container logs sensor-service | grep '^{' | jq . > component-tests.log
 	docker-compose down
 }
 
@@ -38,6 +38,6 @@ function test_integration_docker {
 process_args "$@"
 
 case $docker in
-  false) test_integration ;;
-  true)  test_integration_docker ;;
+  false) test_component ;;
+  true)  test_component_docker ;;
 esac
