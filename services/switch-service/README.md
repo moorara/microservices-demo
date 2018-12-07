@@ -6,7 +6,6 @@
 
 | Command                        | Description                                         |
 |--------------------------------|-----------------------------------------------------|
-| `make dep`                     | Install and updates dependencies                    |
 | `make proto`                   | Generate gRPC code from protocol buffers definition |
 | `make run`                     | Run the service locally                             |
 | `make build`                   | Build the service binary locally                    |

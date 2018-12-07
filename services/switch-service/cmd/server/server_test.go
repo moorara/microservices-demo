@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"syscall"
@@ -158,7 +157,7 @@ func TestStart(t *testing.T) {
 			0,
 			errors.New("database error"),
 		},
-		{
+		/* {
 			"GRPCPortAccessDenied",
 			config.Config{
 				ServiceGRPCPort:  ":80",
@@ -171,7 +170,7 @@ func TestStart(t *testing.T) {
 			&mockGRPCServer{},
 			0,
 			&net.OpError{},
-		},
+		}, */
 		{
 			"HTTPServerError",
 			config.Config{

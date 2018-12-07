@@ -32,7 +32,7 @@ services:
     environment:
       - ARANGO_ADDR=http://arango:8529
       - ARANGO_PASSWORD=pass
-    command: make test-integration
+    command: [ "make", "test-integration" ]
 
   component-test:
     image: switch-service-test
@@ -43,4 +43,4 @@ services:
     environment:
       - SERVICE_GRPC_ADDR=switch-service:4030
       - SERVICE_HTTP_ADDR=http://switch-service:4031
-    command: make test-component
+    command: [ "make", "test-component" ]
