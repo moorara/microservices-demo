@@ -158,5 +158,10 @@ module.exports = [
       }),
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/) // Required if using Moment.js
     ]
+  },
+  {
+    name: 'server',
+    target: 'node',
+    mode: 'production',
   }
 ]
