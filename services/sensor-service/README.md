@@ -45,7 +45,6 @@ curl \
 
 | Command                      | Description                             |
 |------------------------------|-----------------------------------------|
-| `make dep`                   | Install and updates dependencies        |
 | `make run`                   | Run the service locally                 |
 | `make build`                 | Build the service binary locally        |
 | `make docker`                | Build Docker image                      |

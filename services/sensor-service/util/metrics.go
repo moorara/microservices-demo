@@ -2,7 +2,6 @@ package util
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -18,7 +17,9 @@ type Metrics struct {
 func NewMetrics(service string) *Metrics {
 	registry := prometheus.NewRegistry()
 	registry.MustRegister(prometheus.NewGoCollector())
-	registry.MustRegister(prometheus.NewProcessCollector(os.Getpid(), service))
+	registry.MustRegister(prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{
+		Namespace: service,
+	}))
 
 	return &Metrics{
 		service:  service,

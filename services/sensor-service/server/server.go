@@ -79,7 +79,6 @@ func (s *HTTPServer) Start() error {
 		"config.postgresPort", s.config.PostgresPort,
 		"config.postgresDatabase", s.config.PostgresDatabase,
 		"config.postgresUsername", s.config.PostgresUsername,
-		"config.postgresPassword", s.config.PostgresPassword,
 		"config.jaegerAgentAddr", s.config.JaegerAgentAddr,
 		"config.jaegerLogSpans", s.config.JaegerLogSpans,
 	)

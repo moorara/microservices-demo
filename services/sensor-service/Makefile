@@ -1,61 +1,42 @@
+name := sensor-service
 docker_tag ?= latest
-docker_image ?= moorara/sensor-service
-docker_test_image ?= sensor-service-test
-
-path := $(shell pwd)
-report_dir := $(path)/reports
+docker_image ?= moorara/$(name)
+docker_test_image ?= $(name)-test
 docker_dir := /tmp/workspace
-go_packages := $(shell go list ./... | grep -v //)
 
 
 clean:
-	@ rm -rf $(report_dir)
-
-dep:
-	@ dep ensure -update
+	@ rm -rf *.log coverage
 
 run:
 	@ go run main.go
 
 build:
-	@ go build
+	@ ./scripts/build.sh --main main.go --binary $(name)
 
 docker:
 	@ docker build -t $(docker_image):$(docker_tag) .
 
 docker-test:
-	@ docker build \
-		--file Dockerfile.test \
-		--tag $(docker_test_image) .
+	@ docker build --file Dockerfile.test --tag $(docker_test_image) .
 
 up:
-	@ VERSION=$(docker_tag) \
-	  docker-compose up -d sensor-service
+	@ VERSION=$(docker_tag) docker-compose up -d $(name)
 
 down:
-	@ VERSION=$(docker_tag) \
-	  docker-compose down
+	@ VERSION=$(docker_tag) docker-compose down
 
 test:
-	@ go test -v -race ./...
+	@ go test -race ./...
 
 coverage:
-	@ mkdir -p $(report_dir) && \
-	  echo "mode: atomic" > $(report_dir)/cover.out
-	@ $(foreach package, $(go_packages), \
-	    go test -covermode=atomic -coverprofile=cover.out $(package) || exit 1; \
-	    tail -n +2 cover.out >> $(report_dir)/cover.out;)
-	@ go tool cover -html=$(report_dir)/cover.out -o $(report_dir)/cover.html && \
-	  rm cover.out $(report_dir)/cover.out
+	@ ./scripts/test-unit-cover.sh
 
 test-component: # docker up
-	@ COMPONENT_TEST=true go test -v ./test
+	@ ./scripts/test-component.sh --version $(docker_tag)
 
 test-component-docker: # docker docker-test
-	@ VERSION=$(docker_tag) \
-	  docker-compose run component-test make test-component && \
-		docker container logs sensor-service | grep '^{' | jq . > component-tests.log && \
-		docker-compose down
+	@ ./scripts/test-component.sh --version $(docker_tag) --docker
 
 push:
 	@ docker push $(docker_image):$(docker_tag)
@@ -66,9 +47,8 @@ save-images:
 	@ docker image save -o $(docker_dir)/docker-test.tar $(docker_test_image)
 
 
-.PHONY: clean dep
+.PHONY: clean
 .PHONY: run build
-.PHONY: docker docker-test
-.PHONY: up down
+.PHONY: docker docker-test up down
 .PHONY: test coverage test-component test-component-docker
 .PHONY: push save-images
