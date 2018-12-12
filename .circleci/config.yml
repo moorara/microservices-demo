@@ -53,10 +53,6 @@ jobs:
           working_directory: services/site-service
           command: yarn install
       - run:
-          name: Checking Security
-          working_directory: services/site-service
-          command: yarn run nsp
-      - run:
           name: Linting
           working_directory: services/site-service
           command: yarn run lint
@@ -148,7 +144,7 @@ jobs:
           command: |
             # This is a very hacky trick since we cannot mount a volume
             docker-compose up -d postgres
-            sleep 2
+            sleep 4
             docker exec postgres psql -c "CREATE DATABASE sensors"
             docker exec postgres psql -d sensors -c "CREATE TABLE sensors (id varchar(256) PRIMARY KEY, site_id varchar(256) NOT NULL, name varchar(256) NOT NULL, unit varchar(256) NOT NULL, min_safe double precision NOT NULL, max_safe double precision NOT NULL)"
             make test-component-docker
@@ -401,10 +397,6 @@ jobs:
           name: Install Packages
           working_directory: services/graphql-server
           command: yarn install
-      - run:
-          name: Checking Security
-          working_directory: services/graphql-server
-          command: yarn run nsp
       - run:
           name: Linting
           working_directory: services/graphql-server

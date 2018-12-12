@@ -77,6 +77,14 @@ func TestAlarmServiceCreate(t *testing.T) {
 
 			_, err := service.Create(tc.ctx, tc.input)
 			assert.Equal(t, tc.expectedError, err)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "create_alarm", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Create", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "create_alarm", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
@@ -120,6 +128,14 @@ func TestAlarmServiceAll(t *testing.T) {
 
 			_, err := service.All(tc.ctx, tc.siteID)
 			assert.Equal(t, tc.expectedError, err)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "all_alarms", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Find", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "all_alarms", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
@@ -163,6 +179,14 @@ func TestAlarmServiceGet(t *testing.T) {
 
 			_, err := service.Get(tc.ctx, tc.id)
 			assert.Equal(t, tc.expectedError, err)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "get_alarm", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Find", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "get_alarm", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
@@ -207,6 +231,14 @@ func TestAlarmServiceUpdate(t *testing.T) {
 			result, err := service.Update(tc.ctx, tc.id, tc.input)
 			assert.Equal(t, tc.expectedError, err)
 			assert.Equal(t, tc.expectedResult, result)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "update_alarm", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Model.Where.Update", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "update_alarm", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
@@ -256,6 +288,14 @@ func TestAlarmServiceDelete(t *testing.T) {
 			result, err := service.Delete(tc.ctx, tc.id)
 			assert.Equal(t, tc.expectedError, err)
 			assert.Equal(t, tc.expectedResult, result)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "delete_alarm", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Delete", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "delete_alarm", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
