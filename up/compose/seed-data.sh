@@ -28,7 +28,7 @@ function ensure_command {
 function pull_images {
   printf "${nocolor}<======================================== Pull Docker Images ========================================>\n"
 
-  docker pull arangodb
+  docker pull arangodb/arangodb
   docker pull mongo
   docker pull postgres
   docker pull cockroachdb/cockroach
@@ -46,7 +46,7 @@ function seed_arango {
   docker run \
     --network compose_local --link arango \
     --volume "$(pwd)/data/arango/switches.json:/data/switches.json" \
-    arangodb \
+    arangodb/arangodb \
       arangoimp \
         --server.endpoint tcp://arango:8529 \
         --server.username root \
