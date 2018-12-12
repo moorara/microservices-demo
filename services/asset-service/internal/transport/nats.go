@@ -313,7 +313,7 @@ func (t *natsTransport) Start() (err error) {
 		}
 
 		span := t.createSpan(req)
-		span.SetTag("broker", "nats")
+		span.SetTag("broker", "NATS")
 		span.SetTag("subject", msg.Subject)
 		span.SetTag("reply", msg.Reply)
 		span.LogFields(opentracingLog.String("message", string(msg.Data)))
