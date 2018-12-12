@@ -515,7 +515,7 @@ func TestStart(t *testing.T) {
 				// Verify trace span
 				span := tracer.FinishedSpans()[0]
 				assert.Equal(t, tc.request["kind"], span.OperationName)
-				assert.Equal(t, "nats", span.Tag("broker"))
+				assert.Equal(t, "NATS", span.Tag("broker"))
 				assert.Equal(t, msg.Subject, span.Tag("subject"))
 				assert.Equal(t, msg.Reply, span.Tag("reply"))
 			}
