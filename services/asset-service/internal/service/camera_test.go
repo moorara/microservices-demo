@@ -76,6 +76,14 @@ func TestCameraServiceCreate(t *testing.T) {
 
 			_, err := service.Create(tc.ctx, tc.input)
 			assert.Equal(t, tc.expectedError, err)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "create_camera", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Create", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "create_camera", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
@@ -119,6 +127,14 @@ func TestCameraServiceAll(t *testing.T) {
 
 			_, err := service.All(tc.ctx, tc.siteID)
 			assert.Equal(t, tc.expectedError, err)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "all_cameras", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Find", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "all_cameras", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
@@ -162,6 +178,14 @@ func TestCameraServiceGet(t *testing.T) {
 
 			_, err := service.Get(tc.ctx, tc.id)
 			assert.Equal(t, tc.expectedError, err)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "get_camera", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Find", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "get_camera", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
@@ -206,6 +230,14 @@ func TestCameraServiceUpdate(t *testing.T) {
 			result, err := service.Update(tc.ctx, tc.id, tc.input)
 			assert.Equal(t, tc.expectedError, err)
 			assert.Equal(t, tc.expectedResult, result)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "update_camera", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Model.Where.Update", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "update_camera", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }
@@ -255,6 +287,14 @@ func TestCameraServiceDelete(t *testing.T) {
 			result, err := service.Delete(tc.ctx, tc.id)
 			assert.Equal(t, tc.expectedError, err)
 			assert.Equal(t, tc.expectedResult, result)
+
+			// Verify trace span
+			span := tracer.FinishedSpans()[0]
+			assert.Equal(t, "delete_camera", span.OperationName)
+			assert.Equal(t, "sql", span.Tag("db.type"))
+			assert.Equal(t, "gorm.Delete", span.Tag("db.statement"))
+			assert.Equal(t, "event", span.Logs()[0].Fields[0].Key)
+			assert.Equal(t, "delete_camera", span.Logs()[0].Fields[0].ValueString)
 		})
 	}
 }

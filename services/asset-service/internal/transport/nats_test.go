@@ -501,15 +501,23 @@ func TestStart(t *testing.T) {
 				Data:    data,
 			}
 
+			// Simulate the message handling by manually calling the callback function
 			callback := tc.conn.QueueSubscribeInCallback
 			callback(msg)
 
 			if tc.expectedResponse != nil {
 				var response map[string]interface{}
 				err = json.Unmarshal(tc.conn.PublishInData, &response)
-				assert.NoError(t, err)
 
+				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedResponse, response)
+
+				// Verify trace span
+				span := tracer.FinishedSpans()[0]
+				assert.Equal(t, tc.request["kind"], span.OperationName)
+				assert.Equal(t, "nats", span.Tag("broker"))
+				assert.Equal(t, msg.Subject, span.Tag("subject"))
+				assert.Equal(t, msg.Reply, span.Tag("reply"))
 			}
 		})
 	}

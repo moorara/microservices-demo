@@ -10,6 +10,8 @@ import (
 	"github.com/moorara/microservices-demo/services/asset-service/pkg/metrics"
 	"github.com/nats-io/go-nats"
 	"github.com/opentracing/opentracing-go"
+
+	opentracingLog "github.com/opentracing/opentracing-go/log"
 )
 
 const (
@@ -311,6 +313,12 @@ func (t *natsTransport) Start() (err error) {
 		}
 
 		span := t.createSpan(req)
+		span.SetTag("broker", "nats")
+		span.SetTag("subject", msg.Subject)
+		span.SetTag("reply", msg.Reply)
+		span.LogFields(opentracingLog.String("message", string(msg.Data)))
+		defer span.Finish()
+
 		ctx := opentracing.ContextWithSpan(context.Background(), span)
 
 		switch req.Kind {
