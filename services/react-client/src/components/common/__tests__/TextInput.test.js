@@ -17,12 +17,12 @@ describe('TextInput', () => {
 
     expect(shallowToJson(wrapper)).toMatchSnapshot()
     expect(wrapper.find('.label').text()).toBe('First Name')
-    expect(wrapper.find('div .control').exists()).toBeTruthy()
-    expect(wrapper.find('input [type="text"] [name="firstName"] [placeholder="Your Name"] [value=""]').exists()).toBeTruthy()
-    expect(wrapper.find('span .icon').exists()).toBeFalsy()
-    expect(wrapper.find('p .help').exists()).toBeFalsy()
+    expect(wrapper.find('div.control').exists()).toBeTruthy()
+    expect(wrapper.find('span.icon').exists()).toBeFalsy()
+    expect(wrapper.find('p.help').exists()).toBeFalsy()
+    expect(wrapper.find('input').find({ type: 'text', name: 'firstName', placeholder: 'Your Name', value: '' }).exists()).toBeTruthy()
 
-    wrapper.find('input [type="text"]').simulate('change', 'my name')
+    wrapper.find('input').find({ type: 'text' }).simulate('change', 'my name')
     expect(handleChange).toHaveBeenCalledWith('my name')
   })
   test('renders react component with value', () => {
@@ -30,12 +30,12 @@ describe('TextInput', () => {
 
     expect(shallowToJson(wrapper)).toMatchSnapshot()
     expect(wrapper.find('.label').text()).toBe('First Name')
-    expect(wrapper.find('div .control').exists()).toBeTruthy()
-    expect(wrapper.find('input [type="text"] [name="firstName"] [placeholder=""] [value="Me"]').exists()).toBeTruthy()
-    expect(wrapper.find('span .icon').exists()).toBeFalsy()
-    expect(wrapper.find('p .help').exists()).toBeFalsy()
+    expect(wrapper.find('div.control').exists()).toBeTruthy()
+    expect(wrapper.find('span.icon').exists()).toBeFalsy()
+    expect(wrapper.find('p.help').exists()).toBeFalsy()
+    expect(wrapper.find('input').find({ type: 'text', name: 'firstName', placeholder: '', value: 'Me' }).exists()).toBeTruthy()
 
-    wrapper.find('input [type="text"]').simulate('change', 'my name')
+    wrapper.find('input').find({ type: 'text' }).simulate('change', 'my name')
     expect(handleChange).toHaveBeenCalledWith('my name')
   })
   test('renders react component in error case', () => {
@@ -43,12 +43,12 @@ describe('TextInput', () => {
 
     expect(shallowToJson(wrapper)).toMatchSnapshot()
     expect(wrapper.find('.label').text()).toBe('First Name')
-    expect(wrapper.find('div .control').exists()).toBeTruthy()
-    expect(wrapper.find('input [type="text"] [name="firstName"] [placeholder=""] [value=""]').exists()).toBeTruthy()
-    expect(wrapper.find('span .icon i').prop('className')).toContain('fa-exclamation-circle')
-    expect(wrapper.find('p .help').text()).toBe('name is invalid')
+    expect(wrapper.find('div.control').exists()).toBeTruthy()
+    expect(wrapper.find('span.icon i').prop('className')).toContain('fa-exclamation-circle')
+    expect(wrapper.find('p.help').text()).toBe('name is invalid')
+    expect(wrapper.find('input').find({ type: 'text', name: 'firstName', placeholder: '', value: '' }).exists()).toBeTruthy()
 
-    wrapper.find('input [type="text"]').simulate('change', 'my name')
+    wrapper.find('input').find({ type: 'text' }).simulate('change', 'my name')
     expect(handleChange).toHaveBeenCalledWith('my name')
   })
   test('renders react component in success case', () => {
@@ -56,12 +56,12 @@ describe('TextInput', () => {
 
     expect(shallowToJson(wrapper)).toMatchSnapshot()
     expect(wrapper.find('.label').text()).toBe('First Name')
-    expect(wrapper.find('div .control').exists()).toBeTruthy()
-    expect(wrapper.find('input [type="text"] [name="firstName"] [placeholder=""] [value=""]').exists()).toBeTruthy()
-    expect(wrapper.find('span .icon i').prop('className')).toContain('fa-check-circle')
-    expect(wrapper.find('p .help').text()).toBe('name is valid')
+    expect(wrapper.find('div.control').exists()).toBeTruthy()
+    expect(wrapper.find('span.icon i').prop('className')).toContain('fa-check-circle')
+    expect(wrapper.find('p.help').text()).toBe('name is valid')
+    expect(wrapper.find('input').find({ type: 'text', name: 'firstName', placeholder: '', value: '' }).exists()).toBeTruthy()
 
-    wrapper.find('input [type="text"]').simulate('change', 'my name')
+    wrapper.find('input').find({ type: 'text' }).simulate('change', 'my name')
     expect(handleChange).toHaveBeenCalledWith('my name')
   })
 })

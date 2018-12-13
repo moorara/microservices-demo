@@ -344,7 +344,7 @@ jobs:
       - run:
           name: Unit Testing
           working_directory: services/react-client
-          command: yarn run test
+          command: yarn run test:coverage
       - store_artifacts:
           path: services/react-client/coverage
           prefix: coverage
@@ -360,7 +360,7 @@ jobs:
       - run:
           name: Build App
           working_directory: services/react-client
-          command: yarn run build:webpack
+          command: yarn run build
       - store_artifacts:
           path: services/react-client/public
           prefix: public

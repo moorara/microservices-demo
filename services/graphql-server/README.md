@@ -9,8 +9,8 @@
 | Command                      | Description                              |
 |------------------------------|------------------------------------------|
 | `yarn start`                 | Run the service locally                  |
-| `yarn run nsp`               | Identify known vulneberities in service  |
 | `yarn run lint`              | Run standard linter                      |
+| `yarn run lint:fix`          | Fix linting issues                       |
 | `yarn run test`              | Run the unit tests                       |
 | `yarn run test:component`    | Run the component tests                  |
 | `yarn run mock:rest`         | Run the mock REST API server             |

@@ -1,19 +1,17 @@
-# STAGE 1
-FROM node:10-alpine as builder
+# BUILD STAGE
+FROM node:11-alpine as builder
 RUN apk add --no-cache ca-certificates
 WORKDIR /usr/src/app
 COPY . .
-RUN yarn install && \
-    yarn run build:webpack
+RUN yarn install && yarn run build
 
-# STAGE 2
-FROM node:10-alpine
+# FINAL STAGE
+FROM node:11-alpine
 EXPOSE 4000
 HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD wget -q -O - http://localhost:4000/health || exit 1
 WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/public/ ./public/
-COPY --from=builder /usr/src/app/node/prod.js ./node/
-COPY --from=builder [ "/usr/src/app/package.json", "/usr/src/app/.babelrc", "./" ]
-RUN yarn install --production
+COPY --from=builder /usr/src/app/build/ ./build/
+COPY --from=builder /usr/src/app/server/ ./server/
+RUN cd server && yarn install
 USER nobody
-CMD [ "node", "node/prod.js" ]
+CMD [ "node", "server/index.js" ]

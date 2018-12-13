@@ -27,12 +27,12 @@ describe('SitePage', () => {
 
       expect(shallowToJson(wrapper)).toMatchSnapshot()
       expect(wrapper.find('SiteList').prop('sites')).toEqual(props.sites)
-      expect(wrapper.find('input [value="Back"]').exists()).toBeTruthy()
-      expect(wrapper.find('input [value="Add Site"]').exists()).toBeTruthy()
+      expect(wrapper.find('input').find({ value: 'Back' }).exists()).toBeTruthy()
+      expect(wrapper.find('input').find({ value: 'Add Site' }).exists()).toBeTruthy()
 
       expect(wrapper.instance().shouldComponentUpdate(nextProps, nextState)).toBe(true)
 
-      wrapper.find('input [value="Back"]').simulate('click')
+      wrapper.find('input').find({ value: 'Back' }).simulate('click')
       expect(props.history.goBack).toHaveBeenCalled()
     })
     test('renders connected react component with props', () => {
@@ -45,12 +45,12 @@ describe('SitePage', () => {
 
       expect(shallowToJson(wrapper)).toMatchSnapshot()
       expect(wrapper.find('SiteList').prop('sites')).toEqual(props.sites)
-      expect(wrapper.find('input [value="Back"]').exists()).toBeTruthy()
-      expect(wrapper.find('input [value="Add Site"]').exists()).toBeTruthy()
+      expect(wrapper.find('input').find({ value: 'Back' }).exists()).toBeTruthy()
+      expect(wrapper.find('input').find({ value: 'Add Site' }).exists()).toBeTruthy()
 
       expect(wrapper.instance().shouldComponentUpdate(nextProps, nextState)).toBe(true)
 
-      wrapper.find('input [value="Back"]').simulate('click')
+      wrapper.find('input').find({ value: 'Back' }).simulate('click')
       expect(props.history.goBack).toHaveBeenCalled()
     })
   })

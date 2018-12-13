@@ -1,0 +1,15 @@
+{
+  "name": "React Client App",
+  "short_name": "React Client",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "64x64 32x32 24x24 16x16"
+    }
+  ]
+}

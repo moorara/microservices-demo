@@ -53,7 +53,6 @@ curl \
 | Command                      | Description                             |
 |------------------------------|-----------------------------------------|
 | `yarn start`                 | Run the service locally                 |
-| `yarn run nsp`               | Identify known vulneberities in service |
 | `yarn run lint`              | Run standard linter                     |
 | `yarn run lint:fix`          | Fix linting issues                      |
 | `yarn run test`              | Run the unit tests                      |
