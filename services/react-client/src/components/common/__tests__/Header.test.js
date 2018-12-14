@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { shallow } from 'enzyme'
 import { shallowToJson } from 'enzyme-to-json'
 
@@ -16,10 +17,10 @@ describe('Header', () => {
     expect(shallowToJson(wrapper)).toMatchSnapshot()
     expect(wrapper.find('.title').exists()).toBeTruthy()
     expect(wrapper.find('.subtitle').exists()).toBeTruthy()
-    expect(wrapper.find('Link [to="/"]').exists()).toBeTruthy()
-    expect(wrapper.find('Link [to="/sites"]').exists()).toBeTruthy()
-    expect(wrapper.find('Link [to="/about"]').exists()).toBeTruthy()
     expect(wrapper.find('Loading').exists()).toBeFalsy()
+    expect(wrapper.find(Link).find('[to="/"]').exists()).toBeTruthy()
+    expect(wrapper.find(Link).find('[to="/sites"]').exists()).toBeTruthy()
+    expect(wrapper.find(Link).find('[to="/about"]').exists()).toBeTruthy()
   })
   test('renders react component with isLoading true', () => {
     props.isLoading = true
@@ -28,9 +29,9 @@ describe('Header', () => {
     expect(shallowToJson(wrapper)).toMatchSnapshot()
     expect(wrapper.find('.title').exists()).toBeTruthy()
     expect(wrapper.find('.subtitle').exists()).toBeTruthy()
-    expect(wrapper.find('Link [to="/"]').exists()).toBeTruthy()
-    expect(wrapper.find('Link [to="/sites"]').exists()).toBeTruthy()
-    expect(wrapper.find('Link [to="/about"]').exists()).toBeTruthy()
     expect(wrapper.find('Loading').exists()).toBeTruthy()
+    expect(wrapper.find(Link).find('[to="/"]').exists()).toBeTruthy()
+    expect(wrapper.find(Link).find('[to="/sites"]').exists()).toBeTruthy()
+    expect(wrapper.find(Link).find('[to="/about"]').exists()).toBeTruthy()
   })
 })

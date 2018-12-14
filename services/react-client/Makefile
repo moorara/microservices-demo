@@ -2,7 +2,7 @@ docker_tag ?= latest
 docker_image ?= moorara/react-client
 
 path := $(shell pwd)
-build_dir := $(path)/public
+build_dir := $(path)/build
 report_dir := $(path)/coverage
 docker_dir := /tmp/workspace
 

@@ -41,14 +41,14 @@ app.use('/api', (req, res) => {
 app.use(compression())
 app.use(loggerMiddleware)
 
-// Serving static assets
-app.use('/static', express.static(
-  path.resolve(__dirname, '../public')
+// Serving assets
+app.use(express.static(
+  path.join(__dirname, '../build')
 ))
 
 // Serving application
 app.get('/*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../public/index.html'))
+  res.sendFile(path.join(__dirname, '../build', 'index.html'))
 })
 
 app.listen(port, err => {
