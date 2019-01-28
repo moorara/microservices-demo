@@ -18,24 +18,24 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "express-winston": "^3.0.1",
-    "jaeger-client": "^3.13.0",
+    "jaeger-client": "^3.14.4",
     "lodash": "^4.17.11",
-    "mongoose": "^5.3.15",
+    "mongoose": "^5.4.7",
     "on-finished": "^2.3.0",
     "opentracing": "^0.14.3",
-    "prom-client": "^11.2.0",
+    "prom-client": "^11.2.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "winston": "^3.1.0"
+    "winston": "^3.2.0"
   },
   "devDependencies": {
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "should": "^13.2.3",
     "should-http": "^0.1.1",
-    "sinon": "^7.2.0",
+    "sinon": "^7.2.3",
     "standard": "^12.0.1",
-    "supertest": "^3.3.0",
+    "supertest": "^3.4.2",
     "tmp": "^0.0.33"
   }
 }
