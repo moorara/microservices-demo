@@ -62,7 +62,6 @@ jobs:
           command: yarn run test
       - store_artifacts:
           path: services/site-service/coverage/
-          prefix: coverage/
 
   site-service-component-tests:
     <<: *node-job-init
@@ -122,8 +121,7 @@ jobs:
           working_directory: services/sensor-service
           command: make coverage
       - store_artifacts:
-          path: services/sensor-service/reports/
-          prefix: reports/
+          path: services/sensor-service/coverage/
 
   sensor-service-component-tests:
     <<: *go-job-init
@@ -190,7 +188,6 @@ jobs:
           command: make coverage
       - store_artifacts:
           path: services/switch-service/coverage/
-          prefix: coverage/
 
   switch-service-integration-tests:
     <<: *go-job-init
@@ -269,7 +266,6 @@ jobs:
           command: make coverage
       - store_artifacts:
           path: services/asset-service/coverage/
-          prefix: coverage/
 
   asset-service-integration-tests:
     <<: *go-job-init
@@ -347,7 +343,6 @@ jobs:
           command: yarn run test:coverage
       - store_artifacts:
           path: services/react-client/coverage
-          prefix: coverage
 
   react-client-build-app:
     <<: *node-job-init
@@ -363,7 +358,6 @@ jobs:
           command: yarn run build
       - store_artifacts:
           path: services/react-client/public
-          prefix: public
 
   graphql-server-build-images:
     <<: *node-job-init
@@ -407,7 +401,6 @@ jobs:
           command: yarn run test
       - store_artifacts:
           path: services/graphql-server/coverage/
-          prefix: coverage/
 
   graphql-server-component-tests:
     <<: *node-job-init
