@@ -30,8 +30,8 @@ function test_component {
 function test_component_docker {
   export VERSION=$version
   docker-compose run component-test
-	docker container logs sensor-service | grep '^{' | jq . > component-tests.log
-	docker-compose down
+  docker container logs sensor-service | grep '^{' | jq . > component-tests.log
+  docker-compose down
 }
 
 
