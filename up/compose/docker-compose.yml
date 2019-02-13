@@ -84,7 +84,7 @@ services:
       - "postgres_data:/var/lib/postgresql/data"
       - "./data/postgres/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
   cockroach:
-    image: cockroachdb/cockroach:v2.1.1
+    image: cockroachdb/cockroach:v2.1.4
     hostname: cockroach
     container_name: cockroach
     restart: always
@@ -97,7 +97,7 @@ services:
       - "cockroach_data:/cockroach/cockroach-data"
     command: [ "start", "--insecure" ]
   cockroach-init:
-    image: cockroachdb/cockroach:v2.1.1
+    image: cockroachdb/cockroach:v2.1.4
     hostname: cockroach-init
     container_name: cockroach-init
     depends_on:
