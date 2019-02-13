@@ -1,7 +1,7 @@
 module github.com/moorara/microservices-demo/services/switch-service
 
 require (
-	github.com/arangodb/go-driver v0.0.0-20181206080103-b1a864427d13
+	github.com/arangodb/go-driver v0.0.0-20190213032835-4da7b19c6d72
 	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/go-kit/kit v0.8.0

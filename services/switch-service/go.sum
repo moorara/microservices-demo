@@ -1,6 +1,7 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/arangodb/go-driver v0.0.0-20181206080103-b1a864427d13 h1:i8EIpjb3Fe+CIrBIJowOEmCnxbmM2Q2FWN7CltbVBn0=
 github.com/arangodb/go-driver v0.0.0-20181206080103-b1a864427d13/go.mod h1:NcDoR4f0FdFia/QizCc+B69DggPGLP3nCKg5IUtudm0=
+github.com/arangodb/go-driver v0.0.0-20190213032835-4da7b19c6d72/go.mod h1:NcDoR4f0FdFia/QizCc+B69DggPGLP3nCKg5IUtudm0=
 github.com/arangodb/go-velocypack v0.0.0-20180928134037-d177e3455691 h1:62SGGAvrKTXOrewra74du0H98Yg/eufQ/tO3RoIP8Bs=
 github.com/arangodb/go-velocypack v0.0.0-20180928134037-d177e3455691/go.mod h1:7QCjpWXdB49P6fql1CxmsBWd8z/T4L4pqFLTnc10xNM=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 h1:xJ4a3vCFaGF/jqvzLMYoU8P317H5OQ+Via4RmuPwCS0=
@@ -38,6 +39,7 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0j
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/moorara/goto v0.1.7 h1:DB/GM7X6E+tPBDDp5s18d8VxI8HDjtWlQ2X+zLx4Q4E=
 github.com/moorara/goto v0.1.7/go.mod h1:aWUR+yKRip4QuuLxItiHo+M9uYlE6tLgKtQBv0WvE5E=
+github.com/moorara/microservices-demo v0.0.0-20190213032745-c0732e8452ec h1:lkWDyAx6sLTFfQlAscxkBHFxieTUANafKoLzJ9YuYBw=
 github.com/opentracing/opentracing-go v1.0.2 h1:3jA2P6O1F9UOrWVpwrIo17pu01KWvNWg4X946/Y5Zwg=
 github.com/opentracing/opentracing-go v1.0.2/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=
