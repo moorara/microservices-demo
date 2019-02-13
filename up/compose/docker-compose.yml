@@ -151,7 +151,7 @@ services:
       - "elasticsearch_data:/usr/share/elasticsearch/data"
       - "./logging/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
   kibana:
-    image: kibana:6.5.1
+    image: kibana:6.6.0
     hostname: kibana
     container_name: kibana
     restart: always
