@@ -237,7 +237,7 @@ services:
     networks:
       - local
   cadvisor:
-    image: google/cadvisor:v0.28.3
+    image: google/cadvisor:v0.32.0
     hostname: cadvisor
     container_name: cadvisor
     ports:
