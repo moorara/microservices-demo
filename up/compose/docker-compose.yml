@@ -136,7 +136,7 @@ services:
 
   # LOGGING
   elasticsearch:
-    image: elasticsearch:6.5.1
+    image: elasticsearch:6.6.0
     hostname: elasticsearch
     container_name: elasticsearch
     restart: always
