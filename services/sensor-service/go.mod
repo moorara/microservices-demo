@@ -29,5 +29,5 @@ require (
 	go.uber.org/atomic v1.3.2 // indirect
 	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc // indirect
 	golang.org/x/sync v0.0.0-20181108010431-42b317875d0f // indirect
-	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
+	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.2
 )
