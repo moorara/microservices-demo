@@ -56,7 +56,7 @@ services:
     volumes:
       - "mongo_data:/data/db"
   arango:
-    image: arangodb/arangodb:3.4.0
+    image: arangodb/arangodb:3.4.2
     hostname: arango
     container_name: arango
     restart: always
