@@ -199,7 +199,7 @@ services:
       - "./metrics/alerts.yml:/alerts.yml"
     command: "--config.file=/prometheus.yml"
   grafana:
-    image: grafana/grafana:5.4.0
+    image: grafana/grafana:5.4.3
     hostname: grafana
     container_name: grafana
     restart: always
