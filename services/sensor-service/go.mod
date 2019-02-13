@@ -28,6 +28,6 @@ require (
 	github.com/uber/jaeger-lib v1.5.0
 	go.uber.org/atomic v1.3.2 // indirect
 	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc // indirect
-	golang.org/x/sync v0.0.0-20181108010431-42b317875d0f // indirect
+	golang.org/x/sync v0.0.0-20190213180325-37e7f081c4d4 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
 )
