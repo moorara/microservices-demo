@@ -26,5 +26,5 @@ require (
 	github.com/uber/jaeger-lib v1.5.0
 	go.uber.org/atomic v1.3.2 // indirect
 	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc
-	google.golang.org/grpc v1.17.0
+	google.golang.org/grpc v1.18.0
 )
