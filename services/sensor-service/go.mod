@@ -14,7 +14,7 @@ require (
 	github.com/gorilla/mux v1.6.2
 	github.com/lib/pq v1.0.0
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/moorara/goto v0.1.7
+	github.com/moorara/goto v0.2.4
 	github.com/opentracing/opentracing-go v1.0.2
 	github.com/pkg/errors v0.8.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

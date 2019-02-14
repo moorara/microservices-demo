@@ -23,7 +23,7 @@ require (
 	github.com/lib/pq v1.0.0 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/moorara/goto v0.1.7
+	github.com/moorara/goto v0.2.4
 	github.com/nats-io/gnatsd v1.3.0 // indirect
 	github.com/nats-io/go-nats v1.6.0
 	github.com/nats-io/nuid v1.0.0 // indirect
