@@ -1,7 +1,7 @@
 module github.com/moorara/microservices-demo/services/asset-service
 
 require (
-	cloud.google.com/go v0.34.0 // indirect
+	cloud.google.com/go v0.36.0 // indirect
 	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
