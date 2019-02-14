@@ -11,7 +11,7 @@ require (
 	github.com/golang/protobuf v1.2.0 // indirect
 	github.com/google/uuid v1.1.0
 	github.com/gorilla/context v1.1.1 // indirect
-	github.com/gorilla/mux v1.6.2
+	github.com/gorilla/mux v1.7.0
 	github.com/lib/pq v1.0.0
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/moorara/goto v0.1.7
