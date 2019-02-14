@@ -43,5 +43,5 @@ require (
 	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc // indirect
 	golang.org/x/sync v0.0.0-20181108010431-42b317875d0f // indirect
 	golang.org/x/sys v0.0.0-20181206074257-70b957f3b65e // indirect
-	google.golang.org/appengine v1.3.0 // indirect
+	google.golang.org/appengine v1.4.0 // indirect
 )
