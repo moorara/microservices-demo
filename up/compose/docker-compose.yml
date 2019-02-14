@@ -253,7 +253,7 @@ services:
 
   # TRACING
   jaeger:
-    image: jaegertracing/all-in-one:1.8.2
+    image: jaegertracing/all-in-one:1.9.0
     hostname: jaeger
     container_name: jaeger
     restart: always
