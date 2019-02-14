@@ -22,7 +22,7 @@ RUN go run build.go && \
 
 
 # FINAL STAGE
-FROM alpine:3.8
+FROM alpine:3.9
 
 COPY --from=builder /caddy /bin/caddy
 RUN apk add --no-cache ca-certificates
