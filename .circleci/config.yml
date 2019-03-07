@@ -1,27 +1,46 @@
 ## This is a YAML-formatted file
 ##
 
-go-job-init: &go-job-init
+go-job: &go-job
   working_directory: ~/repo
   docker:
-    - image: circleci/golang:1.11
+    - image: moorara/golang:latest
 
-node-job-init: &node-job-init
+node-job: &node-job
   working_directory: ~/repo
   docker:
-    - image: circleci/node:10.15
+    - image: moorara/node:latest
 
-kube-job-init: &kube-job-init
+generic-job: &generic-job
   working_directory: ~/repo
   docker:
-    - image: moorara/circleci-tools:alpine-3.8
+    - image: moorara/tools:latest
 
 
 version: 2
 jobs:
 
+  site-service-unit-tests:
+    <<: *node-job
+    steps:
+      - checkout
+      - run:
+          name: Install Packages
+          working_directory: services/site-service
+          command: yarn install
+      - run:
+          name: Linting
+          working_directory: services/site-service
+          command: yarn run lint
+      - run:
+          name: Unit Testing
+          working_directory: services/site-service
+          command: yarn run test
+      - store_artifacts:
+          path: services/site-service/coverage/
+
   site-service-build-images:
-    <<: *node-job-init
+    <<: *generic-job
     steps:
       - checkout
       - setup_remote_docker:
@@ -44,27 +63,8 @@ jobs:
             - docker.tar
             - docker-test.tar
 
-  site-service-unit-tests:
-    <<: *node-job-init
-    steps:
-      - checkout
-      - run:
-          name: Install Packages
-          working_directory: services/site-service
-          command: yarn install
-      - run:
-          name: Linting
-          working_directory: services/site-service
-          command: yarn run lint
-      - run:
-          name: Unit Testing
-          working_directory: services/site-service
-          command: yarn run test
-      - store_artifacts:
-          path: services/site-service/coverage/
-
   site-service-component-tests:
-    <<: *node-job-init
+    <<: *generic-job
     steps:
       - checkout
       - attach_workspace:
@@ -84,8 +84,23 @@ jobs:
           path: services/site-service/component-tests.log
           destination: component-tests.log
 
+  sensor-service-unit-tests:
+    <<: *go-job
+    steps:
+      - checkout
+      - run:
+          name: Unit Testing
+          working_directory: services/sensor-service
+          command: make test
+      - run:
+          name: Unit Testing + Coverage
+          working_directory: services/sensor-service
+          command: make coverage
+      - store_artifacts:
+          path: services/sensor-service/coverage/
+
   sensor-service-build-images:
-    <<: *go-job-init
+    <<: *generic-job
     steps:
       - checkout
       - setup_remote_docker:
@@ -108,23 +123,8 @@ jobs:
             - docker.tar
             - docker-test.tar
 
-  sensor-service-unit-tests:
-    <<: *go-job-init
-    steps:
-      - checkout
-      - run:
-          name: Unit Testing
-          working_directory: services/sensor-service
-          command: make test
-      - run:
-          name: Unit Testing + Coverage
-          working_directory: services/sensor-service
-          command: make coverage
-      - store_artifacts:
-          path: services/sensor-service/coverage/
-
   sensor-service-component-tests:
-    <<: *go-job-init
+    <<: *generic-job
     steps:
       - checkout
       - attach_workspace:
@@ -150,8 +150,23 @@ jobs:
           path: services/sensor-service/component-tests.log
           destination: component-tests.log
 
+  switch-service-unit-tests:
+    <<: *go-job
+    steps:
+      - checkout
+      - run:
+          name: Unit Testing
+          working_directory: services/switch-service
+          command: make test
+      - run:
+          name: Unit Testing + Coverage
+          working_directory: services/switch-service
+          command: make coverage
+      - store_artifacts:
+          path: services/switch-service/coverage/
+
   switch-service-build-images:
-    <<: *go-job-init
+    <<: *generic-job
     steps:
       - checkout
       - setup_remote_docker:
@@ -174,23 +189,8 @@ jobs:
             - docker.tar
             - docker-test.tar
 
-  switch-service-unit-tests:
-    <<: *go-job-init
-    steps:
-      - checkout
-      - run:
-          name: Unit Testing
-          working_directory: services/switch-service
-          command: make test
-      - run:
-          name: Unit Testing + Coverage
-          working_directory: services/switch-service
-          command: make coverage
-      - store_artifacts:
-          path: services/switch-service/coverage/
-
   switch-service-integration-tests:
-    <<: *go-job-init
+    <<: *generic-job
     steps:
       - checkout
       - attach_workspace:
@@ -208,7 +208,7 @@ jobs:
           command: make test-integration-docker
 
   switch-service-component-tests:
-    <<: *go-job-init
+    <<: *generic-job
     steps:
       - checkout
       - attach_workspace:
@@ -228,8 +228,23 @@ jobs:
           path: services/switch-service/component-tests.log
           destination: component-tests.log
 
+  asset-service-unit-tests:
+    <<: *go-job
+    steps:
+      - checkout
+      - run:
+          name: Unit Testing
+          working_directory: services/asset-service
+          command: make test
+      - run:
+          name: Unit Testing + Coverage
+          working_directory: services/asset-service
+          command: make coverage
+      - store_artifacts:
+          path: services/asset-service/coverage/
+
   asset-service-build-images:
-    <<: *go-job-init
+    <<: *generic-job
     steps:
       - checkout
       - setup_remote_docker:
@@ -252,23 +267,8 @@ jobs:
             - docker.tar
             - docker-test.tar
 
-  asset-service-unit-tests:
-    <<: *go-job-init
-    steps:
-      - checkout
-      - run:
-          name: Unit Testing
-          working_directory: services/asset-service
-          command: make test
-      - run:
-          name: Unit Testing + Coverage
-          working_directory: services/asset-service
-          command: make coverage
-      - store_artifacts:
-          path: services/asset-service/coverage/
-
   asset-service-integration-tests:
-    <<: *go-job-init
+    <<: *generic-job
     steps:
       - checkout
       - attach_workspace:
@@ -286,7 +286,7 @@ jobs:
           command: make test-integration-docker
 
   asset-service-component-tests:
-    <<: *go-job-init
+    <<: *generic-job
     steps:
       - checkout
       - attach_workspace:
@@ -306,61 +306,27 @@ jobs:
           path: services/asset-service/component-tests.log
           destination: component-tests.log
 
-  react-client-build-images:
-    <<: *node-job-init
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 18.06.0-ce
-      - run:
-          name: Build Docker Image
-          working_directory: services/react-client
-          command: make docker
-      - run:
-          name: Save Docker Images
-          working_directory: services/react-client
-          command: make save-images
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - docker.tar
-
-  react-client-unit-tests:
-    <<: *node-job-init
+  graphql-server-unit-tests:
+    <<: *node-job
     steps:
       - checkout
       - run:
           name: Install Packages
-          working_directory: services/react-client
+          working_directory: services/graphql-server
           command: yarn install
       - run:
           name: Linting
-          working_directory: services/react-client
+          working_directory: services/graphql-server
           command: yarn run lint
       - run:
           name: Unit Testing
-          working_directory: services/react-client
-          command: yarn run test:coverage
+          working_directory: services/graphql-server
+          command: yarn run test
       - store_artifacts:
-          path: services/react-client/coverage
-
-  react-client-build-app:
-    <<: *node-job-init
-    steps:
-      - checkout
-      - run:
-          name: Install Packages
-          working_directory: services/react-client
-          command: yarn install
-      - run:
-          name: Build App
-          working_directory: services/react-client
-          command: yarn run build
-      - store_artifacts:
-          path: services/react-client/public
+          path: services/graphql-server/coverage/
 
   graphql-server-build-images:
-    <<: *node-job-init
+    <<: *generic-job
     steps:
       - checkout
       - setup_remote_docker:
@@ -383,27 +349,8 @@ jobs:
             - docker.tar
             - docker-test.tar
 
-  graphql-server-unit-tests:
-    <<: *node-job-init
-    steps:
-      - checkout
-      - run:
-          name: Install Packages
-          working_directory: services/graphql-server
-          command: yarn install
-      - run:
-          name: Linting
-          working_directory: services/graphql-server
-          command: yarn run lint
-      - run:
-          name: Unit Testing
-          working_directory: services/graphql-server
-          command: yarn run test
-      - store_artifacts:
-          path: services/graphql-server/coverage/
-
   graphql-server-component-tests:
-    <<: *node-job-init
+    <<: *generic-job
     steps:
       - checkout
       - attach_workspace:
@@ -423,8 +370,61 @@ jobs:
           path: services/graphql-server/component-tests.log
           destination: component-tests.log
 
+  react-client-unit-tests:
+    <<: *node-job
+    steps:
+      - checkout
+      - run:
+          name: Install Packages
+          working_directory: services/react-client
+          command: yarn install
+      - run:
+          name: Linting
+          working_directory: services/react-client
+          command: yarn run lint
+      - run:
+          name: Unit Testing
+          working_directory: services/react-client
+          command: yarn run test:coverage
+      - store_artifacts:
+          path: services/react-client/coverage
+
+  react-client-build-app:
+    <<: *node-job
+    steps:
+      - checkout
+      - run:
+          name: Install Packages
+          working_directory: services/react-client
+          command: yarn install
+      - run:
+          name: Build App
+          working_directory: services/react-client
+          command: yarn run build
+      - store_artifacts:
+          path: services/react-client/public
+
+  react-client-build-images:
+    <<: *generic-job
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 18.06.0-ce
+      - run:
+          name: Build Docker Image
+          working_directory: services/react-client
+          command: make docker
+      - run:
+          name: Save Docker Images
+          working_directory: services/react-client
+          command: make save-images
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker.tar
+
   site-chart-tests:
-    <<: *kube-job-init
+    <<: *generic-job
     steps:
       - checkout
       - run:
@@ -433,7 +433,7 @@ jobs:
           command: helm lint .
 
   sensor-chart-tests:
-    <<: *kube-job-init
+    <<: *generic-job
     steps:
       - checkout
       - run:
@@ -442,7 +442,7 @@ jobs:
           command: helm lint .
 
   asset-chart-tests:
-    <<: *kube-job-init
+    <<: *generic-job
     steps:
       - checkout
       - run:
@@ -455,22 +455,22 @@ workflows:
   version: 2
   site-service:
     jobs:
-      - site-service-build-images
       - site-service-unit-tests
+      - site-service-build-images
       - site-service-component-tests:
           requires:
             - site-service-build-images
   sensor-service:
     jobs:
-      - sensor-service-build-images
       - sensor-service-unit-tests
+      - sensor-service-build-images
       - sensor-service-component-tests:
           requires:
             - sensor-service-build-images
   switch-service:
     jobs:
-      - switch-service-build-images
       - switch-service-unit-tests
+      - switch-service-build-images
       - switch-service-integration-tests:
           requires:
             - switch-service-build-images
@@ -479,26 +479,26 @@ workflows:
             - switch-service-build-images
   asset-service:
     jobs:
-      - asset-service-build-images
       - asset-service-unit-tests
+      - asset-service-build-images
       - asset-service-integration-tests:
           requires:
             - asset-service-build-images
       - asset-service-component-tests:
           requires:
             - asset-service-build-images
-  react-client:
-    jobs:
-      - react-client-build-images
-      - react-client-unit-tests
-      - react-client-build-app
   graphql-server:
     jobs:
-      - graphql-server-build-images
       - graphql-server-unit-tests
+      - graphql-server-build-images
       - graphql-server-component-tests:
           requires:
             - graphql-server-build-images
+  react-client:
+    jobs:
+      - react-client-unit-tests
+      - react-client-build-app
+      - react-client-build-images
   site-chart:
     jobs:
       - site-chart-tests
