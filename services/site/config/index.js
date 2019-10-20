@@ -23,7 +23,7 @@ class ConfigProvider {
       return value
     }
 
-    let filepath = process.env[name + '_FILE']
+    const filepath = process.env[name + '_FILE']
     if (filepath) {
       value = fs.readFileSync(filepath)
       if (value) {

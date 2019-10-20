@@ -60,10 +60,10 @@ class Logger {
   }
 
   _log (level, args) {
-    let values = []
-    let meta = Object.assign({}, this.metadata)
+    const values = []
+    const meta = Object.assign({}, this.metadata)
 
-    for (let arg of args) {
+    for (const arg of args) {
       if (arg instanceof Error) {
         values.push(arg.message)
         Object.assign(meta, { error: arg })

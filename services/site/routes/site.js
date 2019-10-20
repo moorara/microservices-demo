@@ -31,7 +31,7 @@ class SiteRouter {
 
   async postSite (req, res, next) {
     let site
-    let specs = req.body
+    const specs = req.body
 
     try {
       site = await this.siteService.create(specs, req.context)
@@ -44,7 +44,7 @@ class SiteRouter {
 
   async getSites (req, res, next) {
     let sites
-    let query = req.query
+    const query = req.query
 
     try {
       sites = await this.siteService.all(query, req.context)
@@ -57,7 +57,7 @@ class SiteRouter {
 
   async getSite (req, res, next) {
     let site
-    let id = req.params.id
+    const id = req.params.id
 
     try {
       site = await this.siteService.get(id, req.context)
@@ -74,11 +74,11 @@ class SiteRouter {
   }
 
   async putSite (req, res, next) {
-    let id = req.params.id
-    let specs = req.body
+    const id = req.params.id
+    const specs = req.body
 
     try {
-      let updated = await this.siteService.update(id, specs, req.context)
+      const updated = await this.siteService.update(id, specs, req.context)
       res.sendStatus(updated ? 204 : 404)
     } catch (err) {
       this.logger.error(`Failed to update site ${id}.`, err)
@@ -88,8 +88,8 @@ class SiteRouter {
 
   async patchSite (req, res, next) {
     let site
-    let id = req.params.id
-    let specs = req.body
+    const id = req.params.id
+    const specs = req.body
 
     try {
       site = await this.siteService.modify(id, specs, req.context)
@@ -107,7 +107,7 @@ class SiteRouter {
 
   async deleteSite (req, res, next) {
     let site
-    let id = req.params.id
+    const id = req.params.id
 
     try {
       site = await this.siteService.delete(id, req.context)

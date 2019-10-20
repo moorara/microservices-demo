@@ -47,21 +47,18 @@ class SiteService {
     if (err) {
       throw err
     }
+
     return result
   }
 
   async create (specs, context) {
     return this.exec(context, 'save-document', 'save()', async () => {
       const siteModel = new this.SiteModel(
-        _.pick(specs, [ 'name', 'location', 'tags', 'priority' ])
+        _.pick(specs, ['name', 'location', 'tags', 'priority'])
       )
 
-      try {
-        const site = await siteModel.save()
-        return site.toJSON()
-      } catch (err) {
-        throw err
-      }
+      const site = await siteModel.save()
+      return site.toJSON()
     })
   }
 
@@ -71,7 +68,7 @@ class SiteService {
   async all (query, context) {
     return this.exec(context, 'find-documents', 'find().limit().skip().exec()', async () => {
       query = query || {}
-      let mongoQuery = {}
+      const mongoQuery = {}
 
       if (query.name) mongoQuery.name = new RegExp(`.*${query.name}.*`, 'i')
       if (query.location) mongoQuery.location = new RegExp(`.*${query.location}.*`, 'i')
@@ -79,63 +76,43 @@ class SiteService {
       if (query.minPriority) _.set(mongoQuery, 'priority.$gte', +query.minPriority)
       if (query.maxPriority) _.set(mongoQuery, 'priority.$lte', +query.maxPriority)
 
-      try {
-        const sites = await this.SiteModel.find(mongoQuery).limit(+query.limit).skip(+query.skip).exec()
-        return sites.map(l => l.toJSON())
-      } catch (err) {
-        throw err
-      }
+      const sites = await this.SiteModel.find(mongoQuery).limit(+query.limit).skip(+query.skip).exec()
+      return sites.map(l => l.toJSON())
     })
   }
 
   async get (id, context) {
     return this.exec(context, 'find-document', 'findById()', async () => {
-      try {
-        const site = await this.SiteModel.findById(id)
-        return site ? site.toJSON() : null
-      } catch (err) {
-        throw err
-      }
+      const site = await this.SiteModel.findById(id)
+      return site ? site.toJSON() : null
     })
   }
 
   async update (id, specs, context) {
     return this.exec(context, 'update-document', 'update()', async () => {
       const query = { _id: id }
-      const update = Object.assign({}, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
+      const update = Object.assign({}, _.pick(specs, ['name', 'location', 'tags', 'priority']))
       const options = { upsert: false, runValidators: true, overwrite: true }
 
-      try {
-        const res = await this.SiteModel.update(query, update, options)
-        return res.ok === 1 && res.n === 1
-      } catch (err) {
-        throw err
-      }
+      const res = await this.SiteModel.update(query, update, options)
+      return res.ok === 1 && res.n === 1
     })
   }
 
   async modify (id, specs, context) {
     return this.exec(context, 'modify-document', 'findByIdAndUpdate()', async () => {
-      const update = Object.assign({}, _.pick(specs, [ 'name', 'location', 'tags', 'priority' ]))
+      const update = Object.assign({}, _.pick(specs, ['name', 'location', 'tags', 'priority']))
       const options = { new: true, upsert: false, runValidators: true }
 
-      try {
-        const site = await this.SiteModel.findByIdAndUpdate(id, update, options)
-        return site ? site.toJSON() : null
-      } catch (err) {
-        throw err
-      }
+      const site = await this.SiteModel.findByIdAndUpdate(id, update, options)
+      return site ? site.toJSON() : null
     })
   }
 
   async delete (id, context) {
     return this.exec(context, 'delete-document', 'findByIdAndRemove()', async () => {
-      try {
-        const site = await this.SiteModel.findByIdAndRemove(id)
-        return site ? site.toJSON() : null
-      } catch (err) {
-        throw err
-      }
+      const site = await this.SiteModel.findByIdAndRemove(id)
+      return site ? site.toJSON() : null
     })
   }
 }

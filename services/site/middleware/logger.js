@@ -4,7 +4,7 @@ const Logger = require('../util/logger')
 
 const defaultSkip = (req, res) => false
 const defaultIgnoreRoute = (req, res) => false
-const defaultIgnoredRoutes = [ '/health', '/metrics' ]
+const defaultIgnoredRoutes = ['/health', '/metrics']
 
 const defaultRequestFilter = (req, propName) => req[propName]
 const defaultRequestWhitelist = [
@@ -13,14 +13,14 @@ const defaultRequestWhitelist = [
 ]
 
 const defaultResponseFilter = (res, propName) => res[propName]
-const defaultResponseWhitelist = [ 'statusCode', 'statusClass' ]
+const defaultResponseWhitelist = ['statusCode', 'statusClass']
 
 module.exports.create = options => {
   options = options || {}
   options.winston = options.winston || Logger.getWinstonLogger()
-  let context = Object.assign({}, Logger.context, { logger: 'HttpMiddleware' })
+  const context = Object.assign({}, Logger.context, { logger: 'HttpMiddleware' })
 
-  let loggerMiddleware = expressWinston.logger({
+  const loggerMiddleware = expressWinston.logger({
     winstonInstance: options.winston,
     expressFormat: process.env.NODE_ENV === 'development',
 

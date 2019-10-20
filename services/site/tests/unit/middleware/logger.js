@@ -27,11 +27,11 @@ describe('LoggerMiddleware', () => {
         level: 'debug',
         skip: (req, res) => false,
         ignoreRoute: (req, res) => false,
-        ignoredRoutes: [ '/health', '/metrics' ],
+        ignoredRoutes: ['/health', '/metrics'],
         requestFilter: (req, propName) => req[propName],
-        requestWhitelist: [ 'method', 'url' ],
+        requestWhitelist: ['method', 'url'],
         responseFilter: (res, propName) => res[propName],
-        responseWhitelist: [ 'statusCode', 'responseTime' ]
+        responseWhitelist: ['statusCode', 'responseTime']
       })
 
       app = express()

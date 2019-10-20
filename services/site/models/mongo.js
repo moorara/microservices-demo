@@ -16,9 +16,9 @@ class Mongo {
 
   connect () {
     return new Promise((resolve, reject) => {
-      let connection = this.mongoose.connection
+      const connection = this.mongoose.connection
 
-      let opts = {
+      const opts = {
         useNewUrlParser: true,
         autoReconnect: true
       }

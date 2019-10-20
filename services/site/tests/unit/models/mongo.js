@@ -8,7 +8,7 @@ const Mongo = require('../../../models/mongo')
 const emitEvents = (emitter, events) => {
   if (events.length > 0) {
     process.nextTick(() => {
-      let event = events.shift()
+      const event = events.shift()
       emitter.emit(event)
       emitEvents(emitter, events)
     })
@@ -94,7 +94,7 @@ describe('Mongo', () => {
 
     it('should catch close event after connection open event', done => {
       _mongoose.expects('connect').withArgs(config.mongoUri, opts).resolves()
-      process.nextTick(() => emitEvents(mongoose.connection, [ 'open', 'close' ]))
+      process.nextTick(() => emitEvents(mongoose.connection, ['open', 'close']))
       mongo.connect().then(conn => {
         _mongoose.verify()
         conn.should.eql(mongoose.connection)
@@ -104,7 +104,7 @@ describe('Mongo', () => {
 
     it('should succeed when mongoose connects to Mongo', done => {
       _mongoose.expects('connect').withArgs(config.mongoUri, opts).resolves()
-      process.nextTick(() => emitEvents(mongoose.connection, [ 'connected', 'open' ]))
+      process.nextTick(() => emitEvents(mongoose.connection, ['connected', 'open']))
       mongo.connect().then(conn => {
         _mongoose.verify()
         conn.should.eql(mongoose.connection)
@@ -114,7 +114,7 @@ describe('Mongo', () => {
 
     it('should succeed when mongoose reconnects to Mongo after a disconnection', done => {
       _mongoose.expects('connect').withArgs(config.mongoUri, opts).resolves()
-      process.nextTick(() => emitEvents(mongoose.connection, [ 'disconnected', 'connected', 'reconnected', 'open' ]))
+      process.nextTick(() => emitEvents(mongoose.connection, ['disconnected', 'connected', 'reconnected', 'open']))
       mongo.connect().then(conn => {
         _mongoose.verify()
         conn.should.eql(mongoose.connection)
