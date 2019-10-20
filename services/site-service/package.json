@@ -19,7 +19,7 @@
     "express": "^4.16.4",
     "express-winston": "^3.0.1",
     "jaeger-client": "^3.14.4",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "mongoose": "^5.4.7",
     "on-finished": "^2.3.0",
     "opentracing": "^0.14.3",
