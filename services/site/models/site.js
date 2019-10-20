@@ -2,7 +2,7 @@ const _ = require('lodash')
 const mongoose = require('mongoose')
 
 const MODEL_NAME = 'Site'
-const PUBLIC_PROPERTIES = [ 'id', 'name', 'location', 'tags', 'priority' ]
+const PUBLIC_PROPERTIES = ['id', 'name', 'location', 'tags', 'priority']
 
 class Site {
   constructor (config, options) {
@@ -18,7 +18,7 @@ class Site {
     const schema = new mongoose.Schema({
       name: { type: String, required: true, unique: true, index: true },
       location: { type: String, required: true },
-      tags: [ String ],
+      tags: [String],
       priority: Number,
       createdAt: { type: Date, default: Date.now },
       updatedAt: { type: Date, default: Date.now }

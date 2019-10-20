@@ -138,23 +138,23 @@ describe('SiteService', () => {
       _Model.expects('find').returns(Model)
       _Model.expects('limit').returns(Model)
       _Model.expects('skip').returns(Model)
-      _Model.expects('exec').resolves([ s1, s2, s3 ])
+      _Model.expects('exec').resolves([s1, s2, s3])
       service.all(query, context).then(sites => {
         _Model.verify()
-        sites.should.eql([ s1, s2, s3 ])
+        sites.should.eql([s1, s2, s3])
         done()
       }).catch(done)
     })
     it('should resolve with sites when model query succeeds', done => {
       query = { name: 'Site', location: 'Ottawa', tags: 'hydro,power', minPriority: '2', maxPriority: '4', limit: '10', skip: '10' }
-      let mongoQuery = { name: /.*Site.*/i, location: /.*Ottawa.*/i, tags: { $in: ['hydro', 'power'] }, priority: { $gte: 2, $lte: 4 } }
+      const mongoQuery = { name: /.*Site.*/i, location: /.*Ottawa.*/i, tags: { $in: ['hydro', 'power'] }, priority: { $gte: 2, $lte: 4 } }
       _Model.expects('find').withArgs(mongoQuery).returns(Model)
       _Model.expects('limit').withArgs(+query.limit).returns(Model)
       _Model.expects('skip').withArgs(+query.skip).returns(Model)
-      _Model.expects('exec').resolves([ s1, s2, s3 ])
+      _Model.expects('exec').resolves([s1, s2, s3])
       service.all(query, context).then(sites => {
         _Model.verify()
-        sites.should.eql([ s1, s2, s3 ])
+        sites.should.eql([s1, s2, s3])
         done()
       }).catch(done)
     })

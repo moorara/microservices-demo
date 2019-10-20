@@ -18,7 +18,8 @@ services:
     environment:
       - LOG_LEVEL=debug
       - MONGO_URI=mongodb://mongo:27017
-  site-service-test:
+
+  test-runner:
     image: site-service-test
     hostname: site-service-test
     container_name: site-service-test

@@ -12,7 +12,7 @@ describe('Site', () => {
 
   describe('SiteModel', () => {
     it('should create a new site with name and location', () => {
-      let site = new SiteModel({
+      const site = new SiteModel({
         name: 'New Site',
         location: 'Ottawa, ON'
       })
@@ -25,7 +25,7 @@ describe('Site', () => {
     })
 
     it('should create a new site with name, location, and tags', () => {
-      let site = new SiteModel({
+      const site = new SiteModel({
         name: 'New Site',
         location: 'Ottawa, ON',
         tags: ['hydro', 'power']
@@ -41,7 +41,7 @@ describe('Site', () => {
     })
 
     it('should create a new site with name, location, tags, and priority', () => {
-      let site = new SiteModel({
+      const site = new SiteModel({
         name: 'New Site',
         location: 'Ottawa, ON',
         tags: ['hydro', 'power'],
@@ -59,7 +59,7 @@ describe('Site', () => {
     })
 
     it('should create a new site and format name properly', () => {
-      let site = new SiteModel({
+      const site = new SiteModel({
         name: 'new site',
         location: 'Ottawa, ON'
       })
@@ -75,7 +75,7 @@ describe('Site', () => {
 
   describe('toJSON', () => {
     it('should return only public properties of site', () => {
-      let site = new SiteModel({
+      const site = new SiteModel({
         name: 'New Site',
         location: 'Ottawa, ON',
         tags: ['hydro', 'power'],

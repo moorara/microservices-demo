@@ -1,10 +1,7 @@
-const url = require('url')
-
 const normalizeReq = (req) => {
   let endpoint = req.originalUrl || req.url
-  endpoint = url.parse(endpoint).pathname
-  for (let p in req.params) {
-    if (req.params.hasOwnProperty(p)) {
+  for (const p in req.params) {
+    if (Object.prototype.hasOwnProperty.call(req.params, p)) {
       endpoint = endpoint.replace(req.params[p], `:${p}`)
     }
   }
