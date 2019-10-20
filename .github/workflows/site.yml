@@ -1,8 +1,8 @@
 name: Site
-on: push
-#  push:
-#    paths:
-#      - 'services/site/**'
+on:
+  push:
+    paths:
+      - 'services/site/**'
 jobs:
   lint:
     name: Lint

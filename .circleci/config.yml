@@ -20,70 +20,6 @@ generic-job: &generic-job
 version: 2
 jobs:
 
-  site-service-unit-tests:
-    <<: *node-job
-    steps:
-      - checkout
-      - run:
-          name: Install Packages
-          working_directory: services/site-service
-          command: yarn install
-      - run:
-          name: Linting
-          working_directory: services/site-service
-          command: yarn run lint
-      - run:
-          name: Unit Testing
-          working_directory: services/site-service
-          command: yarn run test
-      - store_artifacts:
-          path: services/site-service/coverage/
-
-  site-service-build-images:
-    <<: *generic-job
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 18.06.0-ce
-      - run:
-          name: Build Docker Image
-          working_directory: services/site-service
-          command: make docker
-      - run:
-          name: Build Docker Test Image
-          working_directory: services/site-service
-          command: make docker-test
-      - run:
-          name: Save Docker Images
-          working_directory: services/site-service
-          command: make save-images
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - docker.tar
-            - docker-test.tar
-
-  site-service-component-tests:
-    <<: *generic-job
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - setup_remote_docker:
-          version: 18.06.0-ce
-      - run:
-          name: Load Docker Images
-          command: |
-            docker image load -i /tmp/workspace/docker.tar
-            docker image load -i /tmp/workspace/docker-test.tar
-      - run:
-          name: Component Testing
-          working_directory: services/site-service
-          command: make test-component-docker
-      - store_artifacts:
-          path: services/site-service/component-tests.log
-          destination: component-tests.log
-
   sensor-service-unit-tests:
     <<: *go-job
     steps:
@@ -453,13 +389,6 @@ jobs:
 
 workflows:
   version: 2
-  site-service:
-    jobs:
-      - site-service-unit-tests
-      - site-service-build-images
-      - site-service-component-tests:
-          requires:
-            - site-service-build-images
   sensor-service:
     jobs:
       - sensor-service-unit-tests
