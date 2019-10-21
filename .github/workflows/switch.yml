@@ -1,8 +1,8 @@
-name: Sensor
+name: Switch
 on:
   push:
     paths:
-      - 'services/sensor/**'
+      - 'services/switch/**'
 jobs:
   lint:
     name: Lint
@@ -12,7 +12,7 @@ jobs:
       - name: Linting
         uses: moorara/actions/go-lint@master
         with:
-          path: ./services/sensor
+          path: ./services/switch
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -21,20 +21,31 @@ jobs:
       - name: Running Unit Tests
         uses: moorara/actions/go-cover@master
         with:
-          path: ./services/sensor
+          path: ./services/switch
   build-docker:
     name: Build Docker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - name: Building Docker Image
-        working-directory: ./services/sensor
+        working-directory: ./services/switch
         run: make docker save-docker
       - name: Upload Docker Image
         uses: actions/upload-artifact@v1
         with:
           name: docker-image
-          path: ./services/sensor/docker.tar
+          path: ./services/switch/docker.tar
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Building Test Docker Image
+        working-directory: ./services/switch
+        run: make docker-test
+      - name: Running Integration Tests
+        working-directory: ./services/switch
+        run: make test-integration-docker
   component-tests:
     name: Component Tests
     needs: build-docker
@@ -46,13 +57,13 @@ jobs:
         with:
           name: docker-image
       - name: Load Docker Image
-        working-directory: ./services/sensor
+        working-directory: ./services/switch
         run: |
           mv ../../docker-image/docker.tar .
           make load-docker
       - name: Building Test Docker Image
-        working-directory: ./services/sensor
+        working-directory: ./services/switch
         run: make docker-test
       - name: Running Component Tests
-        working-directory: ./services/sensor
+        working-directory: ./services/switch
         run: make test-component-docker
