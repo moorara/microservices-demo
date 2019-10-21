@@ -34,7 +34,7 @@ func (m *Metrics) NewCounter(prefixName bool, name, help string, labels []string
 		Help: help,
 	}
 
-	if prefixName == true {
+	if prefixName {
 		opts.Namespace = m.service
 	}
 
@@ -50,7 +50,7 @@ func (m *Metrics) NewGauge(prefixName bool, name, help string, labels []string) 
 		Help: help,
 	}
 
-	if prefixName == true {
+	if prefixName {
 		opts.Namespace = m.service
 	}
 
@@ -67,7 +67,7 @@ func (m *Metrics) NewHistogram(prefixName bool, name, help string, buckets []flo
 		Buckets: buckets,
 	}
 
-	if prefixName == true {
+	if prefixName {
 		opts.Namespace = m.service
 	}
 
@@ -84,7 +84,7 @@ func (m *Metrics) NewSummary(prefixName bool, name, help string, quantiles map[f
 		Objectives: quantiles,
 	}
 
-	if prefixName == true {
+	if prefixName {
 		opts.Namespace = m.service
 	}
 

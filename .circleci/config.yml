@@ -26,14 +26,14 @@ jobs:
       - checkout
       - run:
           name: Unit Testing
-          working_directory: services/sensor-service
+          working_directory: services/sensor
           command: make test
       - run:
           name: Unit Testing + Coverage
-          working_directory: services/sensor-service
+          working_directory: services/sensor
           command: make coverage
       - store_artifacts:
-          path: services/sensor-service/coverage/
+          path: services/sensor/coverage/
 
   sensor-service-build-images:
     <<: *generic-job
@@ -43,38 +43,35 @@ jobs:
           version: 18.06.0-ce
       - run:
           name: Build Docker Image
-          working_directory: services/sensor-service
+          working_directory: services/sensor
           command: make docker
       - run:
-          name: Build Docker Test Image
-          working_directory: services/sensor-service
-          command: make docker-test
-      - run:
           name: Save Docker Images
-          working_directory: services/sensor-service
-          command: make save-images
+          working_directory: services/sensor
+          command: make save-docker
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: services/sensor
           paths:
             - docker.tar
-            - docker-test.tar
 
   sensor-service-component-tests:
     <<: *generic-job
     steps:
       - checkout
+      - setup_remote_docker
       - attach_workspace:
-          at: /tmp/workspace
-      - setup_remote_docker:
-          version: 18.06.0-ce
+          at: services/sensor
       - run:
           name: Load Docker Images
-          command: |
-            docker image load -i /tmp/workspace/docker.tar
-            docker image load -i /tmp/workspace/docker-test.tar
+          working_directory: services/sensor
+          command: make load-docker
+      - run:
+          name: Build Docker Test Image
+          working_directory: services/sensor
+          command: make docker-test
       - run:
           name: Component Testing
-          working_directory: services/sensor-service
+          working_directory: services/sensor
           command: |
             # This is a very hacky trick since we cannot mount a volume
             docker-compose up -d postgres
@@ -83,7 +80,7 @@ jobs:
             docker exec postgres psql -d sensors -c "CREATE TABLE sensors (id varchar(256) PRIMARY KEY, site_id varchar(256) NOT NULL, name varchar(256) NOT NULL, unit varchar(256) NOT NULL, min_safe double precision NOT NULL, max_safe double precision NOT NULL)"
             make test-component-docker
       - store_artifacts:
-          path: services/sensor-service/component-tests.log
+          path: services/sensor/component-tests.log
           destination: component-tests.log
 
   switch-service-unit-tests:

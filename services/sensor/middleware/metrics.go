@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/services/sensor-service/util"
+	"github.com/moorara/microservices-demo/services/sensor/util"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -58,7 +58,7 @@ func (m *metricsMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 		rw := util.NewResponseWriter(w)
 		next(rw, r)
 
-		duration := time.Now().Sub(start).Seconds()
+		duration := time.Since(start).Seconds()
 		statusCode := strconv.Itoa(rw.StatusCode())
 		statusClass := rw.StatusClass()
 

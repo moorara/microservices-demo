@@ -9,7 +9,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/services/sensor-service/util"
+	"github.com/moorara/microservices-demo/services/sensor/util"
 )
 
 type loggerMiddleware struct {
@@ -38,7 +38,7 @@ func (m *loggerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 		rw := util.NewResponseWriter(w)
 		next(rw, r)
 
-		duration := time.Now().Sub(start).Seconds()
+		duration := time.Since(start).Seconds()
 		durationMS := int(duration * 1000)
 		statusCode := rw.StatusCode()
 		statusClass := rw.StatusClass()
@@ -55,11 +55,11 @@ func (m *loggerMiddleware) Wrap(next http.HandlerFunc) http.HandlerFunc {
 
 		switch {
 		case statusCode >= 500:
-			level.Error(m.logger).Log(result...)
+			_ = level.Error(m.logger).Log(result...)
 		case statusCode >= 400:
-			level.Warn(m.logger).Log(result...)
+			_ = level.Warn(m.logger).Log(result...)
 		case statusCode >= 100:
-			level.Info(m.logger).Log(result...)
+			_ = level.Info(m.logger).Log(result...)
 		}
 	}
 }
