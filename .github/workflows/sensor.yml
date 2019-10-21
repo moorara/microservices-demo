@@ -1,0 +1,58 @@
+name: Sensor
+on: push
+#  push:
+#    paths:
+#      - 'services/sensor/**'
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Linting
+        uses: moorara/actions/go-lint@master
+        with:
+          path: ./services/sensor
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Running Unit Tests
+        uses: moorara/actions/go-cover@master
+        with:
+          path: ./services/sensor
+  build-docker:
+    name: Build Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Building Docker Image
+        working-directory: ./services/sensor
+        run: make docker save-docker
+      - name: Upload Docker Image
+        uses: actions/upload-artifact@v1
+        with:
+          name: docker-image
+          path: ./services/sensor/docker.tar
+  component-tests:
+    name: Component Tests
+    needs: build-docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Download Docker Image
+        uses: actions/download-artifact@v1
+        with:
+          name: docker-image
+      - name: Load Docker Image
+        working-directory: ./services/sensor
+        run: |
+          mv ../../docker-image/docker.tar .
+          make load-docker
+      - name: Building Test Docker Image
+        working-directory: ./services/sensor
+        run: make docker-test
+      - name: Running Component Tests
+        working-directory: ./services/sensor
+        run: make test-component-docker
