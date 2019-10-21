@@ -1,0 +1,12 @@
+# Compiled files
+main
+asset
+
+# Test files
+*.log
+*.out
+*.test
+coverage/
+
+# Exceptions
+!Dockerfile.test
