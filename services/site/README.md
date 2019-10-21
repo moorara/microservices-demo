@@ -59,12 +59,13 @@ curl \
 | `yarn run test:component`    | Run the component tests                 |
 | `make docker`                | Build Docker image                      |
 | `make docker-test`           | Build Docker image for testing          |
+| `make push`                  | Push built images to registry           |
+| `make save-docker`           | Save built images to disk               |
+| `make load-docker`           | Load built images from disk             |
 | `make up`                    | Run the service locally in containers   |
 | `make down`                  | Stop and removes local containers       |
 | `make test-docker`           | Run the unit tests in containers        |
 | `make test-component-docker` | Run the component tests in containers   |
-| `make push`                  | Push built images to registry           |
-| `make save-images`           | Save built images to disk               |
 
 ## Documentation
 
