@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/services/sensor-service/service"
+	"github.com/moorara/microservices-demo/services/sensor/service"
 	"github.com/opentracing/opentracing-go"
 )
 

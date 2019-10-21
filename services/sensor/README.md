@@ -47,16 +47,17 @@ curl \
 |------------------------------|-----------------------------------------|
 | `make run`                   | Run the service locally                 |
 | `make build`                 | Build the service binary locally        |
-| `make docker`                | Build Docker image                      |
-| `make docker-test`           | Build Docker image for testing          |
-| `make up`                    | Run the service locally in containers   |
-| `make down`                  | Stop and removes local containers       |
 | `make test`                  | Run the unit tests                      |
 | `make coverage`              | Run the unit tests with coverage report |
+| `make docker`                | Build Docker image                      |
+| `make docker-test`           | Build Docker image for testing          |
+| `make push`                  | Push built images to registry           |
+| `make save-docker`           | Save built images to disk               |
+| `make load-docker`           | Load saved images from disk             |
+| `make up`                    | Run the service locally in containers   |
+| `make down`                  | Stop and removes local containers       |
 | `make test-component`        | Run the component tests                 |
 | `make test-component-docker` | Run the component tests in containers   |
-| `make push`                  | Push built images to registry           |
-| `make save-images`           | Save built images to disk               |
 
 ## Documentation
 

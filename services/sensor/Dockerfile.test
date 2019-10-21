@@ -1,0 +1,5 @@
+# TEST IMAGE
+FROM golang:1.13
+WORKDIR /repo
+COPY . .
+RUN go get ./...

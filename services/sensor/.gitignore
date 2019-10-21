@@ -6,7 +6,7 @@ sensor-service
 *.log
 *.out
 *.test
-reports/
+coverage/
 
 # Exceptions
 !Dockerfile.test

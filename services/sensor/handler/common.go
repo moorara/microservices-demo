@@ -23,7 +23,7 @@ func GetNotFoundHandler(logger log.Logger) http.HandlerFunc {
 		body := map[string]interface{}{"message": "Not found"}
 		err := json.NewEncoder(w).Encode(body)
 		if err != nil && logger != nil {
-			level.Error(logger).Log("message", "Error sending not found (404)")
+			_ = level.Error(logger).Log("message", "Error sending not found (404)")
 		}
 	}
 }

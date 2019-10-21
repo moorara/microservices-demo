@@ -68,7 +68,7 @@ func (m *postgresSensorManager) exec(ctx context.Context, name, query string, fn
 
 	err := fn()
 	if err != nil {
-		level.Error(m.logger).Log("message", err.Error())
+		_ = level.Error(m.logger).Log("message", err.Error())
 	}
 
 	span.LogFields(opentracingLog.String("event", name))

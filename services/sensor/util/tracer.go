@@ -6,13 +6,13 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/moorara/microservices-demo/services/sensor-service/config"
+	"github.com/moorara/microservices-demo/services/sensor/config"
 	"github.com/prometheus/client_golang/prometheus"
 
 	opentracing "github.com/opentracing/opentracing-go"
 	// jaeger "github.com/uber/jaeger-client-go"
 	jaegerConfig "github.com/uber/jaeger-client-go/config"
-	// jaegerMetrics "github.com/uber/jaeger-lib/metrics"
+	jaegerMetrics "github.com/uber/jaeger-lib/metrics"
 	jaegerPrometheus "github.com/uber/jaeger-lib/metrics/prometheus"
 )
 
@@ -21,11 +21,11 @@ type jaegerLogger struct {
 }
 
 func (l *jaegerLogger) Error(msg string) {
-	level.Error(l.logger).Log("message", msg)
+	_ = level.Error(l.logger).Log("message", msg)
 }
 
 func (l *jaegerLogger) Infof(msg string, args ...interface{}) {
-	l.logger.Log("message", fmt.Sprintf(msg, args...))
+	_ = l.logger.Log("message", fmt.Sprintf(msg, args...))
 }
 
 // NewTracer creates a new tracer
@@ -48,7 +48,7 @@ func NewTracer(config config.Config, logger log.Logger, registerer prometheus.Re
 
 	// metricsFactory := jaegerMetrics.NullFactory
 	registererOption := jaegerPrometheus.WithRegisterer(registerer)
-	metricsFactory := jaegerPrometheus.New(registererOption).Namespace(config.ServiceName, map[string]string{})
+	metricsFactory := jaegerPrometheus.New(registererOption).Namespace(jaegerMetrics.NSOptions{Name: config.ServiceName})
 	metricsOption := jaegerConfig.Metrics(metricsFactory)
 
 	jaegerTracer, closer, err := jgConfig.NewTracer(loggerOption, metricsOption)

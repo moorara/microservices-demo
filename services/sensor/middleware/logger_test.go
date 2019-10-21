@@ -46,7 +46,8 @@ func TestWrapWithLogger(t *testing.T) {
 
 			var log map[string]interface{}
 			res := w.Result()
-			dec.Decode(&log)
+			err = dec.Decode(&log)
+			assert.NoError(t, err)
 
 			assert.Equal(t, tc.statusCode, res.StatusCode)
 			assert.Equal(t, tc.method, log["req.method"])

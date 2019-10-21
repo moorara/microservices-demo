@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/moorara/microservices-demo/services/sensor-service/util"
+	"github.com/moorara/microservices-demo/services/sensor/util"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 )

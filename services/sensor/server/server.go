@@ -8,11 +8,11 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
-	"github.com/moorara/microservices-demo/services/sensor-service/config"
-	"github.com/moorara/microservices-demo/services/sensor-service/handler"
-	"github.com/moorara/microservices-demo/services/sensor-service/middleware"
-	"github.com/moorara/microservices-demo/services/sensor-service/service"
-	"github.com/moorara/microservices-demo/services/sensor-service/util"
+	"github.com/moorara/microservices-demo/services/sensor/config"
+	"github.com/moorara/microservices-demo/services/sensor/handler"
+	"github.com/moorara/microservices-demo/services/sensor/middleware"
+	"github.com/moorara/microservices-demo/services/sensor/service"
+	"github.com/moorara/microservices-demo/services/sensor/util"
 )
 
 type (
@@ -72,8 +72,8 @@ func New(config config.Config) *HTTPServer {
 
 // Start starts the server
 func (s *HTTPServer) Start() error {
-	s.logger.Log("message", "Listening on port "+s.config.ServicePort+" ...")
-	level.Debug(s.logger).Log(
+	_ = s.logger.Log("message", "Listening on port "+s.config.ServicePort+" ...")
+	_ = level.Debug(s.logger).Log(
 		"message", "configuration values",
 		"config.postgresHost", s.config.PostgresHost,
 		"config.postgresPort", s.config.PostgresPort,

@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/moorara/microservices-demo/services/sensor-service/util"
+	"github.com/moorara/microservices-demo/services/sensor/util"
 	"github.com/stretchr/testify/assert"
 )
 
