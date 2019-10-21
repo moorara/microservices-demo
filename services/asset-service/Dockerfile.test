@@ -1,5 +1,0 @@
-# TEST IMAGE
-FROM golang:1.11
-WORKDIR /workspace
-COPY . .
-RUN go mod tidy
