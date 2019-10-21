@@ -24,7 +24,6 @@ exports[`HomePage renders react component 1`] = `
         <p>
           <Link
             className="button is-primary is-medium is-outlined"
-            replace={false}
             to="/sites"
           >
             Sites
@@ -34,7 +33,6 @@ exports[`HomePage renders react component 1`] = `
           </span>
           <Link
             className="button is-info is-medium is-outlined"
-            replace={false}
             to="/about-us"
           >
             About

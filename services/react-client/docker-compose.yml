@@ -1,8 +1,0 @@
-version: "3.4"
-services:
-  react-client:
-    image: moorara/react-client:${VERSION:-latest}
-    hostname: react-client
-    container_name: react-client
-    ports:
-      - "4000:4000"

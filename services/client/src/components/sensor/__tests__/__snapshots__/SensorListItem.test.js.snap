@@ -4,7 +4,6 @@ exports[`SensorListItem renders react component with props 1`] = `
 <tr>
   <td>
     <Link
-      replace={false}
       to="/sensors/aaaa-aaaa"
     >
       temperature
@@ -26,7 +25,6 @@ exports[`SensorListItem renders react component with props 2`] = `
 <tr>
   <td>
     <Link
-      replace={false}
       to="/sensors/aaaa-aaaa"
     >
       temperature

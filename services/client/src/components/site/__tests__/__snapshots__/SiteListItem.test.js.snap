@@ -4,7 +4,6 @@ exports[`SiteListItem renders react component with props 1`] = `
 <tr>
   <td>
     <Link
-      replace={false}
       to="/sites/1111-1111"
     >
       Station 1
@@ -26,7 +25,6 @@ exports[`SiteListItem renders react component with props 2`] = `
 <tr>
   <td>
     <Link
-      replace={false}
       to="/sites/2222-2222"
     >
       Station 2
