@@ -20,84 +20,6 @@ generic-job: &generic-job
 version: 2
 jobs:
 
-  asset-service-unit-tests:
-    <<: *go-job
-    steps:
-      - checkout
-      - run:
-          name: Unit Testing
-          working_directory: services/asset-service
-          command: make test
-      - run:
-          name: Unit Testing + Coverage
-          working_directory: services/asset-service
-          command: make coverage
-      - store_artifacts:
-          path: services/asset-service/coverage/
-
-  asset-service-build-images:
-    <<: *generic-job
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 18.06.0-ce
-      - run:
-          name: Build Docker Image
-          working_directory: services/asset-service
-          command: make docker
-      - run:
-          name: Build Docker Test Image
-          working_directory: services/asset-service
-          command: make docker-test
-      - run:
-          name: Save Docker Images
-          working_directory: services/asset-service
-          command: make save-images
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - docker.tar
-            - docker-test.tar
-
-  asset-service-integration-tests:
-    <<: *generic-job
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - setup_remote_docker:
-          version: 18.06.0-ce
-      - run:
-          name: Load Docker Images
-          command: |
-            docker image load -i /tmp/workspace/docker.tar
-            docker image load -i /tmp/workspace/docker-test.tar
-      - run:
-          name: Integration Testing
-          working_directory: services/asset-service
-          command: make test-integration-docker
-
-  asset-service-component-tests:
-    <<: *generic-job
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - setup_remote_docker:
-          version: 18.06.0-ce
-      - run:
-          name: Load Docker Images
-          command: |
-            docker image load -i /tmp/workspace/docker.tar
-            docker image load -i /tmp/workspace/docker-test.tar
-      - run:
-          name: Component Testing
-          working_directory: services/asset-service
-          command: make test-component-docker
-      - store_artifacts:
-          path: services/asset-service/component-tests.log
-          destination: component-tests.log
-
   graphql-server-unit-tests:
     <<: *node-job
     steps:
@@ -245,16 +167,6 @@ jobs:
 
 workflows:
   version: 2
-  asset-service:
-    jobs:
-      - asset-service-unit-tests
-      - asset-service-build-images
-      - asset-service-integration-tests:
-          requires:
-            - asset-service-build-images
-      - asset-service-component-tests:
-          requires:
-            - asset-service-build-images
   graphql-server:
     jobs:
       - graphql-server-unit-tests
