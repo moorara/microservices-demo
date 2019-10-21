@@ -1,4 +1,4 @@
-name := $(name)
+name := site-service
 version ?= latest
 docker_image ?= moorara/$(name)
 docker_test_image ?= $(name)-test
