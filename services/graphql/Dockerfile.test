@@ -1,0 +1,7 @@
+FROM node:12.12-alpine
+ENV NODE_ENV test
+WORKDIR /usr/src/app
+COPY [ "package.json", "." ]
+RUN apk add --no-cache ca-certificates
+RUN npm install
+COPY . .

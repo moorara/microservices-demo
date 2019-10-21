@@ -1,0 +1,69 @@
+version: "3.7"
+services:
+  nats:
+    image: nats
+    hostname: nats
+    container_name: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: [ "-m", "8222", "--user", "client", "--pass", "pass" ]
+
+  mock-rest:
+    image: graphql-service-test
+    hostname: mock-rest
+    container_name: mock-rest
+    ports:
+      - "4400:4400"
+    command: [ "node", "test/mock/rest/index.js" ]
+  mock-grpc:
+    image: graphql-service-test
+    hostname: mock-grpc
+    container_name: mock-grpc
+    ports:
+      - "4500:4500"
+    command: [ "node", "test/mock/grpc/index.js" ]
+  mock-nats:
+    image: graphql-service-test
+    hostname: mock-nats
+    container_name: mock-nats
+    depends_on:
+      - nats
+    ports:
+      - "4600:4600"
+    environment:
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
+    command: [ "node", "test/mock/nats/index.js" ]
+
+  graphql-service:
+    image: moorara/graphql-service:${VERSION:-latest}
+    hostname: graphql-service
+    container_name: graphql-service
+    depends_on:
+      - nats
+      - mock-rest
+      - mock-grpc
+      - mock-nats
+    ports:
+      - "5000:5000"
+    environment:
+      - LOG_LEVEL=debug
+      - GRAPHIQL_ENABLED=true
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
+      - SITE_SERVICE_ADDR=mock-rest:4400
+      - SENSOR_SERVICE_ADDR=mock-rest:4400
+      - SWITCH_SERVICE_ADDR=mock-grpc:4500
+
+  component-test:
+    image: graphql-service-test
+    hostname: component-test
+    container_name: component-test
+    depends_on:
+      - graphql-service
+    environment:
+      - SERVICE_URL=http://graphql-service:5000
+    command: [ "npm", "run", "test:component" ]
