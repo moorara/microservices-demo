@@ -1,0 +1,8 @@
+version: "3.7"
+services:
+  client-service:
+    image: moorara/client-service:${VERSION:-latest}
+    hostname: client-service
+    container_name: client-service
+    ports:
+      - "4000:4000"

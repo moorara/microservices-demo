@@ -20,59 +20,6 @@ generic-job: &generic-job
 version: 2
 jobs:
 
-  react-client-unit-tests:
-    <<: *node-job
-    steps:
-      - checkout
-      - run:
-          name: Install Packages
-          working_directory: services/react-client
-          command: yarn install
-      - run:
-          name: Linting
-          working_directory: services/react-client
-          command: yarn run lint
-      - run:
-          name: Unit Testing
-          working_directory: services/react-client
-          command: yarn run test:coverage
-      - store_artifacts:
-          path: services/react-client/coverage
-
-  react-client-build-app:
-    <<: *node-job
-    steps:
-      - checkout
-      - run:
-          name: Install Packages
-          working_directory: services/react-client
-          command: yarn install
-      - run:
-          name: Build App
-          working_directory: services/react-client
-          command: yarn run build
-      - store_artifacts:
-          path: services/react-client/public
-
-  react-client-build-images:
-    <<: *generic-job
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 18.06.0-ce
-      - run:
-          name: Build Docker Image
-          working_directory: services/react-client
-          command: make docker
-      - run:
-          name: Save Docker Images
-          working_directory: services/react-client
-          command: make save-images
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - docker.tar
-
   site-chart-tests:
     <<: *generic-job
     steps:
@@ -103,11 +50,6 @@ jobs:
 
 workflows:
   version: 2
-  react-client:
-    jobs:
-      - react-client-unit-tests
-      - react-client-build-app
-      - react-client-build-images
   site-chart:
     jobs:
       - site-chart-tests

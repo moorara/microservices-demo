@@ -1,0 +1,64 @@
+name: Client
+on:
+  push:
+    paths:
+      - 'services/client/**'
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Installing Packages
+        working-directory: ./services/client
+        run: yarn install
+      - name: Linting
+        working-directory: ./services/client
+        run: yarn run lint
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Installing Packages
+        working-directory: ./services/client
+        run: yarn install
+      - name: Running Unit Tests
+        working-directory: ./services/client
+        env:
+          CI: true
+        run: yarn run test:coverage
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v1
+        with:
+          name: test-report
+          path: ./services/client/coverage
+  build-app:
+    name: Build App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Installing Packages
+        working-directory: ./services/client
+        run: yarn install
+      - name: Building Client App
+        working-directory: ./services/client
+        run: yarn run build
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: test-report
+          path: ./services/client/public
+  build-docker:
+    name: Build Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Building Docker Image
+        working-directory: ./services/client
+        run: make docker save-docker
+      - name: Upload Docker Image
+        uses: actions/upload-artifact@v1
+        with:
+          name: docker-image
+          path: ./services/client/docker.tar
