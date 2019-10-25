@@ -1,0 +1,53 @@
+#
+# Ref:
+#   https://docs.traefik.io/getting-started/concepts
+#   https://docs.traefik.io/providers/overview
+#   https://docs.traefik.io/routing/overview
+#   https://docs.traefik.io/https/overview
+#   https://docs.traefik.io/middlewares/overview
+#
+
+
+# https://docs.traefik.io/providers/docker
+[providers.docker]
+  endpoint = "unix:///var/run/docker.sock"
+  exposedbydefault = false
+
+# https://docs.traefik.io/routing/entrypoints
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+  [entryPoints.web-secure]
+    address = ":443"
+
+# https://docs.traefik.io/https/tls
+# Since no store is defined, the certificates will be stored in the `default` store
+[[tls.certificates]]
+  certFile = "/etc/ssl/certs/traefik.cert"
+  keyFile = "/etc/ssl/certs/traefik.key"
+[[tls.certificates]]
+  certFile = "/etc/ssl/certs/localhost.cert"
+  keyFile = "/etc/ssl/certs/localhost.key"
+
+# https://docs.traefik.io/operations/api
+# https://docs.traefik.io/operations/dashboard
+[api]
+  dashboard = true
+  insecure = true
+
+# https://docs.traefik.io/observability/logs
+[log]
+  format = "json"
+  level = "INFO"
+
+# https://docs.traefik.io/observability/access-logs
+[accessLog]
+  format = "json"
+
+# https://docs.traefik.io/observability/metrics/prometheus
+[metrics]
+  [metrics.prometheus]
+    buckets = [ 0.01, 0.1, 0.5 , 1.0, 5.0 ]
+    entryPoint = "metrics"
+
+# https://docs.traefik.io/observability/tracing/jaeger

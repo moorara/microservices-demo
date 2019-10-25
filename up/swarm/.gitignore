@@ -1,7 +1,0 @@
-# Vagrant files
-.vagrant/
-vagrant/hosts
-vagrant/swarm-*-token
-
-# Misc files
-*config

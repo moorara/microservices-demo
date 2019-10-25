@@ -1,0 +1,54 @@
+#
+# Ref:
+#   https://prometheus.io/docs/prometheus/latest/configuration/configuration
+#   https://prometheus.io/docs/prometheus/latest/configuration/configuration/#alertmanager_config
+#   https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
+#   https://prometheus.io/docs/prometheus/latest/configuration/configuration/#static_config
+#
+
+global:
+  scrape_interval: 10s
+  scrape_timeout: 5s
+  evaluation_interval: 10s
+  external_labels:
+    monitor: 'docker'
+
+rule_files:
+  - alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets: [ 'alertmanager:9093' ]
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: [ 'localhost:9090' ]
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: [ 'node-exporter:9100' ]
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: [ 'cadvisor:8080' ]
+  - job_name: 'caddy'
+    static_configs:
+      - targets: [ 'caddy:9900' ]
+  - job_name: 'traefik'
+    static_configs:
+      - targets: [ 'traefik:8080' ]
+  - job_name: 'site-service'
+    static_configs:
+      - targets: [ 'site-service:4010' ]
+  - job_name: 'sensor-service'
+    static_configs:
+      - targets: [ 'sensor-service:4020' ]
+  - job_name: 'switch-service'
+    static_configs:
+      - targets: [ 'switch-service:4031' ]
+  - job_name: 'asset-service'
+    static_configs:
+      - targets: [ 'asset-service:4040' ]
+  - job_name: 'graphql-service'
+    static_configs:
+      - targets: [ 'graphql-service:5000' ]

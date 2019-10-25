@@ -1,0 +1,15 @@
+#
+# Ref:
+#   https://www.elastic.co/guide/en/kibana/current/settings.html
+#
+
+elasticsearch:
+  hosts: [ "http://elasticsearch:9200" ]
+  # username:
+  # password:
+
+server:
+  name: kibana-local
+  host: 0.0.0.0
+  port: 5601
+  # basePath:

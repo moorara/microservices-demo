@@ -1,0 +1,554 @@
+#
+# Ref:
+#   https://docs.docker.com/compose/compose-file
+#
+
+version: "3.7"
+
+networks:
+  local:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24
+
+volumes:
+  redis_data: {}
+  mongo_data: {}
+  arango_data: {}
+  postgres_data: {}
+  cockroach_data: {}
+  prometheus_data: {}
+  grafana_data: {}
+  elasticsearch_data: {}
+
+x-labels: &labels
+  orchestrator: "docker-compose"
+  git.repo: "github.com/moorara/microservices-demo"
+x-logdriver: &logdriver
+  logging:
+    driver: fluentd
+    options:
+      fluentd-address: 172.20.0.250:24224
+      tag: docker.{{.Name}}.{{.ImageName}}
+      labels: orchestrator,git.repo
+      env: SERVICE_NAME,SERVICE_TAGS
+
+services:
+
+  #### DATA BACKENDS
+
+  # https://hub.docker.com/_/redis
+  redis:
+    image: redis:5.0.6
+    hostname: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - local
+    volumes:
+      - "redis_data:/data"
+
+  # https://hub.docker.com/_/mongo
+  mongo:
+    image: mongo:4.2.0
+    hostname: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - local
+    volumes:
+      - "mongo_data:/data/db"
+
+  # https://hub.docker.com/_/arangodb
+  arango:
+    image: arangodb/arangodb:3.5.1
+    hostname: arango
+    container_name: arango
+    restart: always
+    ports:
+      - "8529:8529"
+    environment:
+      - ARANGO_ROOT_PASSWORD=pass
+    networks:
+      - local
+    volumes:
+      - "arango_data:/var/lib/arangodb3"
+
+  # https://hub.docker.com/_/postgres
+  postgres:
+    image: postgres:12.0
+    hostname: postgres
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=pass
+    networks:
+      - local
+    volumes:
+      - "postgres_data:/var/lib/postgresql/data"
+      - "./data/postgres/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql"
+
+  # https://hub.docker.com/r/cockroachdb/cockroach
+  cockroach:
+    image: cockroachdb/cockroach:v19.1.5
+    hostname: cockroach
+    container_name: cockroach
+    restart: always
+    ports:
+      - "26257:26257"
+      - "28080:8080"
+    networks:
+      - local
+    volumes:
+      - "cockroach_data:/cockroach/cockroach-data"
+    command: [ "start", "--insecure" ]
+  cockroach-init:
+    image: cockroachdb/cockroach:v19.1.5
+    hostname: cockroach-init
+    container_name: cockroach-init
+    depends_on:
+      - cockroach
+    environment:
+      - COCKROACH_HOST=cockroach
+    networks:
+      - local
+    volumes:
+      - "./data/cockroach/init-cockroach.sql:/init/init-cockroach.sql"
+    command: [ "shell", "-c", "/cockroach/cockroach.sh sql --insecure < /init/init-cockroach.sql" ]
+
+  #### MESSAGING
+
+  # https://hub.docker.com/_/nats
+  nats:
+    image: nats:2.1.0
+    hostname: nats
+    container_name: nats
+    restart: always
+    ports:
+      - "4222:4222"  # Clients
+      - "6222:6222"  # Routing port for clustering
+      - "8222:8222"  # HTTP management port for information reporting
+    networks:
+      - local
+    command: [ "-m", "8222", "--user", "client", "--pass", "pass" ]
+  nats-exporter:
+    build: ./nats-exporter
+    hostname: nats-exporter
+    container_name: nats-exporter
+    restart: always
+    ports:
+      - "7777:7777"
+    networks:
+      - local
+    command: [ "-connz", "-routez", "-subz", "-varz", "-port=7777", "http://nats:8222" ]
+
+  #### LOGGING
+
+  # https://hub.docker.com/_/elasticsearch
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+  elasticsearch:
+    image: elasticsearch:7.4.0
+    hostname: elasticsearch
+    container_name: elasticsearch
+    restart: always
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    networks:
+      - local
+    volumes:
+      - "elasticsearch_data:/usr/share/elasticsearch/data"
+      - "./logging/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+
+  # https://hub.docker.com/_/kibana
+  # https://www.elastic.co/guide/en/kibana/current/docker.html
+  kibana:
+    image: kibana:7.4.0
+    hostname: kibana
+    container_name: kibana
+    restart: always
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    networks:
+      - local
+    volumes:
+      - "./logging/kibana.yml:/usr/share/kibana/config/kibana.yml"
+
+  # https://hub.docker.com/r/fluent/fluentd
+  fluentd:
+    build: ./fluentd
+    hostname: fluentd
+    container_name: fluentd
+    restart: always
+    depends_on:
+      - elasticsearch
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    environment:
+      - FLUENTD_CONF=fluentd.conf
+    networks:
+      local:
+        ipv4_address: 172.20.0.250
+    volumes:
+      - "./fluentd/fluent.conf:/fluentd/etc/fluentd.conf"
+
+  #### METRICS
+
+  # https://hub.docker.com/r/prom/prometheus
+  prometheus:
+    image: prom/prometheus:v2.13.1
+    hostname: prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+      - "9091:9091"
+    networks:
+      - local
+    volumes:
+      - "prometheus_data:/prometheus"
+      - "./metrics/prometheus.yml:/prometheus.yml"
+      - "./metrics/alerts.yml:/alerts.yml"
+    command: [ "--config.file=/prometheus.yml" ]
+
+  # https://hub.docker.com/r/prom/alertmanager
+  alertmanager:
+    image: prom/alertmanager:v0.15.3
+    hostname: alertmanager
+    container_name: alertmanager
+    restart: always
+    ports:
+      - "9093:9093"
+    networks:
+      - local
+    volumes:
+      - "./metrics/alertmanager.yml:/alertmanager.yml"
+    command: [ "--config.file=/alertmanager.yml" ]
+
+  # https://hub.docker.com/r/grafana/grafana
+  grafana:
+    image: grafana/grafana:5.4.0
+    hostname: grafana
+    container_name: grafana
+    restart: always
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      # http://docs.grafana.org/installation/configuration
+      - GF_SECURITY_ADMIN_PASSWORD=pass
+    networks:
+      - local
+    volumes:
+      - "grafana_data:/var/lib/grafana"
+      - "./metrics/grafana.ini:/grafana.ini"
+
+  #### METRICS EXPORTERS
+
+  # https://hub.docker.com/r/prom/node-exporter
+  node-exporter:
+    image: prom/node-exporter:v0.18.1
+    hostname: node-exporter
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - local
+
+  # https://hub.docker.com/r/google/cadvisor
+  cadvisor:
+    image: google/cadvisor:v0.33.0
+    hostname: cadvisor
+    container_name: cadvisor
+    ports:
+      - "9800:8080"
+    networks:
+      - local
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+
+  #### TRACING
+
+  # https://hub.docker.com/r/jaegertracing/all-in-one
+  # https://www.jaegertracing.io/docs/1.13/getting-started
+  jaeger:
+    image: jaegertracing/all-in-one:1.14.0
+    hostname: jaeger
+    container_name: jaeger
+    restart: always
+    ports:
+      - "5775:5775/udp"    # agent:      accept zipkin.thrift over compact thrift protocol
+      - "6831:6831/udp"    # agent:      accept jaeger.thrift over compact thrift protocol
+      - "6832:6832/udp"    # agent:      accept jaeger.thrift over binary thrift protocol
+      - "5778:5778"        # agent:      serve configs
+      - "16686:16686"      # query:      serve frontend
+      - "14268:14268"      # collector:  accept jaeger.thrift directly from clients
+      - "9411:9411"        # collector:  Zipkin compatible endpoint
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    networks:
+      - local
+
+  #### GATEWAYS
+
+  # https://hub.docker.com/_/traefik
+  traefik:
+    image: traefik:2.0.2
+    hostname: traefik
+    container_name: traefik
+    restart: always
+    depends_on:
+      - fluentd
+    ports:
+      - "1080:80"
+      - "1443:443"
+      - "1900:8080"
+    networks:
+      - local
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./certs:/etc/ssl/certs:ro"
+      - "./gateway/traefik.toml:/etc/traefik/traefik.toml"
+    labels:
+      <<: *labels
+    <<: *logdriver
+
+  # https://github.com/caddyserver/caddy
+  caddy:
+    build: ./caddy
+    hostname: caddy
+    container_name: caddy
+    restart: always
+    depends_on:
+      - fluentd
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9900:9900"
+    networks:
+      - local
+    volumes:
+      - "./certs:/etc/ssl/certs:ro"
+      - "./gateway/Caddyfile:/www/Caddyfile"
+    command: [ "-conf", "/www/Caddyfile" ]
+    labels:
+      <<: *labels
+    <<: *logdriver
+
+  #### APPLICATION SERVICES
+
+  client-service:
+    image: moorara/client-service:latest
+    hostname: client-service
+    container_name: client-service
+    restart: always
+    depends_on:
+      - fluentd
+    ports:
+      - "4000:4000"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=client-service
+      - SERVICE_TAGS=monitor
+    networks:
+      - local
+    labels:
+      <<: *labels
+    <<: *logdriver
+
+  site-service:
+    image: moorara/site-service:latest
+    hostname: site-service
+    container_name: site-service
+    restart: always
+    depends_on:
+      - mongo
+      - fluentd
+      - jaeger
+    ports:
+      - "4010:4010"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=site-service
+      - SERVICE_TAGS=monitor
+      - MONGO_URI=mongodb://mongo:27017
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6832
+    networks:
+      - local
+    labels:
+      <<: *labels
+      # https://docs.traefik.io/routing/providers/docker/#specific-provider-options
+      traefik.enable: "true"
+      traefik.docker.network: "docker_local"
+      # https://docs.traefik.io/middlewares/overview
+      # https://docs.traefik.io/routing/providers/docker/#middleware
+      traefik.http.middlewares.api-stripprefix.stripprefix.prefixes: "/api/v1/sites"
+      traefik.http.middlewares.api-addprefix.addprefix.prefix: "/v1/sites"
+      # https://docs.traefik.io/routing/services
+      # https://docs.traefik.io/routing/providers/docker/#services
+      traefik.http.services.site.loadbalancer.server.port: "4010"
+      traefik.http.services.site.loadbalancer.healthcheck.port: "4010"
+      traefik.http.services.site.loadbalancer.healthcheck.path: "/health"
+      # https://docs.traefik.io/routing/routers
+      # https://docs.traefik.io/routing/providers/docker/#routers
+      traefik.http.routers.site-web.rule: "Host(`localhost`,`traefik`)"
+      traefik.http.routers.site-web.entrypoints: "web"
+      traefik.http.routers.site-web.middlewares: "api-stripprefix,api-addprefix"
+      traefik.http.routers.site-web.service: "site"
+      traefik.http.routers.site-web-secure.rule: "Host(`localhost`,`traefik`)"
+      traefik.http.routers.site-web-secure.entrypoints: "web-secure"
+      traefik.http.routers.site-web-secure.middlewares: "api-stripprefix,api-addprefix"
+      traefik.http.routers.site-web-secure.service: "site"
+      traefik.http.routers.site-web-secure.tls: "true"
+    <<: *logdriver
+
+  sensor-service:
+    image: moorara/sensor-service:latest
+    hostname: sensor-service
+    container_name: sensor-service
+    restart: always
+    depends_on:
+      - postgres
+      - fluentd
+      - jaeger
+    ports:
+      - "4020:4020"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=sensor-service
+      - SERVICE_TAGS=monitor
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USERNAME=root
+      - POSTGRES_PASSWORD=pass
+      - JAEGER_AGENT_ADDR=jaeger:6831
+    networks:
+      - local
+    labels:
+      <<: *labels
+      # https://docs.traefik.io/routing/providers/docker/#specific-provider-options
+      traefik.enable: "true"
+      traefik.docker.network: "docker_local"
+      # https://docs.traefik.io/middlewares/overview
+      # https://docs.traefik.io/routing/providers/docker/#middleware
+      traefik.http.middlewares.api-replacepathregex.replacepathregex.regex: "^/api/(.*)"
+      traefik.http.middlewares.api-replacepathregex.replacepathregex.replacement: "/$$1"
+      # https://docs.traefik.io/routing/services
+      # https://docs.traefik.io/routing/providers/docker/#services
+      traefik.http.services.sensor.loadbalancer.server.port: "4020"
+      traefik.http.services.sensor.loadbalancer.healthcheck.port: "4020"
+      traefik.http.services.sensor.loadbalancer.healthcheck.path: "/health"
+      # https://docs.traefik.io/routing/routers
+      # https://docs.traefik.io/routing/providers/docker/#routers
+      traefik.http.routers.sensor-web.rule: "Host(`localhost`,`traefik`) && PathPrefix(`/api/v1/sensor`)"
+      traefik.http.routers.sensor-web.entrypoints: "web"
+      traefik.http.routers.sensor-web.middlewares: "api-replacepathregex"
+      traefik.http.routers.sensor-web.service: "sensor"
+      traefik.http.routers.sensor-web-secure.rule: "Host(`localhost`,`traefik`) && PathPrefix(`/api/v1/sensor`)"
+      traefik.http.routers.sensor-web-secure.entrypoints: "web-secure"
+      traefik.http.routers.sensor-web-secure.middlewares: "api-replacepathregex"
+      traefik.http.routers.sensor-web-secure.service: "sensor"
+      traefik.http.routers.sensor-web-secure.tls: "true"
+    <<: *logdriver
+
+  switch-service:
+    image: moorara/switch-service:latest
+    hostname: switch-service
+    container_name: switch-service
+    restart: always
+    depends_on:
+      - arango
+      - fluentd
+      - jaeger
+    ports:
+      - "4030:4030"
+      - "4031:4031"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=switch-service
+      - SERVICE_TAGS=monitor
+      - ARANGO_ENDPOINTS=tcp://arango:8529
+      - ARANGO_PASSWORD=pass
+      - JAEGER_AGENT_ADDR=jaeger:6831
+    networks:
+      - local
+    labels:
+      <<: *labels
+    <<: *logdriver
+
+  asset-service:
+    image: moorara/asset-service:latest
+    hostname: asset-service
+    container_name: asset-service
+    restart: always
+    depends_on:
+      - nats
+      - cockroach
+      - cockroach-init
+      - fluentd
+      - jaeger
+    ports:
+      - "4040:4040"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=asset-service
+      - SERVICE_TAGS=monitor
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
+      - COCKROACH_ADDR=cockroach:26257
+      - COCKROACH_USER=cockroach
+      - JAEGER_AGENT_ADDR=jaeger:6831
+    networks:
+      - local
+    labels:
+      <<: *labels
+    <<: *logdriver
+
+  graphql-service:
+    image: moorara/graphql-service:latest
+    hostname: graphql-service
+    container_name: graphql-service
+    restart: always
+    depends_on:
+      - fluentd
+      - jaeger
+    ports:
+      - "5000:5000"
+    environment:
+      - LOG_LEVEL=debug
+      - SERVICE_NAME=graphql-service
+      - SERVICE_TAGS=monitor
+      - GRAPHIQL_ENABLED=true
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_AGENT_PORT=6832
+      - NATS_SERVERS=nats://nats:4222
+      - NATS_USER=client
+      - NATS_PASSWORD=pass
+      - SITE_SERVICE_ADDR=site-service:4010
+      - SENSOR_SERVICE_ADDR=sensor-service:4020
+      - SWITCH_SERVICE_ADDR=switch-service:4030
+    networks:
+      - local
+    labels:
+      <<: *labels
+    <<: *logdriver

@@ -1,0 +1,19 @@
+http://localhost, https://localhost {
+  tls /etc/ssl/certs/localhost.cert /etc/ssl/certs/localhost.key
+
+  redir 301 {
+    if {scheme} not https
+    / https://localhost
+  }
+
+  gzip
+  status 200 /health
+  prometheus 0.0.0.0:9900
+
+  proxy /api https://traefik
+  proxy /graphql graphql-service:5000
+  proxy /playground graphql-service:5000
+  proxy / client-service:4000
+
+  log / stdout "\{\"timestamp\":\"{when_iso}\", \"host\":\"{host}\", \"req.method\":\"{method}\", \"req.endpoint\":\"{uri}\", \"res.statusCode\":\"{status}\", \"res.size\":\"{size}\", \"responseTime\":\"{latency_ms}\", \"message\":\"{proto} {scheme} {method} {uri}\"\}"
+}
