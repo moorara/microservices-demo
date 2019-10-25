@@ -1,0 +1,19 @@
+#
+# Ref:
+#   https://prometheus.io/docs/alerting/alertmanager
+#   https://prometheus.io/docs/alerting/configuration
+#
+
+global:
+  slack_api_url: "https://hooks.slack.com/services/..."
+
+route:
+  receiver: "slack"
+
+receivers:
+  - name: "slack"
+    slack_configs:
+      - channel: "#alerts"
+        username: "Prometheus"
+        text: "Summary: {{ .CommonAnnotations.summary }}\nDescription: {{ .CommonAnnotations.description }}"
+        send_resolved: true
