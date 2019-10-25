@@ -1,3 +1,7 @@
 {
-  "enabled": false
+  "enabled": true,
+  "extends": [
+    "config:base"
+  ],
+  "timezone": "America/Toronto"
 }
