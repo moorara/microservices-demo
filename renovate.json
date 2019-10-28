@@ -1,7 +1,17 @@
 {
   "enabled": true,
+  "timezone": "America/Toronto",
   "extends": [
     "config:base"
   ],
-  "timezone": "America/Toronto"
+  "postUpdateOptions": [
+    "gomodTidy"
+  ],
+  "packageRules": [
+    {
+      "packagePatterns": [ "^golang.org/x/" ],
+      "groupName": "sub-repository packages",
+      "schedule": [ "every weekend" ]
+    }
+  ]
 }
