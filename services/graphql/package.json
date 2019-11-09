@@ -37,7 +37,7 @@
     "winston": "3.2.1"
   },
   "devDependencies": {
-    "chalk": "2.4.2",
+    "chalk": "3.0.0",
     "json-server": "0.15.1",
     "mocha": "6.2.2",
     "nock": "11.7.0",
