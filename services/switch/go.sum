@@ -4,8 +4,8 @@ github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuy
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
-github.com/arangodb/go-driver v0.0.0-20191122152927-430fe7a2319e h1:Lb5BVsmQ18lTGbqVdP5zyzdN/FyEvTxzXAvLgmZnHQg=
-github.com/arangodb/go-driver v0.0.0-20191122152927-430fe7a2319e/go.mod h1:ZwZj2dwgNFsKDv4rF6bd4ShsuBEZ4HqLgyuJg2xduvc=
+github.com/arangodb/go-driver v0.0.0-20191122160533-4a25e877f094 h1:F1k8Cc1aBatUqZzMrMiQ1wq92jIWyyps+CZmP1O/aro=
+github.com/arangodb/go-driver v0.0.0-20191122160533-4a25e877f094/go.mod h1:KUmEAkW5lQ0pIZMpvcCtFxwwU1mfY4hEqjm0rkF1C4w=
 github.com/arangodb/go-velocypack v0.0.0-20190129082528-7896a965b4ad h1:Ah+VRYUWLuqgbfnDyuC8IrIe8XFzpt9tBVVnPGFNTJ8=
 github.com/arangodb/go-velocypack v0.0.0-20190129082528-7896a965b4ad/go.mod h1:7QCjpWXdB49P6fql1CxmsBWd8z/T4L4pqFLTnc10xNM=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
