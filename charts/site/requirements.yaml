@@ -1,5 +1,5 @@
 dependencies:
   - name: mongodb
-    version: 4.8.0
+    version: 4.10.1
     repository: "@stable"
     condition: mongodb.enabled
