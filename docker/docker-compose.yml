@@ -174,7 +174,7 @@ services:
   # https://hub.docker.com/_/kibana
   # https://www.elastic.co/guide/en/kibana/current/docker.html
   kibana:
-    image: kibana:7.4.2
+    image: kibana:7.5.0
     hostname: kibana
     container_name: kibana
     restart: always
