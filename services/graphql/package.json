@@ -23,7 +23,7 @@
     "express-graphql": "0.9.0",
     "express-winston": "4.0.1",
     "google-protobuf": "3.11.1",
-    "graphiql": "0.17.1",
+    "graphiql": "0.17.2",
     "graphql": "14.5.8",
     "graphql-playground-middleware-express": "1.7.12",
     "graphql-tools": "4.0.6",
