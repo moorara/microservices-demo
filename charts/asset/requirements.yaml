@@ -4,6 +4,6 @@ dependencies:
     repository: "@stable"
     condition: nats.enabled
   - name: cockroachdb
-    version: 2.1.17
+    version: 3.0.1
     repository: "@stable"
     condition: cockroachdb.enabled
