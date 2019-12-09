@@ -668,10 +668,10 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-codemirror-graphql@^0.11.5:
-  version "0.11.5"
-  resolved "https://registry.yarnpkg.com/codemirror-graphql/-/codemirror-graphql-0.11.5.tgz#3018335797fa90d3a75691defb2aec4220f4d92b"
-  integrity sha512-dXVyY8jLDxGE7HGw9ue1XvUeSfYCe8iRdQCyUSrSJ8nA+EVCoJryq+rKJFmp1wTogY+iAN+viL3AZPkIIrd5mw==
+codemirror-graphql@^0.11.6:
+  version "0.11.6"
+  resolved "https://registry.yarnpkg.com/codemirror-graphql/-/codemirror-graphql-0.11.6.tgz#885e34afb5b7aacf0e328d4d5949e73ad21d5a4e"
+  integrity sha512-/zVKgOVS2/hfjAY0yoBkLz9ESHnWKBWpBNXQSoFF4Hl5q5AS2DmM22coonWKJcCvNry6TLak2F+QkzPeKVv3Eg==
   dependencies:
     graphql-language-service-interface "^2.3.3"
     graphql-language-service-parser "^1.5.2"
@@ -1813,13 +1813,13 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.3
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.2.tgz#6f0952605d0140c1cfdb138ed005775b92d67b02"
   integrity sha512-IItsdsea19BoLC7ELy13q1iJFNmd7ofZH5+X/pJr90/nRoPEX0DJo1dHDbgtYWOhJhcCgMDTOw84RZ72q6lB+Q==
 
-graphiql@0.17.4:
-  version "0.17.4"
-  resolved "https://registry.yarnpkg.com/graphiql/-/graphiql-0.17.4.tgz#9ff88e48fe6ba43f1c1d72b08d456c5ff56d5995"
-  integrity sha512-Ic6tyCARbUKprcb0IJmfBVo1xC7WSZQFXIb9w/VgZTKbo4Ox6zPbqJ6mW4Anu37G/jbxH0y3Udb+6WtTO0YVkQ==
+graphiql@0.17.5:
+  version "0.17.5"
+  resolved "https://registry.yarnpkg.com/graphiql/-/graphiql-0.17.5.tgz#76c553fc0d8936f77e33114ac3374f1807a718ff"
+  integrity sha512-ogNsrg9qM1py9PzcIUn+C29JukOADbjIfB6zwtfui4BrpOEpDb5UZ6TjAmSL/F/8tCt4TbgwKtkSrBeLNNUrqA==
   dependencies:
     codemirror "^5.47.0"
-    codemirror-graphql "^0.11.5"
+    codemirror-graphql "^0.11.6"
     copy-to-clipboard "^3.2.0"
     entities "^2.0.0"
     markdown-it "^10.0.0"
