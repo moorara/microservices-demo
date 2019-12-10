@@ -312,7 +312,7 @@ services:
 
   # https://hub.docker.com/_/traefik
   traefik:
-    image: traefik:v2.0.6
+    image: traefik:v2.0.7
     hostname: traefik
     container_name: traefik
     restart: always
