@@ -1,12 +1,12 @@
 # BUILD STAGE
-FROM node:12.13-alpine as builder
+FROM node:12.14-alpine as builder
 RUN apk add --no-cache ca-certificates
 WORKDIR /usr/src/app
 COPY . .
 RUN yarn install && yarn run build
 
 # FINAL STAGE
-FROM node:12.13-alpine
+FROM node:12.14-alpine
 EXPOSE 4000
 HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD wget -q -O - http://localhost:4000/health || exit 1
 WORKDIR /usr/src/app
