@@ -6,7 +6,7 @@ COPY . .
 RUN CGO_ENABLED=0 ./scripts/build.sh --main main.go --binary asset
 
 # FINAL STAGE
-FROM alpine:3.10
+FROM alpine:3.11
 EXPOSE 4040
 HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD wget -q -O - http://localhost:4040/liveness || exit 1
 RUN apk add --no-cache ca-certificates
