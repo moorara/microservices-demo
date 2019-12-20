@@ -8,7 +8,7 @@ RUN go get ./... && \
 
 
 # FINAL STAGE
-FROM alpine:3.10
+FROM alpine:3.11
 COPY --from=builder /go/bin/caddy /bin/caddy
 RUN apk add --no-cache ca-certificates
 WORKDIR /www
