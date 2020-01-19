@@ -13,7 +13,7 @@ require (
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v1.3.0
 	github.com/stretchr/testify v1.4.0
-	github.com/uber/jaeger-client-go v2.22.0+incompatible
+	github.com/uber/jaeger-client-go v2.22.1+incompatible
 	github.com/uber/jaeger-lib v2.2.0+incompatible
 	go.uber.org/atomic v1.4.0 // indirect
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
