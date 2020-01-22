@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@grpc/proto-loader": "0.5.3",
-    "axios": "0.19.1",
+    "axios": "0.19.2",
     "express": "4.17.1",
     "express-graphql": "0.9.0",
     "express-winston": "4.0.2",
