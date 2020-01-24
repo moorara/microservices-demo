@@ -156,7 +156,7 @@ services:
   # https://hub.docker.com/_/elasticsearch
   # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
   elasticsearch:
-    image: elasticsearch:7.5.1
+    image: elasticsearch:7.5.2
     hostname: elasticsearch
     container_name: elasticsearch
     restart: always
