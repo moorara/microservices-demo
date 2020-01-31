@@ -129,7 +129,7 @@ services:
 
   # https://hub.docker.com/_/nats
   nats:
-    image: nats:2.1.2
+    image: nats:2.1.4
     hostname: nats
     container_name: nats
     restart: always
