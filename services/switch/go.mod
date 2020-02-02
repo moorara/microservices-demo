@@ -6,7 +6,7 @@ require (
 	github.com/arangodb/go-driver v0.0.0-20200107125107-2a2392e62f69
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/go-kit/kit v0.9.0
-	github.com/golang/protobuf v1.3.2
+	github.com/golang/protobuf v1.3.3
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.3
 	github.com/moorara/konfig v0.3.3
