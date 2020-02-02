@@ -8,7 +8,7 @@
     "bulma": "0.8.0",
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.2",
-    "enzyme-to-json": "3.4.3",
+    "enzyme-to-json": "3.4.4",
     "eslint": "6.8.0",
     "eslint-watch": "6.0.1",
     "font-awesome": "4.7.0",
