@@ -9,9 +9,36 @@
   ],
   "packageRules": [
     {
-      "packagePatterns": [ "^golang.org/x/" ],
-      "groupName": "sub-repository packages",
-      "schedule": [ "every weekend" ]
+      "paths": [ "docker/*" ],
+      "groupName": "docker images"
+    },
+    {
+      "paths": [ "charts/*" ],
+      "groupName": "helm charts"
+    },
+    {
+      "paths": [ "services/asset/*" ],
+      "groupName": "asset service"
+    },
+    {
+      "paths": [ "services/client/*" ],
+      "groupName": "client service"
+    },
+    {
+      "paths": [ "services/graphql/*" ],
+      "groupName": "graphql service"
+    },
+    {
+      "paths": [ "services/sensor/*" ],
+      "groupName": "sensor service"
+    },
+    {
+      "paths": [ "services/site/*" ],
+      "groupName": "site service"
+    },
+    {
+      "paths": [ "services/switch/*" ],
+      "groupName": "switch service"
     }
   ]
 }
