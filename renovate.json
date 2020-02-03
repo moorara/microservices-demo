@@ -1,6 +1,7 @@
 {
   "enabled": true,
   "timezone": "America/Toronto",
+  "schedule": "every weekend",
   "extends": [
     "config:base"
   ],
