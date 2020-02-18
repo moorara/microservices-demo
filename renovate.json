@@ -14,7 +14,7 @@
       "groupName": "docker images"
     },
     {
-      "paths": [ "charts/*" ],
+      "paths": [ "charts/**/*" ],
       "groupName": "helm charts"
     },
     {
