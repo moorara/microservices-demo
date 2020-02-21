@@ -82,7 +82,7 @@ services:
 
   # https://hub.docker.com/_/postgres
   postgres:
-    image: postgres:12.1
+    image: postgres:12.2
     hostname: postgres
     container_name: postgres
     restart: always
@@ -99,7 +99,7 @@ services:
 
   # https://hub.docker.com/r/cockroachdb/cockroach
   cockroach:
-    image: cockroachdb/cockroach:v19.2.3
+    image: cockroachdb/cockroach:v19.2.4
     hostname: cockroach
     container_name: cockroach
     restart: always
@@ -112,7 +112,7 @@ services:
       - "cockroach_data:/cockroach/cockroach-data"
     command: [ "start", "--insecure" ]
   cockroach-init:
-    image: cockroachdb/cockroach:v19.2.3
+    image: cockroachdb/cockroach:v19.2.4
     hostname: cockroach-init
     container_name: cockroach-init
     depends_on:
@@ -156,7 +156,7 @@ services:
   # https://hub.docker.com/_/elasticsearch
   # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
   elasticsearch:
-    image: elasticsearch:7.5.2
+    image: elasticsearch:7.6.0
     hostname: elasticsearch
     container_name: elasticsearch
     restart: always
@@ -174,7 +174,7 @@ services:
   # https://hub.docker.com/_/kibana
   # https://www.elastic.co/guide/en/kibana/current/docker.html
   kibana:
-    image: kibana:7.5.2
+    image: kibana:7.6.0
     hostname: kibana
     container_name: kibana
     restart: always
@@ -210,7 +210,7 @@ services:
 
   # https://hub.docker.com/r/prom/prometheus
   prometheus:
-    image: prom/prometheus:v2.15.2
+    image: prom/prometheus:v2.16.0
     hostname: prometheus
     container_name: prometheus
     restart: always
