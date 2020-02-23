@@ -2006,10 +2006,10 @@ graphql-request@^1.5.0:
   dependencies:
     cross-fetch "2.2.2"
 
-graphql-tools@4.0.6:
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/graphql-tools/-/graphql-tools-4.0.6.tgz#0e729e73db05ade3df10a2f92511be544972a844"
-  integrity sha512-jHLQw8x3xmSNRBCsaZqelXXsFfUSUSktSCUP8KYHiX1Z9qEuwcMpAf+FkdBzk8aTAFqOlPdNZ3OI4DKKqGKUqg==
+graphql-tools@4.0.7:
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/graphql-tools/-/graphql-tools-4.0.7.tgz#743309b96cb657ff45b607ee0a07193cd987e43c"
+  integrity sha512-rApl8sT8t/W1uQRcwzxMYyUBiCl/XicluApiDkNze5TX/GR0BSTQMjM2UcRGdTmkbsb1Eqq6afkyyeG/zMxZYQ==
   dependencies:
     apollo-link "^1.2.3"
     apollo-utilities "^1.0.1"
@@ -2549,10 +2549,10 @@ json-schema@0.2.3:
   resolved "https://registry.yarnpkg.com/json-schema/-/json-schema-0.2.3.tgz#b480c892e59a2f05954ce727bd3f2a4e882f9e13"
   integrity sha1-tIDIkuWaLwWVTOcnvT8qTogvnhM=
 
-json-server@0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/json-server/-/json-server-0.16.0.tgz#e9c9d752ca7cd1538d7339328e3e655cc1ab0b51"
-  integrity sha512-vdqfkMAiHUCHMkTRgxNJsd0c+lnczxFCxM8bewyalEiunDD8XWXsvgsezAt4iycqWV5aVoR//irtyUX50ZpSdA==
+json-server@0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/json-server/-/json-server-0.16.1.tgz#1d3cb19087f5cb5040d94a49d99472102b2859d9"
+  integrity sha512-aVUTdpt+X27iIuWuxBChJywykPSP4opEiFrH044pG+34Gde3eHZRTzeMyx8ts5/kY2gK1Ru2YBmF2k/vI0lQug==
   dependencies:
     body-parser "^1.19.0"
     chalk "^3.0.0"
