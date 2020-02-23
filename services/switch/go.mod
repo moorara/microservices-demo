@@ -11,9 +11,9 @@ require (
 	github.com/moorara/konfig v0.4.0
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v1.4.1
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	github.com/uber/jaeger-client-go v2.22.1+incompatible
 	github.com/uber/jaeger-lib v2.2.0+incompatible
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
+	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0
 	google.golang.org/grpc v1.27.1
 )
