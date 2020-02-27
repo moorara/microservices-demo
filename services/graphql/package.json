@@ -32,18 +32,18 @@
     "lodash": "4.17.15",
     "nats": "1.4.0",
     "opentracing": "0.14.4",
-    "prom-client": "11.5.3",
-    "uuid": "3.4.0",
+    "prom-client": "12.0.0",
+    "uuid": "7.0.1",
     "winston": "3.2.1"
   },
   "devDependencies": {
     "chalk": "3.0.0",
     "json-server": "0.16.1",
     "mocha": "7.0.1",
-    "nock": "11.9.1",
+    "nock": "12.0.1",
     "nyc": "15.0.0",
     "should": "13.2.3",
-    "sinon": "8.1.1",
+    "sinon": "9.0.0",
     "standard": "14.3.1",
     "supertest": "4.0.2",
     "tmp": "0.1.0"
