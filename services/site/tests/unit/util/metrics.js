@@ -10,6 +10,11 @@ describe('Metrics', () => {
   describe('constructor', () => {
     let metrics
 
+    afterEach(() => {
+      // Clear default metrics register, so subsequent tests will not fail.
+      promClient.register.clear()
+    })
+
     it('should create new metrics with global registry', () => {
       metrics = new Metrics()
       should.exist(metrics.register)
