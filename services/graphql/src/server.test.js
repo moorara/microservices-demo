@@ -9,6 +9,11 @@ const Server = require('./server')
 
 describe('Server', () => {
   describe('constructor', () => {
+    afterEach(() => {
+      // Clear default metrics register, so subsequent tests will not fail.
+      promClient.register.clear()
+    })
+
     it('should create a new server with defaults', () => {
       const server = new Server()
       should.exist(server.configProvider)
