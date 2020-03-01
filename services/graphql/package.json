@@ -30,7 +30,7 @@
     "grpc": "1.24.2",
     "jaeger-client": "3.17.2",
     "lodash": "4.17.15",
-    "nats": "1.4.0",
+    "nats": "1.4.2",
     "opentracing": "0.14.4",
     "prom-client": "12.0.0",
     "uuid": "7.0.1",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "chalk": "3.0.0",
     "json-server": "0.16.1",
-    "mocha": "7.0.1",
+    "mocha": "7.1.0",
     "nock": "12.0.1",
     "nyc": "15.0.0",
     "should": "13.2.3",
