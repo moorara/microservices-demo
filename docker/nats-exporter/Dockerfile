@@ -1,7 +1,7 @@
 ARG version=v0.6.0
 
 # BUILD STAGE
-FROM golang:1.13.7-alpine AS builder
+FROM golang:1.14.0-alpine AS builder
 RUN apk add --no-cache git && \
     go get -d github.com/nats-io/prometheus-nats-exporter && \
     cd /go/src/github.com/nats-io/prometheus-nats-exporter && \
