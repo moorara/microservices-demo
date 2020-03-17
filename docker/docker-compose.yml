@@ -41,7 +41,7 @@ services:
 
   # https://hub.docker.com/_/redis
   redis:
-    image: redis:5.0.7
+    image: redis:5.0.8
     hostname: redis
     container_name: redis
     restart: always
@@ -291,7 +291,7 @@ services:
   # https://hub.docker.com/r/jaegertracing/all-in-one
   # https://www.jaegertracing.io/docs/1.13/getting-started
   jaeger:
-    image: jaegertracing/all-in-one:1.17.0
+    image: jaegertracing/all-in-one:1.17.1
     hostname: jaeger
     container_name: jaeger
     restart: always
