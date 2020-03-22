@@ -3,7 +3,7 @@ module github.com/moorara/microservices-demo/services/switch
 go 1.13
 
 require (
-	github.com/arangodb/go-driver v0.0.0-20200312132526-559d6abd4d10
+	github.com/arangodb/go-driver v0.0.0-20200320132036-3eed5765b949
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.3.5
 	github.com/google/uuid v1.1.1
@@ -14,6 +14,6 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/uber/jaeger-client-go v2.22.1+incompatible
 	github.com/uber/jaeger-lib v2.2.0+incompatible
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+	golang.org/x/net v0.0.0-20200320220750-118fecf932d8
 	google.golang.org/grpc v1.28.0
 )
