@@ -20,7 +20,7 @@
     "express-winston": "4.0.3",
     "jaeger-client": "3.17.2",
     "lodash": "4.17.15",
-    "mongoose": "5.9.5",
+    "mongoose": "5.9.6",
     "on-finished": "2.3.0",
     "opentracing": "0.14.4",
     "prom-client": "12.0.0",
