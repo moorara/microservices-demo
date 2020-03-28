@@ -1,6 +1,6 @@
 module github.com/moorara/microservices-demo/services/switch
 
-go 1.13
+go 1.14
 
 require (
 	github.com/arangodb/go-driver v0.0.0-20200320132036-3eed5765b949
