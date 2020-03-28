@@ -1,4 +1,4 @@
-FROM fluent/fluentd:v1.9
+FROM fluent/fluentd:v1.10
 
 USER root
 RUN apk add --no-cache --update --virtual .build-deps \
