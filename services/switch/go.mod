@@ -3,7 +3,7 @@ module github.com/moorara/microservices-demo/services/switch
 go 1.14
 
 require (
-	github.com/arangodb/go-driver v0.0.0-20200320132036-3eed5765b949
+	github.com/arangodb/go-driver v0.0.0-20200403100147-ca5dd87ffe93
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.3.5
 	github.com/google/uuid v1.1.1
