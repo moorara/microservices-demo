@@ -20,7 +20,7 @@
     "express-winston": "4.0.3",
     "jaeger-client": "3.17.2",
     "lodash": "4.17.15",
-    "mongoose": "5.9.6",
+    "mongoose": "5.9.7",
     "on-finished": "2.3.0",
     "opentracing": "0.14.4",
     "prom-client": "12.0.0",
@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "mocha": "7.1.1",
-    "nyc": "15.0.0",
+    "nyc": "15.0.1",
     "should": "13.2.3",
     "should-http": "0.1.1",
     "sinon": "9.0.1",
