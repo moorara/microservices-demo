@@ -129,7 +129,7 @@ services:
 
   # https://hub.docker.com/_/nats
   nats:
-    image: nats:2.1.4
+    image: nats:2.1.6
     hostname: nats
     container_name: nats
     restart: always
@@ -156,7 +156,7 @@ services:
   # https://hub.docker.com/_/elasticsearch
   # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
   elasticsearch:
-    image: elasticsearch:7.6.1
+    image: elasticsearch:7.6.2
     hostname: elasticsearch
     container_name: elasticsearch
     restart: always
@@ -174,7 +174,7 @@ services:
   # https://hub.docker.com/_/kibana
   # https://www.elastic.co/guide/en/kibana/current/docker.html
   kibana:
-    image: kibana:7.6.1
+    image: kibana:7.6.2
     hostname: kibana
     container_name: kibana
     restart: always
