@@ -17,7 +17,7 @@
     "mock:nats": "node test/mock/nats/index.js"
   },
   "dependencies": {
-    "@grpc/proto-loader": "0.5.3",
+    "@grpc/proto-loader": "0.5.4",
     "axios": "0.19.2",
     "express": "4.17.1",
     "express-graphql": "0.9.0",
@@ -33,7 +33,7 @@
     "nats": "1.4.8",
     "opentracing": "0.14.4",
     "prom-client": "12.0.0",
-    "uuid": "7.0.2",
+    "uuid": "7.0.3",
     "winston": "3.2.1"
   },
   "devDependencies": {
@@ -41,9 +41,9 @@
     "json-server": "0.16.1",
     "mocha": "7.1.1",
     "nock": "12.0.3",
-    "nyc": "15.0.0",
+    "nyc": "15.0.1",
     "should": "13.2.3",
-    "sinon": "9.0.1",
+    "sinon": "9.0.2",
     "standard": "14.3.3",
     "supertest": "4.0.2",
     "tmp": "0.1.0"
