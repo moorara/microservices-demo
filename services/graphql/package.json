@@ -28,7 +28,7 @@
     "graphql-playground-middleware-express": "1.7.14",
     "graphql-tools": "5.0.0",
     "grpc": "1.24.2",
-    "jaeger-client": "3.17.2",
+    "jaeger-client": "3.18.0",
     "lodash": "4.17.15",
     "nats": "1.4.8",
     "opentracing": "0.14.4",
@@ -39,13 +39,13 @@
   "devDependencies": {
     "chalk": "4.0.0",
     "json-server": "0.16.1",
-    "mocha": "7.1.1",
+    "mocha": "7.1.2",
     "nock": "12.0.3",
     "nyc": "15.0.1",
     "should": "13.2.3",
     "sinon": "9.0.2",
     "standard": "14.3.3",
     "supertest": "4.0.2",
-    "tmp": "0.1.0"
+    "tmp": "0.2.0"
   }
 }
