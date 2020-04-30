@@ -41,7 +41,7 @@ services:
 
   # https://hub.docker.com/_/redis
   redis:
-    image: redis:5.0.8
+    image: redis:5.0.9
     hostname: redis
     container_name: redis
     restart: always
@@ -54,7 +54,7 @@ services:
 
   # https://hub.docker.com/_/mongo
   mongo:
-    image: mongo:4.2.5
+    image: mongo:4.2.6
     hostname: mongo
     container_name: mongo
     restart: always
@@ -67,7 +67,7 @@ services:
 
   # https://hub.docker.com/_/arangodb
   arango:
-    image: arangodb/arangodb:3.6.2
+    image: arangodb/arangodb:3.6.3
     hostname: arango
     container_name: arango
     restart: always
@@ -210,7 +210,7 @@ services:
 
   # https://hub.docker.com/r/prom/prometheus
   prometheus:
-    image: prom/prometheus:v2.17.1
+    image: prom/prometheus:v2.17.2
     hostname: prometheus
     container_name: prometheus
     restart: always
@@ -312,7 +312,7 @@ services:
 
   # https://hub.docker.com/_/traefik
   traefik:
-    image: traefik:2.2.0
+    image: traefik:2.2.1
     hostname: traefik
     container_name: traefik
     restart: always
