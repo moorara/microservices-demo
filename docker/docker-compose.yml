@@ -82,7 +82,7 @@ services:
 
   # https://hub.docker.com/_/postgres
   postgres:
-    image: postgres:12.2
+    image: postgres:12.3
     hostname: postgres
     container_name: postgres
     restart: always
@@ -129,7 +129,7 @@ services:
 
   # https://hub.docker.com/_/nats
   nats:
-    image: nats:2.1.6
+    image: nats:2.1.7
     hostname: nats
     container_name: nats
     restart: always
@@ -156,7 +156,7 @@ services:
   # https://hub.docker.com/_/elasticsearch
   # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
   elasticsearch:
-    image: elasticsearch:7.6.2
+    image: elasticsearch:7.7.0
     hostname: elasticsearch
     container_name: elasticsearch
     restart: always
@@ -174,7 +174,7 @@ services:
   # https://hub.docker.com/_/kibana
   # https://www.elastic.co/guide/en/kibana/current/docker.html
   kibana:
-    image: kibana:7.6.2
+    image: kibana:7.7.0
     hostname: kibana
     container_name: kibana
     restart: always
@@ -291,7 +291,7 @@ services:
   # https://hub.docker.com/r/jaegertracing/all-in-one
   # https://www.jaegertracing.io/docs/1.13/getting-started
   jaeger:
-    image: jaegertracing/all-in-one:1.17.1
+    image: jaegertracing/all-in-one:1.18.0
     hostname: jaeger
     container_name: jaeger
     restart: always
