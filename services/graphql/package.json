@@ -26,7 +26,7 @@
     "graphiql": "0.17.5",
     "graphql": "15.0.0",
     "graphql-playground-middleware-express": "1.7.14",
-    "graphql-tools": "5.0.0",
+    "graphql-tools": "6.0.5",
     "grpc": "1.24.2",
     "jaeger-client": "3.18.0",
     "lodash": "4.17.15",
