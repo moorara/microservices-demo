@@ -9,7 +9,7 @@ RUN apk add --no-cache git && \
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -tags netgo -installsuffix netgo -ldflags "-s -w"
 
 # FINAL STAGE
-FROM alpine:3.11
+FROM alpine:3.12
 COPY --from=builder /go/src/github.com/nats-io/prometheus-nats-exporter/prometheus-nats-exporter /usr/local/bin/
 RUN chown -R nobody:nogroup /usr/local/bin/prometheus-nats-exporter && chmod 755 /usr/local/bin/prometheus-nats-exporter
 USER nobody
