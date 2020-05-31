@@ -67,7 +67,7 @@ services:
 
   # https://hub.docker.com/_/arangodb
   arango:
-    image: arangodb/arangodb:3.6.3
+    image: arangodb/arangodb:3.6.4
     hostname: arango
     container_name: arango
     restart: always
