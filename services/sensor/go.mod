@@ -10,7 +10,7 @@ require (
 	github.com/lib/pq v1.7.0
 	github.com/moorara/konfig v0.4.1
 	github.com/opentracing/opentracing-go v1.1.0
-	github.com/prometheus/client_golang v1.7.0
+	github.com/prometheus/client_golang v1.7.1
 	github.com/stretchr/testify v1.6.1
 	github.com/uber/jaeger-client-go v2.24.0+incompatible
 	github.com/uber/jaeger-lib v2.2.0+incompatible
