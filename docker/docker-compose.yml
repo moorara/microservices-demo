@@ -210,7 +210,7 @@ services:
 
   # https://hub.docker.com/r/prom/prometheus
   prometheus:
-    image: prom/prometheus:v2.19.1
+    image: prom/prometheus:v2.19.2
     hostname: prometheus
     container_name: prometheus
     restart: always
