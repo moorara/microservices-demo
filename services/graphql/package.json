@@ -29,7 +29,7 @@
     "graphql-tools": "6.0.10",
     "grpc": "1.24.3",
     "jaeger-client": "3.18.0",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "nats": "1.4.9",
     "opentracing": "0.14.4",
     "prom-client": "12.0.0",
