@@ -1,5 +1,5 @@
 # BUILD STAGE
-FROM golang:1.14.4-alpine as builder
+FROM golang:1.14.6-alpine as builder
 RUN apk add --no-cache ca-certificates git
 WORKDIR /caddy
 COPY . .
