@@ -17,24 +17,24 @@
     "mock:nats": "node test/mock/nats/index.js"
   },
   "dependencies": {
-    "@grpc/proto-loader": "0.5.4",
+    "@grpc/proto-loader": "0.5.5",
     "axios": "0.19.2",
     "express": "4.17.1",
-    "express-graphql": "0.9.0",
-    "express-winston": "4.0.3",
-    "google-protobuf": "3.12.2",
+    "express-graphql": "0.11.0",
+    "express-winston": "4.0.5",
+    "google-protobuf": "3.12.4",
     "graphiql": "0.17.5",
-    "graphql": "15.1.0",
+    "graphql": "15.3.0",
     "graphql-playground-middleware-express": "1.7.18",
-    "graphql-tools": "6.0.10",
+    "graphql-tools": "6.0.15",
     "grpc": "1.24.3",
     "jaeger-client": "3.18.0",
     "lodash": "4.17.15",
     "nats": "1.4.9",
     "opentracing": "0.14.4",
     "prom-client": "12.0.0",
-    "uuid": "8.1.0",
-    "winston": "3.2.1"
+    "uuid": "8.3.0",
+    "winston": "3.3.3"
   },
   "devDependencies": {
     "chalk": "4.1.0",
