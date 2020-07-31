@@ -6,9 +6,8 @@ import (
 	"time"
 
 	"github.com/moorara/microservices-demo/services/asset/internal/queue"
+	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
-
-	nats "github.com/nats-io/go-nats"
 )
 
 const (
