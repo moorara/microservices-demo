@@ -7,7 +7,7 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.4
-	github.com/lib/pq v1.7.1
+	github.com/lib/pq v1.8.0
 	github.com/moorara/konfig v0.4.1
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/client_golang v1.7.1
