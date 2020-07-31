@@ -42,7 +42,6 @@ services:
     hostname: graphql-service
     container_name: graphql-service
     depends_on:
-      - nats
       - mock-rest
       - mock-grpc
       - mock-nats

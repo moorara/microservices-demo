@@ -40,6 +40,8 @@ test-docker: # docker docker-test
 
 test-component-docker: # docker docker-test
 	@ VERSION=$(version) \
+	  docker-compose up -d graphql-service && \
+	  sleep 5 && \
 	  docker-compose run component-test && \
 	  docker container logs $(name) | grep '^{' | jq . > component-tests.log && \
 	  docker-compose down
