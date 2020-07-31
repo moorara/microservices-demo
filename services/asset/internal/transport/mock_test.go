@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/moorara/microservices-demo/services/asset/internal/model"
-	nats "github.com/nats-io/go-nats"
+	"github.com/nats-io/nats.go"
 )
 
 type mockNATSConnection struct {

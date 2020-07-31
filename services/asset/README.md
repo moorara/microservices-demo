@@ -54,7 +54,7 @@
       - https://www.nats.io/documentation/server/gnatsd-slow-consumers
     - https://www.nats.io/documentation/streaming/nats-streaming-intro
       - https://www.nats.io/documentation/streaming/nats-streaming-quickstart
-    - https://github.com/nats-io/go-nats/tree/master/examples
+    - https://github.com/nats-io/nats.go/tree/master/examples
       - https://www.nats.io/documentation/tutorials/nats-pub-sub
       - https://www.nats.io/documentation/tutorials/nats-req-rep
       - https://www.nats.io/documentation/tutorials/nats-queueing

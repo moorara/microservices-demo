@@ -8,7 +8,7 @@ import (
 	"github.com/moorara/microservices-demo/services/asset/internal/service"
 	"github.com/moorara/microservices-demo/services/asset/pkg/log"
 	"github.com/moorara/microservices-demo/services/asset/pkg/metrics"
-	"github.com/nats-io/go-nats"
+	"github.com/nats-io/nats.go"
 	"github.com/opentracing/opentracing-go"
 
 	opentracingLog "github.com/opentracing/opentracing-go/log"

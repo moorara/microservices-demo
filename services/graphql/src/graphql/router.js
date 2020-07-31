@@ -3,7 +3,7 @@ const path = require('path')
 const express = require('express')
 const promClient = require('prom-client')
 // const { buildSchema } = require('graphql')
-const graphqlHTTP = require('express-graphql')
+const { graphqlHTTP } = require('express-graphql')
 const { makeExecutableSchema } = require('graphql-tools')
 const { default: expressPlayground } = require('graphql-playground-middleware-express')
 

@@ -1,6 +1,6 @@
 const nats = require('nats')
 const chalk = require('chalk')
-const uuidv4 = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 
 const Config = require('./config')
 

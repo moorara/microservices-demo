@@ -9,7 +9,7 @@ import (
 	"github.com/moorara/microservices-demo/services/asset/internal/model"
 	"github.com/moorara/microservices-demo/services/asset/pkg/log"
 	"github.com/moorara/microservices-demo/services/asset/pkg/metrics"
-	"github.com/nats-io/go-nats"
+	"github.com/nats-io/nats.go"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 	"github.com/stretchr/testify/assert"

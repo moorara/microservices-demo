@@ -107,7 +107,7 @@ func TestNewTracer(t *testing.T) {
 			"service_name",
 			&jaegerConfig.SamplerConfig{},
 			&jaegerConfig.ReporterConfig{},
-			nil,
+			log.NewNopLogger(),
 			prometheus.NewRegistry(),
 		},
 	}
