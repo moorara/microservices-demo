@@ -4,8 +4,8 @@ go 1.14
 
 require (
 	github.com/go-kit/kit v0.10.0
-	github.com/google/uuid v1.0.0
-	github.com/gorilla/mux v1.7.3
+	github.com/google/uuid v1.1.1
+	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/gorm v1.9.15
 	github.com/moorara/konfig v0.4.1
 	github.com/nats-io/nats-server/v2 v2.1.7 // indirect
