@@ -1,0 +1,132 @@
+## Default values for sensor-service Helm chart.
+## This is a YAML-formatted file.
+
+## Override the name of the Chart.
+##
+# nameOverride:
+# fullnameOverride:
+
+## Optionally specify an array of imagePullSecrets.
+## Secrets must be manually created in the namespace.
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry
+##
+# imagePullSecrets:
+#   - myRegistryKeySecretName
+
+## Service image
+##
+image:
+  repository: moorara/sensor-service
+  tag: 0.1.0
+  ## Specify imagePullPolicy
+  ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+  ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+  ##
+  pullPolicy: IfNotPresent
+
+## sensor-service configurations
+##
+config:
+  port: 4020
+  logLevel: info
+  logSpans: false
+
+## Kubernetes service account
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account
+## ref: https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin
+##
+serviceAccount:
+  create: false
+  name:
+
+## Kubernetes pod
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod
+##
+pod:
+  ## Pod security context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context
+  ##
+  securityContext: {}
+    # runAsUser:
+    # fsGroup:
+  ## Specify pod annotations
+  ##
+  annotations: {}
+
+## Kubernetes deployment
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment
+##
+deployment:
+  ## Specify pod replicas
+  ##
+  replicaCount: 1
+  ## Specify a deployment strategy
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  ##
+  strategy: RollingUpdate
+  ## Specify deployment annotations
+  ##
+  annotations: {}
+
+## Kubernetes service
+## ref: https://kubernetes.io/docs/concepts/services-networking/service
+##
+service:
+  type: ClusterIP
+  port: 4020
+  # nodePort:
+  # clusterIP:
+  # loadBalancerIP:
+  # externalIPs: []
+  ## Specify service annotations
+  ##
+  annotations: {}
+
+## Kubernetes ingress
+## ref: https://kubernetes.io/docs/concepts/services-networking/ingress
+##
+ingress:
+  ## Specify ingress annotations
+  ##
+  annotations: {}
+
+## Configure resource requests and limits for container
+## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container
+##
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+
+## postgresql helm chart values
+## ref: https://github.com/helm/charts/tree/master/stable/postgresql
+##
+postgresql:
+  enabled: true
+  postgresqlDatabase: sensors
+  postgresqlUsername: sensor-service
+  ## This is for using an external PostgreSQL cluster.
+  ## secret is the name of a Kubernetes secret with postgresql-password key
+  ##
+  # external:
+  #   host:
+  #   database:
+  #   username:
+  #   secret:
+
+## jaeger sidecar
+## ref: https://www.jaegertracing.io/docs/1.7/deployment
+## ref: https://github.com/jaegertracing/jaeger-kubernetes
+## ref: https://github.com/helm/charts/tree/master/incubator/jaeger
+##
+jaeger:
+  enabled: false
+  collector:
+    address:
+  agent:
+    image: jaegertracing/jaeger-agent
+    tag: latest
+    pullPolicy: Always

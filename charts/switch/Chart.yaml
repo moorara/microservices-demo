@@ -1,0 +1,18 @@
+apiVersion: v1
+engine: gotpl
+name: switch
+version: 0.1.0
+appVersion: 0.1.0
+description: switch-service installs, gets, sets, and removes switches.
+# home:
+icon: https://raw.githubusercontent.com/moorara/microservices-demo/master/charts/switch/icon.png
+keywords:
+  - backend
+  - service
+  - grpc
+  - golang
+  - arangodb
+sources:
+  - https://github.com/moorara/microservices-demo/tree/master/services/switch-service
+maintainers:
+  - name: Milad Irannejad

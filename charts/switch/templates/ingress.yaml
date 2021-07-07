@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "sensor.fullname" . }}
+  labels:
+    app: {{ template "sensor.name" . }}
+    chart: {{ template "sensor.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+{{- with .Values.ingress.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /v1/sensors
+            backend:
+              serviceName: {{ template "sensor.fullname" . }}
+              servicePort: http
